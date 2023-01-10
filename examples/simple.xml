@@ -1,0 +1,52 @@
+<simulation>
+
+<control>
+    <duration>10</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+</control>
+<archetypes>
+        <spec>
+            <lib>agents</lib>
+            <name>NullRegion</name>
+        </spec>
+        <spec>
+            <lib>agents</lib>
+            <name>NullInst</name>
+        </spec>
+        <spec>
+            <lib>openmcyclus.DepleteReactor</lib>
+            <name>DepleteReactor</name>
+        </spec>
+    </archetypes>
+
+  
+    <facility>
+        <name>OneReactor</name>
+        <config>
+          <DepleteReactor/>
+        </config>
+    </facility>
+
+   <region>
+        <config>
+            <NullRegion>
+            </NullRegion>
+        </config>
+
+        <institution>
+          <config>
+            <NullInst/>
+          </config>
+          <initialfacilitylist>
+            <entry>
+              <number>1</number>
+              <prototype>OneReactor</prototype>
+            </entry>  
+          </initialfacilitylist>
+          <name>OneInst</name>
+        </institution>
+        <name>OneRegion</name>
+  </region>
+    
+ </simulation>
