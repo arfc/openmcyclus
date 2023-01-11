@@ -1,6 +1,6 @@
 from cyclus.agents import Facility 
-#from cyclus import lib
-#import cyclus.typesystem as ts
+from cyclus import lib
+import cyclus.typesystem as ts
 
 class DepleteReactor(Facility):
     '''
@@ -8,10 +8,6 @@ class DepleteReactor(Facility):
     in it's inventory using the IndependentOperator in 
     OpenMC.
     '''
-
-    #def __init__(self, ctx):
-    #    super().__init__(ctx)
-    #    self.entry_times = []
 
     fuel_incommods = ts.String(
         doc="Fresh fuel commodity",
@@ -32,7 +28,6 @@ class DepleteReactor(Facility):
         tooltip="Size of a single fuel assembly",
         uilabel="Assembly Size",
         uityle='assemsize',
-        default=1,
         units="kg"
     )
 
