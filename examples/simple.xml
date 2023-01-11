@@ -7,6 +7,14 @@
 </control>
 <archetypes>
         <spec>
+            <lib>cycamore</lib>
+            <name>Source</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Sink</name>
+        </spec>
+        <spec>
             <lib>agents</lib>
             <name>NullRegion</name>
         </spec>
@@ -20,11 +28,33 @@
         </spec>
     </archetypes>
 
-  
+    <facility>
+      <config>
+        <Source>
+          <outcommod>uox</outcommod>
+          <throughput>1</throughput>
+        </Source>
+      </config>
+      <name>OneSource</name>
+    </facility>
+    <facility>
+      <config>
+        <Sink>
+          <in_commods>
+            <val>spent_uox</val>
+          </in_commods>
+        </Sink>
+      </config>
+      <name>OneSink</name>
+    </facility>
+ 
     <facility>
         <name>OneReactor</name>
         <config>
-          <DepleteReactor/>
+          <DepleteReactor>
+            <fuel_incommods>uox</fuel_incommods>
+            <fuel_outcommods>spent_uox</fuel_outcommods>
+          </DepleteReactor>
         </config>
     </facility>
 
@@ -39,6 +69,14 @@
             <NullInst/>
           </config>
           <initialfacilitylist>
+            <entry>
+              <number>1</number>
+              <prototype>OneSource</prototype>
+            </entry>  
+            <entry>
+              <number>1</number>
+              <prototype>OneSink</prototype>
+            </entry>  
             <entry>
               <number>1</number>
               <prototype>OneReactor</prototype>
