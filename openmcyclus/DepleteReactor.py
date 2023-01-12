@@ -1,6 +1,6 @@
 from cyclus.agents import Facility 
 #from cyclus import lib
-#import cyclus.typesystem as ts
+import cyclus.typesystem as ts
 
 class DepleteReactor(Facility):
     '''
@@ -9,15 +9,12 @@ class DepleteReactor(Facility):
     OpenMC.
     '''
 
-    #def __init__(self, ctx):
-    #    super().__init__(ctx)
-    #    self.entry_times = []
 
     fuel_incommods = ts.String(
         doc="Fresh fuel commodity",
         tooltip="Name of commodity requested",
         uilabel="Input Commodity",
-        uitype="incommodity",
+        #uitype="incommodity",
     )
 
     fuel_outcommods = ts.String(
@@ -31,7 +28,7 @@ class DepleteReactor(Facility):
         doc = "Size of a single fuel assembly",
         tooltip="Size of a single fuel assembly",
         uilabel="Assembly Size",
-        uityle='assemsize',
+        #uitype='assemsize',
         default=1,
         units="kg"
     )
@@ -40,10 +37,13 @@ class DepleteReactor(Facility):
         doc="Amount of time between requests for new fuel",
         tooltip = "Amount of time between requests for new fuel",
         uilabel="Cycle Time",
-        uitype="cycletime",
+        #uitype="cycletime",
         units="months"
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def tick(self):
         print("Hello World!")
+

@@ -51,9 +51,11 @@
     <facility>
         <name>OneReactor</name>
         <config>
-          <DepleteReactor>
+		<DepleteReactor>
             <fuel_incommods>uox</fuel_incommods>
-            <fuel_outcommods>spent_uox</fuel_outcommods>
+	    <fuel_outcommods>spent_uox</fuel_outcommods>
+	    <cycle_time>2</cycle_time>
+	    <assem_size>100</assem_size>
           </DepleteReactor>
         </config>
     </facility>
