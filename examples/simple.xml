@@ -53,9 +53,9 @@
         <config>
 		<DepleteReactor>
             <fuel_incommods>uox</fuel_incommods>
-	    <fuel_outcommods>spent_uox</fuel_outcommods>
-	    <cycle_time>2</cycle_time>
-	    <assem_size>100</assem_size>
+            <fuel_outcommods>spent_uox</fuel_outcommods>
+            <assem_size>10</assem_size>
+            <cycle_time>2</cycle_time>
           </DepleteReactor>
         </config>
     </facility>
