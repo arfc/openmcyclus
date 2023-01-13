@@ -15,11 +15,23 @@ class DepleteReactor(Facility):
         #uitype="incommodity",
     )
 
+    fuel_inrecipes = ts.String(
+        doc = "Fresh fuel recipe",
+        tooltip = "Fresh fuel recipe",
+        uilabel = "Input commodity recipe"
+    )
+
     fuel_outcommods = ts.String(
         doc="Spent fuel commodity",
         tooltip="Name of commodity to bid away",
         uilabel="Output Commodity",
         uitype="outcommodity",
+    )
+
+    fuel_outrecipes = ts.String(
+        doc = "Spent fuel recipe",
+        tooltip = "Spent fuel recipe",
+        uilabel = "Output commodity recipe"
     )
 
     assem_size = ts.Double(
@@ -38,6 +50,12 @@ class DepleteReactor(Facility):
         units="months"
     )
 
+    refuel_time = ts.Int(
+        doc = "Time steps for refueling",
+        tooltip="Time steps for refueling",
+        uilabel="refueltime"
+    )
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
