@@ -1,4 +1,5 @@
 from cyclus.agents import Facility 
+from cyclus import lib
 import cyclus.typesystem as ts
 
 class DepleteReactor(Facility):
@@ -8,28 +9,27 @@ class DepleteReactor(Facility):
     OpenMC.
     '''
 
-    fuel_incommods = ts.String(
+    fuel_incommods = ts.VectorString(
         doc="Fresh fuel commodity",
         tooltip="Name of commodity requested",
         uilabel="Input Commodity",
         #uitype="incommodity",
-        #alias = ['fuel_incommods']
     )
 
-    fuel_inrecipes = ts.String(
+    fuel_inrecipes = ts.VectorString(
         doc = "Fresh fuel recipe",
         tooltip = "Fresh fuel recipe",
         uilabel = "Input commodity recipe"
     )
 
-    fuel_outcommods = ts.String(
+    fuel_outcommods = ts.VectorString(
         doc="Spent fuel commodity",
         tooltip="Name of commodity to bid away",
         uilabel="Output Commodity",
         uitype="outcommodity",
     )
 
-    fuel_outrecipes = ts.String(
+    fuel_outrecipes = ts.VectorString(
         doc = "Spent fuel recipe",
         tooltip = "Spent fuel recipe",
         uilabel = "Output commodity recipe"
@@ -76,8 +76,13 @@ class DepleteReactor(Facility):
         units = "MW"
     )
     
-    def __init__(self, ctx):
-        super().__init__(ctx)
+    core = ts.ResBufMaterialInv()
+    input = ts.ResBufMaterialInv()
+    output = ts.RedBufMaterialInv()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.entry_times = []
 
     def enter_notify(self):
         super().enter_notify()
@@ -85,32 +90,49 @@ class DepleteReactor(Facility):
     def check_decommission_condition(self):
         super().check_decommission_condition()
 
-    def get_material_requests(self):
-        super().get_material_requests()
+    def get_material_bids(self, requests):
+        if 'uox' not in requests:
+            return
+        reqs = requests['uox']
+        bids = [req for req in reqs]
+
+        #recipe_comp = self.context().get_recipe(self.fuel_inrecipes)
+        
+        port = {'bids':bids}
+        return port
 
     def get_material_trades(self, trades):
-        super().get_material_trades(trades)
+        responses = {}
+        for trade in trades:
+            mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
+            responses[trade] = mat
+        return responses
 
-    def get_material_bids(self, requests):
-        super().get_material_bids(requests)
+    def get_material_requests(self):
+        request_qty = self.assem_size
+        recipe = {'u235':100}#self.context.get_recipe(self.fuel_inrecipes)
+        target_a = ts.Material.create_untracked(request_qty, recipe)
+        port = {"commodities":{"uox":target_a}, "constraints":request_qty}
+        return port
 
     def accept_material_trades(self, responses):
-        super().accept_material_trades(responses)
+        for mat in responses.values():
+            self.core.push(mat)
 
-    def get_product_trades(self, trades):
-        super().get_product_trades(trades)
+    def tock(self):
+        if self.is_core_full():
+            self.produce_power(True)
+        else:
+            self.produce_power(False)
 
-    def get_product_bids(self, requests):
-        super().get_product_bids(requests)
+    def produce_power(self, produce = True):
+        if produce:
+            lib.record_time_series(lib.POWER, self, float(self.power_cap))
+        else:
+            lib.record_time_series(lib.POWER, self, 0)
 
-    def get_product_requests(self):
-        super().get_product_requests()
-
-    def accept_product_trades(self, trades):
-        super().accept_product_trades(trades)
-
-    def decision(self):
-        super().decision()
-
-    def tick():
-        print("Iteration 1")
+    def is_core_full(self):
+        if self.core.count == self.n_assem_core:
+            return True
+        else:
+            return False
