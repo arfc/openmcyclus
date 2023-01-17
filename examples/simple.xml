@@ -15,6 +15,10 @@
             <name>Sink</name>
         </spec>
         <spec>
+            <lib>cycamore</lib>
+            <name>Reactor</name>
+        </spec>
+        <spec>
             <lib>agents</lib>
             <name>NullRegion</name>
         </spec>
@@ -32,11 +36,11 @@
       <config>
         <Source>
           <outcommod>uox</outcommod>
-          <throughput>1</throughput>
         </Source>
       </config>
       <name>OneSource</name>
     </facility>
+
     <facility>
       <config>
         <Sink>
@@ -51,14 +55,38 @@
     <facility>
         <name>OneReactor</name>
         <config>
-		<DepleteReactor>
+		      <DepleteReactor>
             <fuel_incommods>uox</fuel_incommods>
             <fuel_outcommods>spent_uox</fuel_outcommods>
+            <fuel_inrecipes>uox</fuel_inrecipes>
+            <fuel_outrecipes>spent_uox</fuel_outrecipes>
             <assem_size>10</assem_size>
             <cycle_time>2</cycle_time>
+            <refuel_time>1</refuel_time>
+            <n_assem_core>3</n_assem_core>
+            <n_assem_batch>1</n_assem_batch>
+            <power_cap>100</power_cap>
           </DepleteReactor>
         </config>
     </facility>
+
+    <!--facility>
+        <name>TwoReactor</name>
+        <config>
+		      <Reactor>
+            <fuel_incommods> <val>uox</val> </fuel_incommods>
+            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
+            <fuel_inrecipes> <val>uox</val> </fuel_inrecipes>
+            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
+            <assem_size>10</assem_size>
+            <cycle_time>2</cycle_time>
+            <refuel_time>1</refuel_time>
+            <n_assem_core>3</n_assem_core>
+            <n_assem_batch>1</n_assem_batch>
+            <power_cap>100</power_cap>
+          </Reactor>
+        </config>
+    </facility-->
 
    <region>
         <config>
@@ -83,10 +111,40 @@
               <number>1</number>
               <prototype>OneReactor</prototype>
             </entry>  
+            <!--entry>
+              <number>1</number>
+              <prototype>TwoReactor</prototype>
+            </entry-->  
           </initialfacilitylist>
           <name>OneInst</name>
         </institution>
         <name>OneRegion</name>
   </region>
     
+    <recipe>
+      <name>uox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.99289</comp>
+      </nuclide>
+      </recipe>
+      <recipe>
+      <name>spent_uox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.99289</comp>
+      </nuclide>
+      </recipe>
+
+
  </simulation>
