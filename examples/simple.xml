@@ -36,6 +36,7 @@
       <config>
         <Source>
           <outcommod>uox</outcommod>
+          <outrecipe>uox</outrecipe>
         </Source>
       </config>
       <name>OneSource</name>
@@ -56,10 +57,13 @@
         <name>OneReactor</name>
         <config>
 		      <DepleteReactor>
-            <fuel_incommods>uox</fuel_incommods>
-            <fuel_outcommods>spent_uox</fuel_outcommods>
-            <fuel_inrecipes>uox</fuel_inrecipes>
-            <fuel_outrecipes>spent_uox</fuel_outrecipes>
+            <fuel_incommods> <val>uox</val> </fuel_incommods>
+            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
+            <fuel_inrecipes> 
+              <val>uox</val> 
+              <val>spent_uox</val>
+            </fuel_inrecipes>
+            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
             <assem_size>10</assem_size>
             <cycle_time>2</cycle_time>
             <refuel_time>1</refuel_time>
@@ -70,7 +74,7 @@
         </config>
     </facility>
 
-    <!--facility>
+    <facility>
         <name>TwoReactor</name>
         <config>
 		      <Reactor>
@@ -86,7 +90,7 @@
             <power_cap>100</power_cap>
           </Reactor>
         </config>
-    </facility-->
+    </facility>
 
    <region>
         <config>
@@ -132,8 +136,9 @@
         <id>92238</id>
         <comp>0.99289</comp>
       </nuclide>
-      </recipe>
-      <recipe>
+    </recipe>
+
+    <recipe>
       <name>spent_uox</name>
       <basis>mass</basis>
       <nuclide>
@@ -144,7 +149,7 @@
         <id>92238</id>
         <comp>0.99289</comp>
       </nuclide>
-      </recipe>
+    </recipe>
 
 
  </simulation>
