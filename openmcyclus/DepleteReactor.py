@@ -80,7 +80,9 @@ class DepleteReactor(Facility):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.entry_times = []
+
+    def tick(self):
+        return
 
     def enter_notify(self):
         super().enter_notify()
@@ -90,9 +92,9 @@ class DepleteReactor(Facility):
 
     def get_material_requests(self):
         request_qty = self.assem_size
-        recipe_a = self.context.get_recipe('uox')
-        target_a = ts.Material.create_untracked(request_qty, recipe_a)
-        commods = {'uox':target_a}
+        recipe = self.context.get_recipe('uox')
+        target = ts.Material.create_untracked(request_qty, recipe)
+        commods = {'uox':target}
         port = {"commodities":commods, "constraints":request_qty}
         return port
 
@@ -108,4 +110,16 @@ class DepleteReactor(Facility):
             mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
             responses[trade] = mat
         return responses
+
+    def accept_material_trades(self, responses):
+        for key, mat in responses.items():
+            if key.request.commodity in self.fuel_incommods:
+                self.core.push(mat)
+
+
+    def produce_power(self, produce=True):
+        if produce:
+            lib.record_time_series(lib.POWER, self, float(self.power_cap))
+        else:
+            lib.record_time_series(lib.POWER, self, 0)
         
