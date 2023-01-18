@@ -77,8 +77,6 @@ class DepleteReactor(Facility):
     )
     
     core = ts.ResBufMaterialInv()
-    input = ts.ResBufMaterialInv()
-    output = ts.RedBufMaterialInv()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,15 +88,18 @@ class DepleteReactor(Facility):
     def check_decommission_condition(self):
         super().check_decommission_condition()
 
-    def get_material_bids(self, requests):
-        if 'uox' not in requests:
-            return
-        reqs = requests['uox']
-        bids = [req for req in reqs]
+    def get_material_requests(self):
+        request_qty = self.assem_size
+        recipe_a = self.context.get_recipe('uox')
+        target_a = ts.Material.create_untracked(request_qty, recipe_a)
+        commods = {'uox':target_a}
+        port = {"commodities":commods, "constraints":request_qty}
+        return port
 
-        #recipe_comp = self.context().get_recipe(self.fuel_inrecipes)
-        
-        port = {'bids':bids}
+    def get_material_bids(self, requests):
+        reqs = requests["spent_uox"]
+        bids = [req for req in reqs]
+        port = {"bids": bids}
         return port
 
     def get_material_trades(self, trades):
@@ -107,32 +108,4 @@ class DepleteReactor(Facility):
             mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
             responses[trade] = mat
         return responses
-
-    def get_material_requests(self):
-        request_qty = self.assem_size
-        recipe = {'u235':100}#self.context.get_recipe(self.fuel_inrecipes)
-        target_a = ts.Material.create_untracked(request_qty, recipe)
-        port = {"commodities":{"uox":target_a}, "constraints":request_qty}
-        return port
-
-    def accept_material_trades(self, responses):
-        for mat in responses.values():
-            self.core.push(mat)
-
-    def tock(self):
-        if self.is_core_full():
-            self.produce_power(True)
-        else:
-            self.produce_power(False)
-
-    def produce_power(self, produce = True):
-        if produce:
-            lib.record_time_series(lib.POWER, self, float(self.power_cap))
-        else:
-            lib.record_time_series(lib.POWER, self, 0)
-
-    def is_core_full(self):
-        if self.core.count == self.n_assem_core:
-            return True
-        else:
-            return False
+        
