@@ -77,41 +77,94 @@ class DepleteReactor(Facility):
     )
     
     core = ts.ResBufMaterialInv()
+    waste = ts.ResBufMaterialInv()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.entry_times = []
 
     def tick(self):
+        t = self.context.time
+        while not self.core.empty(): 
+            self.waste.push(self.core.pop())
+            self.entry_times.append(t)
         return
+    
+    def tock(self):
+        if (self.cycle_step >=0) and (self.check_core_full()):
+            self.produce_power(True)
+        else:
+            self.produce_power(False)
 
     def enter_notify(self):
         super().enter_notify()
-
+        t = self.context.time
+        self.core.capacity = self.assem_size*self.n_assem_core
+        self.cycle_step = 0
+        self.batch_gen = 0
+  
     def check_decommission_condition(self):
         super().check_decommission_condition()
 
-    def get_material_requests(self):
-        request_qty = self.assem_size
+    def get_material_requests(self): # phase 1
+        '''
+        Send out bid for fuel_incommods
+        '''
+        port = []
+        qty = {}
+        mat = {}
+        t = self.context.time
+        # Initial core laoding (need to fill to capacity)
+        if self.batch_gen == 0:
+            request_qty = self.core.capacity
+        else: 
+            request_qty = self.assem_size
         recipe = self.context.get_recipe('uox')
         target = ts.Material.create_untracked(request_qty, recipe)
         commods = {'uox':target}
         port = {"commodities":commods, "constraints":request_qty}
         return port
 
-    def get_material_bids(self, requests):
-        reqs = requests["spent_uox"]
-        bids = [req for req in reqs]
+    def get_material_bids(self, requests): # phase 2
+        '''
+        Read bids for fuel_outcommods and return bid protfolio
+        '''
+        bids = []
+        reqs = requests['spent_uox']
+        recipe_comp = self.context.get_recipe('spent_uox')
+        for req in reqs:
+            if self.waste.empty():
+                break  
+            quantity = min(self.waste.quantity, req.target.quantity)
+            mat = ts.Material.create_untracked(quantity, recipe_comp)
+            bids.append({'request':req, 'offer':mat})
+        if len(bids) == 0:
+            return 
+        #reqs = requests[self.fuel_outcommods[0]]
+        #bids = [req for req in reqs]
         port = {"bids": bids}
         return port
 
-    def get_material_trades(self, trades):
+    def get_material_trades(self, trades): #phase 5.1
+        '''
+        Trade away material in the waste material buffer
+        '''
         responses = {}
         for trade in trades:
+        #    if trade.request.commodity in self.fuel_outcommods:
+        #        mat_list = self.waste.pop_n(self.waste.count)
+        #    if len(mat_list) > 1:
+        #    for mat in mat_list[1:]:
+        #        mat_list[0].absorb(mat)
+        #    responses[trade] = mat_list[0]
             mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
             responses[trade] = mat
         return responses
 
-    def accept_material_trades(self, responses):
+    def accept_material_trades(self, responses): # phase 5.2
+        '''
+        Accept bid for fuel_incommods
+        '''
         for key, mat in responses.items():
             if key.request.commodity in self.fuel_incommods:
                 self.core.push(mat)
@@ -122,4 +175,9 @@ class DepleteReactor(Facility):
             lib.record_time_series(lib.POWER, self, float(self.power_cap))
         else:
             lib.record_time_series(lib.POWER, self, 0)
-        
+    
+    def check_core_full(self):
+        if self.core.count == self.core.capacity:
+            return True
+        else:
+            return False 
