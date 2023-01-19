@@ -85,16 +85,21 @@ class DepleteReactor(Facility):
 
     def tick(self):
         t = self.context.time
-        while not self.core.empty(): 
-            self.waste.push(self.core.pop())
-            self.entry_times.append(t)
-        return
-    
+        finished_cycle = self.context.time - self.cycle_time
+        while (not self.core.empty()) and (self.entry_times[0] <= finished_cycle): 
+            self.waste.push(self.core.pop_n(self.assem_size))
+            del self.entry_times[0]
+ 
     def tock(self):
+        t = self.context.time
+        while not self.core.empty():
+            self.waste.push(self.core.pop())
+            self.entry_times.append(t)  
         if (self.cycle_step >=0) and (self.check_core_full()):
             self.produce_power(True)
         else:
             self.produce_power(False)
+        self.batch_gen += 1 
 
     def enter_notify(self):
         super().enter_notify()
@@ -114,11 +119,13 @@ class DepleteReactor(Facility):
         qty = {}
         mat = {}
         t = self.context.time
+        commods = []
         # Initial core laoding (need to fill to capacity)
         if self.batch_gen == 0:
             request_qty = self.core.capacity
         else: 
-            request_qty = self.assem_size
+            request_qty = self.assem_size*self.n_assem_batch
+        #for recipes in self.fuel_inrecipes:
         recipe = self.context.get_recipe('uox')
         target = ts.Material.create_untracked(request_qty, recipe)
         commods = {'uox':target}
@@ -140,8 +147,6 @@ class DepleteReactor(Facility):
             bids.append({'request':req, 'offer':mat})
         if len(bids) == 0:
             return 
-        #reqs = requests[self.fuel_outcommods[0]]
-        #bids = [req for req in reqs]
         port = {"bids": bids}
         return port
 
@@ -151,14 +156,14 @@ class DepleteReactor(Facility):
         '''
         responses = {}
         for trade in trades:
-        #    if trade.request.commodity in self.fuel_outcommods:
-        #        mat_list = self.waste.pop_n(self.waste.count)
+            if trade.request.commodity in self.fuel_outcommods:
+                mat_list = self.waste.pop_n(self.waste.count)
         #    if len(mat_list) > 1:
         #    for mat in mat_list[1:]:
         #        mat_list[0].absorb(mat)
-        #    responses[trade] = mat_list[0]
+            responses[trade] = mat_list[0]
             mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
-            responses[trade] = mat
+        #    responses[trade] = mat
         return responses
 
     def accept_material_trades(self, responses): # phase 5.2
