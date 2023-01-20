@@ -88,35 +88,36 @@ class DepleteReactor(Facility):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.entry_times = []
+        self.n_assem_fresh = 0
+        self.n_assem_spent = 0
+        self.power_name = "power"
+        self.discharged = False
 
     def tick(self):
-        t = self.context.time
-        finished_cycle = self.context.time - self.cycle_time
-        while (not self.core.empty()) and (self.entry_times[0] <= finished_cycle): 
-            self.waste.push(self.core.pop_n(self.assem_size))
+        finished_cycle = self.context.time - self.cycle_time*self.n_assem_core
+        while (not self.core.empty()) and (self.entry_times[0] > finished_cycle): 
+            self.waste.push(self.core.pop(self.assem_size))
             del self.entry_times[0]
- 
+        print("tick ",self.context.time, "core:", self.core.count, ' waste:', self.waste.count) 
+
     def tock(self):
         t = self.context.time
-        while not self.core.empty():
-            self.waste.push(self.core.pop())
-            self.entry_times.append(t)  
+        finished_cycle = t - self.cycle_time*self.n_assem_core
+        print("tock ",self.context.time, "core:", self.core.count, ' waste:', self.waste.count) 
         if (self.cycle_step >=0) and (self.check_core_full()):
             self.produce_power(True)
         else:
             self.produce_power(False)
-        self.batch_gen += 1 
 
     def enter_notify(self):
         super().enter_notify()
         t = self.context.time
         self.core.capacity = self.assem_size*self.n_assem_core
         self.cycle_step = 0
-        self.batch_gen = 0
   
     def check_decommission_condition(self):
         super().check_decommission_condition()
-
+        
     def get_material_requests(self): # phase 1
         '''
         Send out bid for fuel_incommods
@@ -126,16 +127,16 @@ class DepleteReactor(Facility):
         mat = {}
         t = self.context.time
         commods = []
+        if self.check_core_full():
+            return port
         # Initial core laoding (need to fill to capacity)
-        if self.batch_gen == 0:
-            request_qty = self.core.capacity
-        else: 
-            request_qty = self.assem_size*self.n_assem_batch
-        #for recipes in self.fuel_inrecipes:
-        recipe = self.context.get_recipe('uox')
-        target = ts.Material.create_untracked(request_qty, recipe)
-        commods = {'uox':target}
-        port = {"commodities":commods, "constraints":request_qty}
+        request_qty = self.assem_size
+        for recipes in self.fuel_inrecipes:
+            recipe = self.context.get_recipe(recipes)
+            target = ts.Material.create_untracked(request_qty, recipe)
+            for commod in self.fuel_incommods:
+                commods = {commod:target}
+                port.append({"commodities":commods, "constraints":request_qty})
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -153,7 +154,7 @@ class DepleteReactor(Facility):
             bids.append({'request':req, 'offer':mat})
         if len(bids) == 0:
             return 
-        port = {"bids": bids}
+        port = {"bids": bids, "constraints":self.waste.quantity}
         return port
 
     def get_material_trades(self, trades): #phase 5.1
@@ -169,7 +170,6 @@ class DepleteReactor(Facility):
         #        mat_list[0].absorb(mat)
             responses[trade] = mat_list[0]
             mat = ts.Material.create(self, trade.amt, trade.request.target.comp())
-        #    responses[trade] = mat
         return responses
 
     def accept_material_trades(self, responses): # phase 5.2
@@ -188,7 +188,7 @@ class DepleteReactor(Facility):
             lib.record_time_series(lib.POWER, self, 0)
     
     def check_core_full(self):
-        if self.core.count == self.core.capacity:
+        if self.core.quantity == self.core.capacity:
             return True
         else:
             return False 
