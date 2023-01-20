@@ -40,7 +40,8 @@ class DepleteReactor(Facility):
         tooltip="Mass (kg) of a single fuel assembly",
         uilabel="Assembly Size",
         #uitype='assemsize',
-        units="kg"
+        units="kg",
+        default= 0
     )
 
     cycle_time = ts.Double(
@@ -48,32 +49,37 @@ class DepleteReactor(Facility):
         tooltip = "Amount of time between requests for new fuel",
         uilabel="Cycle Time",
         #uitype="cycletime",
-        units="months"
+        units="months",
+        default=0
     )
 
     refuel_time = ts.Int(
         doc = "Time steps for refueling",
         tooltip="Time steps for refueling",
-        uilabel="refueltime"
+        uilabel="refueltime",
+        default = 0
     )
 
     n_assem_core = ts.Int(
         doc = "Number of assemblies in a core",
         tooltip = "Number of assemblies in a core",
-        uilabel = "n_assem_core"
+        uilabel = "n_assem_core",
+        default=0
     )
 
     n_assem_batch = ts.Int( 
         doc = "Number of assemblies per batch",
         tooltip = "Number of assemblies per batch",
-        uilabel = "n_assem_batch"
+        uilabel = "n_assem_batch",
+        default=0
     )
 
     power_cap = ts.Double(
         doc = "Maximum amount of power (MWe) produced",
         tooltip = "Maximum amount of power (MWe) produced",
         uilabel = "power_cap",
-        units = "MW"
+        units = "MW",
+        default=0
     )
     
     core = ts.ResBufMaterialInv()
