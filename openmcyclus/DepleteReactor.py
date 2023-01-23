@@ -94,7 +94,7 @@ class DepleteReactor(Facility):
         self.core.capacity = self.assem_size*self.n_assem_core
 
     def tick(self):
-        print("tick ", self.context.time, self.fuel_inrecipes[0])
+        #print("tick ", self.context.time, self.fuel_inrecipes[0])
         finished_cycle = self.context.time - self.cycle_time
         while (not self.core.empty()) and (self.fresh_fuel_entry_times[0] <= finished_cycle): 
             self.spent_fuel.push(self.core.pop(self.assem_size))
@@ -106,7 +106,7 @@ class DepleteReactor(Facility):
             self.core.push(self.fresh_fuel.pop(self.assem_size))
             del self.fresh_fuel_entry_times[0]
             self.core_entry_times.append(self.context.time)
-        print("tock ", self.context.time, self.core.quantity)
+        #print("tock ", self.context.time, self.core.quantity)
         if (self.check_core_full()):
             self.produce_power(True)
         else:
@@ -136,6 +136,7 @@ class DepleteReactor(Facility):
             for commod in self.fuel_incommods:
                 commods = {commod:target}
                 port.append({"commodities":commods, "constraints":request_qty})
+                lib.record_time_series("demand"+commod, self, request_qty)
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -151,6 +152,7 @@ class DepleteReactor(Facility):
             quantity = min(self.spent_fuel.quantity, req.target.quantity)
             mat = ts.Material.create_untracked(quantity, recipe_comp)
             bids.append({'request':req, 'offer':mat})
+            lib.record_time_series("supply"+self.fuel_outcommods[0], self, quantity)
         if len(bids) == 0:
             return 
         port = {"bids": bids}
@@ -190,8 +192,10 @@ class DepleteReactor(Facility):
         '''
         if produce:
             lib.record_time_series(lib.POWER, self, float(self.power_cap))
+            lib.record_time_series("supplyPOWER", self, float(self.power_cap))
         else:
             lib.record_time_series(lib.POWER, self, 0)
+            lib.record_time_series("supplyPOWER", self, 0)
     
     def check_core_full(self):
         '''
