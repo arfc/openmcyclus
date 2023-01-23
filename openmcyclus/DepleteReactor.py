@@ -88,34 +88,32 @@ class DepleteReactor(Facility):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.entry_times = []
+        self.fresh_fuel_entry_times = []
+        self.core_entry_times = []
+        self.fresh_fuel.capacity = self.assem_size*self.n_assem_core
+        self.core.capacity = self.assem_size*self.n_assem_core
 
     def tick(self):
-        print("tick", self.context.time, "fresh:", self.fresh_fuel.quantity, "\n")
-        t = self.context.time
+        print("tick ", self.context.time, self.fuel_inrecipes[0])
         finished_cycle = self.context.time - self.cycle_time
-        if (not self.core.empty()): #and (self.entry_times[0] <= finished_cycle): 
+        while (not self.core.empty()) and (self.fresh_fuel_entry_times[0] <= finished_cycle): 
             self.spent_fuel.push(self.core.pop(self.assem_size))
-            del self.core_times[0] 
+            del self.core_entry_times[0] 
  
     def tock(self):
-        print("tock", self.context.time, "fresh:", self.fresh_fuel.quantity, "\n")
-        t = self.context.time
-        time_diff = t - self.entry_times[0]
-        if (not self.fresh_fuel.empty()): #and (time_diff > self.refuel_time):
+        time_diff = self.context.time - self.fresh_fuel_entry_times[0]
+        if (not self.fresh_fuel.empty()) and (time_diff > self.refuel_time):
             self.core.push(self.fresh_fuel.pop(self.assem_size))
-        #    del self.entry_times[0]
-        #    self.core_times.append(self.context_time)
+            del self.fresh_fuel_entry_times[0]
+            self.core_entry_times.append(self.context.time)
+        print("tock ", self.context.time, self.core.quantity)
         if (self.check_core_full()):
             self.produce_power(True)
         else:
             self.produce_power(False)
 
     def enter_notify(self):
-        super().enter_notify()
-        t = self.context.time
-        self.core.capacity = self.assem_size*self.n_assem_core
-        self.core_times = []
+        super().enter_notify()        
   
     def check_decommission_condition(self):
         super().check_decommission_condition()
@@ -166,6 +164,7 @@ class DepleteReactor(Facility):
         for trade in trades:
             if trade.request.commodity in self.fuel_outcommods:
                 mat_list = self.spent_fuel.pop(self.assem_size)
+                #print(mat_list[0])
         #    if len(mat_list) > 1:
         #    for mat in mat_list[1:]:
         #        mat_list[0].absorb(mat)
@@ -181,16 +180,24 @@ class DepleteReactor(Facility):
         for key, mat in responses.items():
             if key.request.commodity in self.fuel_incommods:
                 self.fresh_fuel.push(mat)
-                self.entry_times.append(self.context.time)
+                self.fresh_fuel_entry_times.append(self.context.time)
 
 
     def produce_power(self, produce=True):
+        '''
+        If true, then record the power_cap value in the 
+        lib.POWER time series. If not, then record 0. 
+        '''
         if produce:
             lib.record_time_series(lib.POWER, self, float(self.power_cap))
         else:
             lib.record_time_series(lib.POWER, self, 0)
     
     def check_core_full(self):
+        '''
+        Check if the core has the total amount of 
+        material as the core capacity
+        '''
         if self.core.quantity == self.core.capacity:
             return True
         else:
