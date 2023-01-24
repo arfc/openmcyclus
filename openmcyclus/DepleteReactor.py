@@ -74,12 +74,36 @@ class DepleteReactor(Facility):
         default=0
     )
 
+    n_assem_fresh = ts.Int(
+        doc = "Number of fresh fuel assemblies to keep on hand "\
+              "if possible",
+        default = 0,
+        range = [0,3],
+        uilabel="Minimum fresh fuel inventory",
+        units = "assemblies"
+    )
+
+    n_assem_spent = ts.Int(
+        doc = "Number of spent fuel assemblies that can be stored "\
+              "on-site before reactor operation stalls",
+        default = 10000000,
+        uilabel="Maximum spent fuel inventory",
+        units = "assemblies"
+    )
+
     power_cap = ts.Double(
         doc = "Maximum amount of power (MWe) produced",
         tooltip = "Maximum amount of power (MWe) produced",
         uilabel = "power_cap",
         units = "MW",
         default=0
+    )
+
+    decom_transmute_all = ts.String(
+        doc = "If true, the archetype transmutes all assemblies "\
+              "upon decommisioning. If false, the archetype only "\
+              "transmutes half.",
+        default = False
     )
    
     fresh_fuel = ts.ResBufMaterialInv()
@@ -90,8 +114,12 @@ class DepleteReactor(Facility):
         super().__init__(*args, **kwargs)
         self.fresh_fuel_entry_times = []
         self.core_entry_times = []
-        self.fresh_fuel.capacity = self.assem_size*self.n_assem_core
+        self.fresh_fuel.capacity = self.assem_size*self.n_assem_fresh
         self.core.capacity = self.assem_size*self.n_assem_core
+        self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
+        self.cycle_steps = 0
+        self.power_name = "power"
+        self.discharged = True
 
     def tick(self):
         #print("tick ", self.context.time, self.fuel_inrecipes[0])
@@ -116,7 +144,10 @@ class DepleteReactor(Facility):
         super().enter_notify()        
   
     def check_decommission_condition(self):
-        super().check_decommission_condition()
+        if (self.core.count == 0) and (self.spent_fuel.count == 0):
+            return True
+        else:
+            return False
 
     def get_material_requests(self): # phase 1
         '''
@@ -206,3 +237,30 @@ class DepleteReactor(Facility):
             return True
         else:
             return False 
+
+    def retired(self):
+        '''
+        Determine if the prototype is retired
+        '''
+        if (self.exit_time != -1) and (self.context.time > self.exit_time):
+            return True
+        else:
+            return False
+
+    def discharge(self):
+        '''
+        '''
+
+    def load(self):
+        '''
+        '''
+
+    def transmute(self):
+        '''
+        '''
+
+    def record(self):
+        '''
+        '''
+
+    
