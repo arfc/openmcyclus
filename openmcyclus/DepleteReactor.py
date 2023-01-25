@@ -124,6 +124,19 @@ class DepleteReactor(Facility):
         self.ctx = lib.Context()
 
     def tick(self):
+        '''
+        Logic to implement at the tick phase of each 
+        time step. 
+        
+        If the prototype is retired, then that is recorded, 
+        fuel is transmuted, and the prototype is decommissioned. 
+
+        If it's the end of a cycle, that is recorded. If it is 
+        after a cycle ends, and fuel has not been discharged, 
+        then the fuel is discharged. If it's after a cycle ends, then 
+        fuel is loaded
+        '''
+
         if self.retired():
             self.record("RETIRED", "")
 
@@ -134,7 +147,7 @@ class DepleteReactor(Facility):
                     self.transmute(math.ceil(self.n_assem_core/2))
 
             while self.core.count > 0:
-                if !self.discharge():
+                if self.discharge() == False:
                     break
 
             while (self.fresh_fuel > 0) and (self.spent_fuel.space >= self.assem_size):
@@ -145,14 +158,33 @@ class DepleteReactor(Facility):
         if self.cycle_step == self.cycle_time:
             self.transmute()
             self.record("CYCLE_END", "")
-        if (self.cycle_step >= self.cycle_time) and (!self.discharged()):
-            discharged = self.discharged()
+        if (self.cycle_step >= self.cycle_time) and (self.discharged not False):
+            self.discharged = self.discharge()
         if self.cycle_step >= self.cycle_time:
             self.load()
-
-        t = self.context.time
  
     def tock(self):
+        '''
+        Logic to implement at the tock phase of each 
+        time step. 
+
+        If the prototype is retired, then nothing happens. 
+
+        If it's after a cycle ends and the refueling time has passed,
+        the core is full, and fuel has been discharged, then 
+        the discharged variable is changed to false and the 
+        cycle length counter is restarted.
+
+        If it's the beginning of a new cycle and the core is full, 
+        then a cycle start is recorded. 
+
+        If it's in the middle of a cycle and the core is full, the 
+        the power_cap value is recorded as power generated. If these 
+        conditions aren't met, then a power of 0 is recorded. 
+
+        If it's in the middle of a cycle or the core is full, then 
+        the cycle duration counter increases by one. 
+        '''
         if self.retired():
             return
         if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == True):
@@ -177,9 +209,13 @@ class DepleteReactor(Facility):
         #print("tock ", self.context.time, self.core.quantity)
 
     def enter_notify(self):
-        super().enter_notify()        
+        super().enter_notify()       
   
     def check_decommission_condition(self):
+        '''
+        If the core and the spent fuel are empty, then the core can be 
+        decommissioned.
+        '''
         if (self.core.count == 0) and (self.spent_fuel.count == 0):
             return True
         else:
@@ -187,11 +223,23 @@ class DepleteReactor(Facility):
 
     def get_material_requests(self): # phase 1
         '''
-        Send out bid for fuel_incommods
+        Send out bid for fuel_incommods. 
+
+        The number of assemblies to order is the total number needed 
+        for the core less what is currently in the core plus 
+        how many need to be in the fresh fuel storage less how many 
+        exist there already. 
+
+        If the reactor has a finite lifetime, calculate the number of 
+        cycles left and the number of assemblies needed for the 
+        lifetime of the reactor. Order whichever number is 
+        lower. 
+        
+        If the reactor does not need more fuel or is retired, then 
+        submit no bids for materials.
         '''
-        ports = []
-        n_assem_order = n_assem_core - self.core.count + self.n_assem_fresh +
-                        self.fresh_fuel.count
+        port = []
+        n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
         if self.exit_time != -1:
             time_left = self.exit_time - self.context.time + 1
             time_left_cycle = self.cycle_time + self.refuel_time - self.cycle_step
@@ -201,16 +249,16 @@ class DepleteReactor(Facility):
             n_assem_order = min(n_assem_order, n_need)
 
         if n_assem_order == 0:
-            return ports
-        elif self.retired:
-            return ports
+            return port
+        elif self.retired():
+            return port
         for ii in range(n_assem_order):
-            for jj in range(self.fuel_incommods.size()):
+            for jj in range(len(self.fuel_incommods)):
                 commod = self.fuel_incommods[jj]
                 recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
                 material = ts.Material.create_untracked(self.assem_size, recipe)
         lib.record_time_series("demand"+commod, self, self.assem_size*n_assem_order)
-        port.append({"commodities":commods. "constraints":self.assem_size*n_assem_order})
+        port.append({"commodities":commod, "constraints":self.assem_size*n_assem_order})
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -220,30 +268,30 @@ class DepleteReactor(Facility):
         got_mats = False
         bids = []
         if unique_commods_.empty():
-            for ii in range(self.fuel_outcommods.size()):
+            for ii in range(len(self.fuel_outcommods)):
                 unique_commods_.insert(self.fuel_commods[ii])
 
-        for ii in [unique_commods_.begin, unique_commods_.end]
+        for ii in [unique_commods_.begin, unique_commods_.end]:
             reqs = requests[commod]
-            if reqs.size == 0:
+            if len(reqs) == 0:
                 continue
             elif (!gotmats):
                 all_mats = PeekSpent()
 
             mats = all_mats[commod]
-            if mats.size == 0:
+            if len(mats) == 0:
                 continue
-            for jj in range(reqs.size):
+            for jj in range(len(reqs)):
                 req = reqs[jj]
                 tot_bid = 0
-                for kk in range(mats.size):
+                for kk in range(len(mats)):
                     m = mats[k]
                     tot_bid += m.quantity
                     bid.append({'request':req,'offer':m})
                     if tot_bid >= req.target.quantity:
                         break
             tot_qty = 0
-            for jj in range(mats.size):
+            for jj in range(len(mats)):
                 tot_qty += mats[jj].quantity
 
         port = {'bids':bids}
@@ -254,11 +302,11 @@ class DepleteReactor(Facility):
         Trade away material in the spent_fuel material buffer
         '''
         responses = {}
-        for ii in range(trades.size()):
+        for ii in range(len(trades)):
             commod = trades[ii].request.commodity
             m = mats[commod].back
             mat[commod].pop_back()
-            responses.push_back(trades[ii], m)
+            responses.append(trades[ii], m)
             res_indexes.erase(m.obj_id())
         self.push_spent(mats)
         return responses
@@ -267,11 +315,11 @@ class DepleteReactor(Facility):
         '''
         Accept bid for fuel_incommods
         '''
-        ss = stringstream 
-        n_load = min(responses.size(), self.n_assem_core - self.core.count)
+        #ss = stringstream 
+        n_load = min(len(responses), self.n_assem_core - self.core.count)
         if n_load > 0:
-            ss << n_load << " assemblies"
-            self.record("LOAD", ss.str())
+            ss == str(n_load) + " assemblies"
+            self.record("LOAD", ss)
 
         for trade = responses.begin(); trade != responses.end(); ++ trade:
             commod = trade.request.commodity
@@ -320,16 +368,16 @@ class DepleteReactor(Facility):
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
             self.record("DISCHARGE", "failed")
             return False
-        ss = stringstream 
-        ss << npop << "assemblies"
-        self.record("DISCHARGE", ss.str())
+        #ss = stringstream 
+        ss = str(npop) + " assemblies"
+        self.record("DISCHARGE", ss)
         self.spent_fuel.push(self.core.pop_n(npop))
 
-        for ii in range(self.fuel_outcommods.size):
+        for ii in range(len(self.fuel_outcommods)):
             spent_mats = self.spent_fuel.peek()
             mats = spent_mats[self.fuel_outcommods[ii]]
             tot_spent = 0
-            for jj in range(amts.size):
+            for jj in range(len(mats)):
                 m = mats[jj]
                 tot_spent += m.quantity
         return True
@@ -340,9 +388,9 @@ class DepleteReactor(Facility):
         n = min(self.n_assem_core-self.core.count, self.fresh_fuel.count)
         if n == 0:
             return
-        ss = stringstream 
-        ss << n << " assemblies"
-        self.record("LOAD", ss.str())
+        #ss = stringstream 
+        ss = str(n) + " assemblies"
+        self.record("LOAD", ss)
         self.core.push(self.fresh_fuel.pop_n(n))
 
 
@@ -371,7 +419,7 @@ class DepleteReactor(Facility):
 
         
     def index_res(self, incommod):
-        for ii in range(self.fuel_incommods.size):
+        for ii in range(len(self.fuel_incommods)):
             if fuel_incommods[ii] == incommod
                 res_index[m->obj_id()] = ii 
                 return
@@ -384,16 +432,16 @@ class DepleteReactor(Facility):
         Amount of fuel to trade away from self.spent_fuel
         '''
         mats = self.spent.pop_n(self.spent_fuel.count)
-        mapped = material_vector
-        for ii in range(mats.size):
+        mapped = []
+        for ii in range(len(mats)):
             commod = self.fuel_outcommods(mts[ii])
-            mapped[commod].push_back(mats[i])
+            mapped[commod].append(mats[i])
         
         for it in [mapped.begin, mapped.end]:
-            reverse(it ->second.begin(), it->second.end())
+            reverse(it.second.begin(), it.second.end())
         return mapped
 
     def push_spent(self, leftover):
         for it in [leftover.begin, leftover.end]:
-            reverse(it ->second.begin, it -> second.end)
-        self.spent_fuel.push(it->second)
+            reverse(it.second.begin, it.second.end)
+        self.spent_fuel.push(it.second)
