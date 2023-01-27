@@ -87,7 +87,8 @@ class DepleteReactor(Facility):
     n_assem_spent = ts.Int(
         doc = "Number of spent fuel assemblies that can be stored "\
               "on-site before reactor operation stalls",
-        default = 10000000,
+        default = 10000000, #default of None? would need more logic to 
+        # account for different data types
         uilabel="Maximum spent fuel inventory",
         units = "assemblies"
     )
@@ -148,6 +149,8 @@ class DepleteReactor(Facility):
 
             while self.core.count > 0:
                 if self.discharge() == False:
+                    # Add string to print to terminal to see if this 
+                    # gets triggered as expected
                     break
 
             while (self.fresh_fuel > 0) and (self.spent_fuel.space >= self.assem_size):
@@ -201,11 +204,11 @@ class DepleteReactor(Facility):
             self.cycle_step += 1  
 
 
-        time_diff = self.context.time - self.fresh_fuel_entry_times[0]
-        if (not self.fresh_fuel.empty()) and (time_diff > self.refuel_time):
-            self.core.push(self.fresh_fuel.pop(self.assem_size))
-            del self.fresh_fuel_entry_times[0]
-            self.core_entry_times.append(self.context.time)
+        #time_diff = self.context.time - self.fresh_fuel_entry_times[0]
+        #if (not self.fresh_fuel.empty()) and (time_diff > self.refuel_time):
+        #    self.core.push(self.fresh_fuel.pop(self.assem_size))
+        #    del self.fresh_fuel_entry_times[0]
+        #    self.core_entry_times.append(self.context.time)
         #print("tock ", self.context.time, self.core.quantity)
 
     def enter_notify(self):
@@ -263,67 +266,111 @@ class DepleteReactor(Facility):
 
     def get_material_bids(self, requests): # phase 2
         '''
-        Read bids for fuel_outcommods and return bid protfolio
+        Read bids for fuel_outcommods and return bid portfolio.
+
+        If the unique_commods_ string is empty, add the names of 
+        the fuel out commodities.
+
+        For each of the items in the unique commodities list, 
+        if there are no requests for a given commodity name, then 
+        continue to the next commodity. Get the recipe for 
+        each commodity requested.
+
+        Looking at the composition for each commodity, 
+        if there is no composition, then move to the next commodity. 
+
+        For each request of each commodity, sum the total request 
+        for the commodity. Then create a bid for each request of 
+        each commodity.
+
+        For each material composition sum to total mass of 
+        the composition.
+
+        Add a constraint of the total quantity of the commodity available.
+        Create a bid portfolio for each request that can be met. 
         '''
         got_mats = False
+        all_mats = []
         bids = []
+        unique_commods_ = []
         if unique_commods_.empty():
             for ii in range(len(self.fuel_outcommods)):
-                unique_commods_.insert(self.fuel_commods[ii])
+                unique_commods_.append(self.fuel_outcommods[ii])
 
-        for ii in [unique_commods_.begin, unique_commods_.end]:
+        for commod in unique_commods_:
             reqs = requests[commod]
             if len(reqs) == 0:
                 continue
-            elif (!gotmats):
-                all_mats = PeekSpent()
+            elif (got_mats == False):
+                all_mats = self.PeekSpent()
 
             mats = all_mats[commod]
             if len(mats) == 0:
                 continue
+            #port = []
             for jj in range(len(reqs)):
                 req = reqs[jj]
                 tot_bid = 0
                 for kk in range(len(mats)):
-                    m = mats[k]
+                    m = mats[kk]
                     tot_bid += m.quantity
-                    bid.append({'request':req,'offer':m})
+                    bids.append({'request':req,'offer':m})
                     if tot_bid >= req.target.quantity:
                         break
             tot_qty = 0
             for jj in range(len(mats)):
                 tot_qty += mats[jj].quantity
 
-        port = {'bids':bids}
+        port = {'bids':bids, "constraint":tot_qty}
         return port
 
-    def get_material_trades(self, trades): #phase 5.1
+    def get_material_trades(self, trades, responses): #phase 5.1
         '''
-        Trade away material in the spent_fuel material buffer
+        Trade away material in the spent_fuel material buffer.
+
+        Pull out the material from spent fuel inventory
+        For each trade, get the commodity name, get the 
+        composition of the trade.
+
+        Then trade the materials from the spent fuel inventory. 
         '''
-        responses = {}
+        mats = self.pop_spent()
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
-            m = mats[commod].back
-            mat[commod].pop_back()
-            responses.append(trades[ii], m)
-            res_indexes.erase(m.obj_id())
+            m = mats[commod].back() # not sure what back does
+            mats[commod].pop_back() # not sure what pop_back does
+            responses.push_back(trades[ii], m) # not sure what push_back does
+            self.res_indexes.erase(m.obj_id())
         self.push_spent(mats)
-        return responses
+        return 
 
     def accept_material_trades(self, responses): # phase 5.2
         '''
         Accept bid for fuel_incommods
+
+        The number of assemblies to be loaded is the minimum 
+        of the number of responses or the number of 
+        assemblies the core is missing (full core minus how many 
+        assemblies are present). If the number of assemblies to 
+        load is greater than 0, then record this number.
+
+        For each trade in the responses, get the commodity requested 
+        in the trade and reset the index. 
+
+        If the core is not full, the put the material in the core. 
+        If the core is full, the put the material in the fresh 
+        fuel inventory. 
+
         '''
-        #ss = stringstream 
         n_load = min(len(responses), self.n_assem_core - self.core.count)
         if n_load > 0:
-            ss == str(n_load) + " assemblies"
+            ss = str(n_load) + " assemblies"
             self.record("LOAD", ss)
 
-        for trade = responses.begin(); trade != responses.end(); ++ trade:
-            commod = trade.request.commodity
+        for trade in responses:
+            commod = trade.first.request.commodity
             m = trade.second
+            self.index_res(commod, m)
             if self.core.count < self.n_assem_core:
                 self.core.push(m)
             else:
@@ -378,12 +425,23 @@ class DepleteReactor(Facility):
             mats = spent_mats[self.fuel_outcommods[ii]]
             tot_spent = 0
             for jj in range(len(mats)):
+                #m is a material in Cyclus
                 m = mats[jj]
                 tot_spent += m.quantity
+
+        cyclus::toolkit::RecordTimeSeries<double>("supply"+fuel_outcommods[i], this, tot_spent);
         return True
 
     def load(self):
         '''
+        Determine number of assemblies to load, either the 
+        number of assemblies needed for the core less the number 
+        already in the core or the number held by the 
+        fresh fuel inventory. If no assemblies are needed, then 
+        return. 
+
+        Record the number of assemblies that are to be loaded, then move 
+        them from the fresh fuel inventory to the core inventory. 
         '''
         n = min(self.n_assem_core-self.core.count, self.fresh_fuel.count)
         if n == 0:
@@ -394,9 +452,33 @@ class DepleteReactor(Facility):
         self.core.push(self.fresh_fuel.pop_n(n))
 
 
-    def transmute(self):
+    def transmute(self, n_assem):
         '''
+        Get the material composition of the minimum of the 
+        number of assemblies specified or the number of 
+        assemblies in the core. 
+
+        If there are more assemblies in the core than what will 
+        be removed, then rotate the untransmuted materials to the back 
+        of the buffer.
+
+        Record the number of assemblies to be transmuted. Transmute the fuel
+        by changing the recipe of the material to that of the 
+        fuel_outrecipes
+
+        There seem to be two Transmute functions in the cycamore reactor?
         '''
+        old = self.core.pop_n(min(n_assem), self.core.count)
+        self.core.push(old)
+        if (self.core.count > len(old)):
+            self.core.push(self.core.pop_n(self.core.count - len(old)))
+
+        ss = str(len(old)) + " assemblies"
+        self.record("TRANSMUTE", ss)
+
+        for ii in range(len(old)):
+            old[ii].Transmute(self.context.get_recipe(self.fuel_outrecipes(old[ii])))
+        return
 
     def record(self, event, val):
         '''
@@ -419,29 +501,43 @@ class DepleteReactor(Facility):
 
         
     def index_res(self, incommod):
+        '''
+        For the name of any item in the fuel in_commods list 
+        match the name of the commodity given, then 
+        the object Id of the material.
+
+        If the name of the given commodity isn't in the 
+        fuel in_commods list, then return an error. 
+        '''
         for ii in range(len(self.fuel_incommods)):
-            if fuel_incommods[ii] == incommod
-                res_index[m->obj_id()] = ii 
+            if self.fuel_incommods[ii] == incommod:
+                self.res_index[m.obj_id()] = ii 
                 return
-        raise ValueError 
+        raise ValueError (
             "openmcyclus.DepleteReactor:DepleteReactor received "\
                 "unsupported incommod material"
+            )
 
     def pop_spent(self):
         '''
-        Amount of fuel to trade away from self.spent_fuel
+        Place all assemblies in the spent fuel inventory into a 
+        material vector
         '''
         mats = self.spent.pop_n(self.spent_fuel.count)
         mapped = []
         for ii in range(len(mats)):
-            commod = self.fuel_outcommods(mts[ii])
-            mapped[commod].append(mats[i])
+            commod = self.fuel_outcommods(mats[ii])
+            mapped[commod].push_back(mats[ii]) # not sure what push_back does
         
-        for it in [mapped.begin, mapped.end]:
-            reverse(it.second.begin(), it.second.end())
+        for it in mapped:
+            ts.reverse(it.second.begin(), it.second.end())
         return mapped
 
     def push_spent(self, leftover):
+        '''
+        Reverse the order of materials in the leftover list
+
+        '''
         for it in [leftover.begin, leftover.end]:
-            reverse(it.second.begin, it.second.end)
+            ts.reverse(it.second.begin, it.second.end)
         self.spent_fuel.push(it.second)
