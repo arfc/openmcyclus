@@ -1,8 +1,8 @@
 # openmcyclus
-Repository of Cyclus archetypes to couple Cyclus with OpenMC
+Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with [OpenMC](https://docs.openmc.org/en/develop/pythonapi/generated/openmc.run.html)
 
 ## Installation 
-To install this archetype library run ``python setup.py install``. Testing 
+To install this archetype library run ``pip install .``. Testing 
 to be added soon.
 To run tests: ``pytest`` from the main directory.
 
