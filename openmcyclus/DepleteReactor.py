@@ -119,10 +119,9 @@ class DepleteReactor(Facility):
         self.fresh_fuel.capacity = self.assem_size*self.n_assem_fresh
         self.core.capacity = self.assem_size*self.n_assem_core
         self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
-        self.cycle_steps = 0
+        self.cycle_step = 0
         self.power_name = "power"
         self.discharged = True
-        self.ctx = lib.Context()
 
     def tick(self):
         '''
@@ -137,31 +136,31 @@ class DepleteReactor(Facility):
         then the fuel is discharged. If it's after a cycle ends, then 
         fuel is loaded
         '''
+        print("tick", self.context.time)
+        #if self.retired():
+        #    self.record("RETIRED", "")
 
-        if self.retired():
-            self.record("RETIRED", "")
+        #    if self.context.time == self.exit_time + 1:
+        #        if self.decom_transmute_all == True:
+        #            self.transmute(math.ceil(self.n_assem_core))
+        #        else:
+        #            self.transmute(math.ceil(self.n_assem_core/2))
 
-            if self.context.time == self.exit_time + 1:
-                if self.decom_transmute_all == True:
-                    self.transmute(math.ceil(self.n_assem_core))
-                else:
-                    self.transmute(math.ceil(self.n_assem_core/2))
+        #    while self.core.count > 0:
+        #        if self.discharge() == False:
+        #            # Add string to print to terminal to see if this 
+        #            # gets triggered as expected
+        #            break
 
-            while self.core.count > 0:
-                if self.discharge() == False:
-                    # Add string to print to terminal to see if this 
-                    # gets triggered as expected
-                    break
-
-            while (self.fresh_fuel > 0) and (self.spent_fuel.space >= self.assem_size):
-                self.spent_fuel.push(self.fresh_fuel.pop())
-            if self.check_decommission_condition():
-                self.decommission()
+        #    while (self.fresh_fuel > 0) and (self.spent_fuel.space >= self.assem_size):
+        #        self.spent_fuel.push(self.fresh_fuel.pop())
+        #    if self.check_decommission_condition():
+        #        self.decommission()
 
         if self.cycle_step == self.cycle_time:
             self.transmute()
-            self.record("CYCLE_END", "")
-        if (self.cycle_step >= self.cycle_time) and (self.discharged not False):
+            #self.record("CYCLE_END", "")
+        if (self.cycle_step >= self.cycle_time) and (self.discharged != False):
             self.discharged = self.discharge()
         if self.cycle_step >= self.cycle_time:
             self.load()
@@ -188,17 +187,19 @@ class DepleteReactor(Facility):
         If it's in the middle of a cycle or the core is full, then 
         the cycle duration counter increases by one. 
         '''
-        if self.retired():
-            return
+        #if self.retired():
+        #    return
         if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == True):
             self.discharged = False
             self.cycle_step = 0
-        if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
-            self.record("CYCLE_START", "")
-        if (self.cycle_step >=0) and (self.cycle_sept < self.cycle_time) and (self.core.count == self.n_assem_core):
-            self.produce_power(True)
-        else:
-            self.produce_power(False)  
+        #if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
+            #self.record("CYCLE_START", "")
+        if (self.cycle_step >=0) and (self.cycle_step < self.cycle_time) and (self.core.count == self.n_assem_core):
+            lib.record_time_series(lib.POWER, self, self.power_cap)
+            lib.record_time_series("supplyPOWER", self, self.power_cap)
+        #else:
+        #    lib.record_time_series(lib.POWER, self, 0)
+        #    lib.record_time_series("supplyPOWER", self, 0)  
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
             self.cycle_step += 1  
@@ -242,6 +243,7 @@ class DepleteReactor(Facility):
         submit no bids for materials.
         '''
         port = []
+        #material = ts.Material
         n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
         if self.exit_time != -1:
             time_left = self.exit_time - self.context.time + 1
@@ -253,15 +255,15 @@ class DepleteReactor(Facility):
 
         if n_assem_order == 0:
             return port
-        elif self.retired():
-            return port
+        #elif self.retired():
+        #    return port
         for ii in range(n_assem_order):
             for jj in range(len(self.fuel_incommods)):
                 commod = self.fuel_incommods[jj]
                 recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-        lib.record_time_series("demand"+commod, self, self.assem_size*n_assem_order)
-        port.append({"commodities":commod, "constraints":self.assem_size*n_assem_order})
+            lib.record_time_series("demand"+commod, self, self.assem_size*n_assem_order)
+            port.append({"commodities":{commod:material}, "constraints":self.assem_size})
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -293,7 +295,7 @@ class DepleteReactor(Facility):
         all_mats = []
         bids = []
         unique_commods_ = []
-        if unique_commods_.empty():
+        if len(unique_commods_) == 0:
             for ii in range(len(self.fuel_outcommods)):
                 unique_commods_.append(self.fuel_outcommods[ii])
 
@@ -302,7 +304,11 @@ class DepleteReactor(Facility):
             if len(reqs) == 0:
                 continue
             elif (got_mats == False):
-                all_mats = self.PeekSpent()
+                all_mats = self.peek_spent()
+            
+            if all_mats == {}:
+                port = []
+                return port
 
             mats = all_mats[commod]
             if len(mats) == 0:
@@ -340,7 +346,7 @@ class DepleteReactor(Facility):
             m = mats[commod].back() # not sure what back does
             mats[commod].pop_back() # not sure what pop_back does
             responses.push_back(trades[ii], m) # not sure what push_back does
-            self.res_indexes.erase(m.obj_id())
+            res_indexes.erase(m.obj_id)
         self.push_spent(mats)
         return 
 
@@ -365,39 +371,16 @@ class DepleteReactor(Facility):
         n_load = min(len(responses), self.n_assem_core - self.core.count)
         if n_load > 0:
             ss = str(n_load) + " assemblies"
-            self.record("LOAD", ss)
-
+            #self.record("LOAD", ss)
         for trade in responses:
-            commod = trade.first.request.commodity
-            m = trade.second
-            self.index_res(commod, m)
+            print(trade, trade.amt)
+            commod = trade.request.commodity
+            m = trade.amt
+            self.index_res(m, commod)
             if self.core.count < self.n_assem_core:
                 self.core.push(m)
             else:
                 self.fresh_fuel.push(m)
-
-
-    def produce_power(self, produce=True):
-        '''
-        If true, then record the power_cap value in the 
-        lib.POWER time series. If not, then record 0. 
-        '''
-        if produce:
-            lib.record_time_series(lib.POWER, self, float(self.power_cap))
-            lib.record_time_series("supplyPOWER", self, float(self.power_cap))
-        else:
-            lib.record_time_series(lib.POWER, self, 0)
-            lib.record_time_series("supplyPOWER", self, 0)
-    
-    def check_core_full(self):
-        '''
-        Check if the core has the total amount of 
-        material as the core capacity
-        '''
-        if self.core.quantity == self.core.capacity:
-            return True
-        else:
-            return False 
 
     def retired(self):
         '''
@@ -413,7 +396,7 @@ class DepleteReactor(Facility):
         '''
         npop = min(self.assem_batch, self.core.count)
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
-            self.record("DISCHARGE", "failed")
+            #self.record("DISCHARGE", "failed")
             return False
         #ss = stringstream 
         ss = str(npop) + " assemblies"
@@ -428,8 +411,8 @@ class DepleteReactor(Facility):
                 #m is a material in Cyclus
                 m = mats[jj]
                 tot_spent += m.quantity
-
-        cyclus::toolkit::RecordTimeSeries<double>("supply"+fuel_outcommods[i], this, tot_spent);
+                lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
+        
         return True
 
     def load(self):
@@ -448,7 +431,7 @@ class DepleteReactor(Facility):
             return
         #ss = stringstream 
         ss = str(n) + " assemblies"
-        self.record("LOAD", ss)
+        #self.record("LOAD", ss)
         self.core.push(self.fresh_fuel.pop_n(n))
 
 
@@ -474,7 +457,7 @@ class DepleteReactor(Facility):
             self.core.push(self.core.pop_n(self.core.count - len(old)))
 
         ss = str(len(old)) + " assemblies"
-        self.record("TRANSMUTE", ss)
+        #self.record("TRANSMUTE", ss)
 
         for ii in range(len(old)):
             old[ii].Transmute(self.context.get_recipe(self.fuel_outrecipes(old[ii])))
@@ -492,15 +475,16 @@ class DepleteReactor(Facility):
         val: str
             value of event
         '''
-        lib.Datum.add_val("AgentId", id())
-        lib.Datum.add_val("Time", self.context.time)
-        lib.Datum.add_val("Event", event)
-        lib.Datum.add_val("Value", val)
-        lib.Datum.record()
+        event = lib.Datum("ReactorEvents")
+        #event.add_val("AgentId", id(), 1)
+        event.add_val("Time", self.context.time, 1)
+        event.add_val("Event", event)
+        event.add_val("Value", val)
+        event.record()
         return
 
         
-    def index_res(self, incommod):
+    def index_res(self, m, incommod):
         '''
         For the name of any item in the fuel in_commods list 
         match the name of the commodity given, then 
@@ -511,7 +495,7 @@ class DepleteReactor(Facility):
         '''
         for ii in range(len(self.fuel_incommods)):
             if self.fuel_incommods[ii] == incommod:
-                self.res_index[m.obj_id()] = ii 
+                lib.res_indexes[m.obj_id] = ii 
                 return
         raise ValueError (
             "openmcyclus.DepleteReactor:DepleteReactor received "\
@@ -520,8 +504,13 @@ class DepleteReactor(Facility):
 
     def pop_spent(self):
         '''
-        Place all assemblies in the spent fuel inventory into a 
-        material vector
+        For each assembly in the spent fuel inventory, 
+        get the commodity name of it, and push the material 
+        back to the spent fuel inventory (??).
+
+        Then reverse the order of the material in the 
+        mapped materials to put the oldest assemblies 
+        first and make sure they get traded away first. 
         '''
         mats = self.spent.pop_n(self.spent_fuel.count)
         mapped = []
@@ -538,6 +527,20 @@ class DepleteReactor(Facility):
         Reverse the order of materials in the leftover list
 
         '''
-        for it in [leftover.begin, leftover.end]:
-            ts.reverse(it.second.begin, it.second.end)
-        self.spent_fuel.push(it.second)
+        for item in leftover:
+            ts.reverse(item.second.begin, item.second.end)
+        self.spent_fuel.push(item.second)
+
+    def peek_spent(self):
+        '''
+        
+        '''
+        mapped = {}
+        if self.spent_fuel.count > 0:
+            mats = self.spent_fuel.pop_n(self.spent_fuel.count)
+            print(mats)
+            self.spent_fuel.push(mats)
+            for ii in range(len(mats)):
+                commod = self.fuel_outcommods(mats[ii])
+                mapped[commod].push_back(mats[ii]) # not sure what push_back does
+        return mapped
