@@ -61,7 +61,6 @@
             <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
             <fuel_inrecipes> 
               <val>uox</val> 
-              <val>spent_uox</val>
             </fuel_inrecipes>
             <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
             <assem_size>10</assem_size>
