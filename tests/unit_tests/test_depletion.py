@@ -4,6 +4,8 @@ import xml.etree.ElementTree as ET
 import unittest
 from openmcyclus.depletion import Depletion
 
+import os
+
 class TestDepletion(unittest.TestCase):
     def setUp(self):
         '''
@@ -21,6 +23,11 @@ class TestDepletion(unittest.TestCase):
     def test_read_microxs(self):
         microxs = self.deplete.read_microxs()
         assert 2 == 2
+
+    def test_run_depletion(self):
+        self.deplete.run_depletion()
+        obs = os.path.exists(str(self.deplete.path + "depletion_results.h5"))
+        assert obs == True
 
     def test_create_recipe(self):
         self.deplete.create_recipe()
