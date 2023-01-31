@@ -1,6 +1,7 @@
 import numpy as np
 import openmc
 import openmc.deplete as od
+import os
 from xml.dom import minidom
 
 class Depletion(object):
@@ -79,13 +80,14 @@ class Depletion(object):
         depletion_results.h5: database
             HDF5 data base with the results of the depletion simulation
         '''
-        model = self.read_model(self.path)
-        micro_xs = self.read_microxs(self.path)
+        model = self.read_model()
+        micro_xs = self.read_microxs()
         ind_op = od.IndependentOperator(model.materials, micro_xs, 
                                         str(self.path + self.chain_file))
         integrator = od.PredictorIntegrator(ind_op, np.ones(self.timesteps), 
                                             power = self.power, timestep_units = 'd')
         integrator.integrate()
+        os.system('mv ./depletion_results.h5 ' + self.path + "depletion_results.h5")
         return
 
     def create_recipe(self):
