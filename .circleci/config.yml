@@ -1,0 +1,50 @@
+version: 2.1
+
+on:
+  push:
+    paths:
+      - 'openmcyclus/**'
+      - 'tests/**'
+
+  pull_request:
+  workflow_run:
+    workflows: []
+    types: [completed]
+
+  workflow_dispatch:
+
+env:
+  CACHE_NUMBER: 0 
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - checkout
+      - python/install-deps
+      - run:
+        name: Build Environment
+        command: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            autoconf \
+      
+      - run:
+        name: Build OpenMC
+        command: |
+          conda install mamba
+          mamba install openmc
+
+      - run:
+        name: Run Tests
+        command: |
+          cd ~/project 
+          pytest
+
+workflows:
+  version: 2.1
+  main:
+    jobs:
+      - build-and-test
