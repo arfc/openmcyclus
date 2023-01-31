@@ -2,6 +2,8 @@ import numpy as np
 import pytest 
 import xml.etree.ElementTree as ET
 import unittest
+import openmc
+import pandas as pd
 from openmcyclus.depletion import Depletion
 
 import os
@@ -18,11 +20,15 @@ class TestDepletion(unittest.TestCase):
         Test for when the files are found
         '''
         model = self.deplete.read_model()
-        assert 2 == 2
+        obs = isinstance(model, openmc.model.model.Model)
+        assert obs == True
 
     def test_read_microxs(self):
         microxs = self.deplete.read_microxs()
-        assert 2 == 2
+        obs = isinstance(microxs, pd.DataFrame)
+        assert obs == True
+        assert microxs.index.name == 'nuclide'
+        assert microxs.columns.values.tolist() == ['(n,gamma)', '(n,2n)', '(n,p)', '(n,a)','(n,3n)', '(n,4n)', 'fission']
 
     def test_run_depletion(self):
         self.deplete.run_depletion()
