@@ -1,5 +1,5 @@
 import numpy as np
-import pytest 
+import pytest
 import xml.etree.ElementTree as ET
 import unittest
 import openmc
@@ -8,12 +8,14 @@ from openmcyclus.depletion import Depletion
 
 import os
 
+
 class TestDepletion(unittest.TestCase):
     def setUp(self):
         '''
         Set up the instantiation of the Deplete class
         '''
-        self.deplete = Depletion("../", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
+        self.deplete = Depletion(
+            "../", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
 
     def test_read_model(self):
         '''
@@ -21,22 +23,23 @@ class TestDepletion(unittest.TestCase):
         '''
         model = self.deplete.read_model()
         obs = isinstance(model, openmc.model.model.Model)
-        assert obs == True
+        assert obs
 
     def test_read_microxs(self):
         microxs = self.deplete.read_microxs()
         obs = isinstance(microxs, pd.DataFrame)
-        assert obs == True
+        assert obs
         assert microxs.index.name == 'nuclide'
-        assert microxs.columns.values.tolist() == ['(n,gamma)', '(n,2n)', '(n,p)', '(n,a)','(n,3n)', '(n,4n)', 'fission']
+        assert microxs.columns.values.tolist() == [
+            '(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
 
     def test_run_depletion(self):
         self.deplete.run_depletion()
         obs = os.path.exists(str(self.deplete.path + "depletion_results.h5"))
-        assert obs == True
+        assert obs
 
     def test_create_recipe(self):
-        self.deplete.run_depletion() #make sure database is present
+        self.deplete.run_depletion()  # make sure database is present
         self.deplete.create_recipe()
         os.system("rm " + self.deplete.path + "depltion_results.h5")
         output_recipe = "../Reactor_fuel.xml"
@@ -49,4 +52,3 @@ class TestDepletion(unittest.TestCase):
         assert root[0][2].tag == 'nuclide'
         assert root[0][2][0].tag == 'id'
         assert root[0][2][1].tag == 'comp'
-    
