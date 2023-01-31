@@ -3,7 +3,7 @@ import openmc
 import openmc.deplete as od
 from xml.dom import minidom
 
-class OpenMCDepletion(object):
+class Depletion(object):
     def __init__(self, path, prototype, chain_file, timesteps, power):
         '''
         Class to hold objects related to calling the IndependentOperator 

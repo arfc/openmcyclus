@@ -1,15 +1,15 @@
 import numpy as np
 import pytest 
-from openmcyclus.depletion import OpenMCDepletion
 import xml.etree.ElementTree as ET
 import unittest
+from openmcyclus.depletion import Depletion
 
-class TestOpenMCDepletion(unittest.TestCase):
+class TestDepletion(unittest.TestCase):
     def setUp(self):
         '''
-        Set up the instantiation of the OpenMCDeplete class
+        Set up the instantiation of the Deplete class
         '''
-        self.deplete = OpenMCDepletion("../", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
+        self.deplete = Depletion("../", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
 
     def test_read_model(self):
         '''
