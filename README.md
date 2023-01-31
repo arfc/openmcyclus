@@ -13,10 +13,12 @@ and their required dependencies. Install both of these in the same conda environ
 ### Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 
 files and the 
-required microscopic cross sections for the model. Information about 
-these can be found on the [OpenMC website](https://docs.openmc.org). The cross 
-section data must be saved as a ``.csv`` file. 
+required microscopic cross sections (``.xml`` file)for the model. The cross 
+section data must be saved as a ``.csv`` file. These files must 
+all be in the same location. Information about 
+these can be found on the [OpenMC website](https://docs.openmc.org). 
 
 ### Outputs
-The compositions for the spent fuel are saved to an ``.xml`` file named after 
-the recipe name in the |Cyclus| simulation.
+The compositions for the spent fuel are saved to an ``.xml`` file named 
+``prototype_fuel.xml`` in which ``prototype`` is the prototype name in 
+the Cyclus simulation
