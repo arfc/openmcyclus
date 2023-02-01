@@ -12,7 +12,7 @@ jobs:
         with:
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          activate-environment: openmcyclus-env
+          activate-environment: openmc-env
           use-mamba: true
       - run: |
           conda config --env --set pip_interop_enabled true 
