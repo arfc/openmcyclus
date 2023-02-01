@@ -1,10 +1,6 @@
 name: test-openmcyclus
 run-name: Creating Actions
-on: 
- push:
-   paths: 
-     - 'openmcyclus/**'
-     - 'tests/**'
+on: [push]
 
 jobs:
   build-and-test:
