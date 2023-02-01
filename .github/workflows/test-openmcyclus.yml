@@ -1,23 +1,25 @@
 name: test-openmcyclus
 run-name: Creating Actions
-on: [push]
+on: 
+ push:
+   paths: 
+     - 'openmcyclus/**'
+     - 'tests/**'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build Envrionment
+      - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: ../environment.yml
-          python-version: 3.11
           use-mamba: true
       - run: |
-          conda config --env --set pip_interop_enabled true 
+          conda config --env --set pip_interop_enabled True 
           conda info
           conda list
       
