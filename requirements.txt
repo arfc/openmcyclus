@@ -1,7 +1,2 @@
 numpy
-pandas
-unittest
-scipy
 pytest
-tables
-cython
