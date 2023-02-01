@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - checkout
-      - python/install-deps
       - run:
         name: Build Environment
         command: |
