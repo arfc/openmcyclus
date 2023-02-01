@@ -9,22 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run:
-        name: Build Environment
-        command: |
-          pip install -r requirements.txt
+      - name: Build Envrionment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: openmc-env
+          use-mamba: true
+      - run: |
+          conda config --env --set pip_interop_enabled true 
       
-      - run:
-        name: Build OpenMC
-        command: |
-          echo "Need to install OpenMC"
+#      - run:
+#        name: Build OpenMC
+#        command: |
+#          echo "Need to install OpenMC"
 
-      - run:
-        name: Install OpenMCyclus
-        command: |
-          pip install .
+#      - run:
+#        name: Install OpenMCyclus
+#        command: |
+#          pip install .
 
-      - run:
-        name: Run Tests
-        command: |
-          pytest
+#      - run:
+#        name: Run Tests
+#        command: |
+#          pytest
