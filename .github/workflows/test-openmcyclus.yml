@@ -14,6 +14,9 @@ jobs:
           miniforge-version: latest
           activate-environment: openmcyclus-env
           use-mamba: true
+          mamba-version: "*"
+          environment-file: environment.yml
+          auto-activate-base: false
       - run: |
           conda config --env --set pip_interop_enabled True 
       
@@ -22,6 +25,7 @@ jobs:
 
       - name: Install OpenMC dependencies
         run: |
+          pip install -r requirements.txt
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
 
@@ -35,6 +39,6 @@ jobs:
           
       - name: Run Tests
         run: |
-          conda install pytest
+#          conda install pytest
           conda list
           pytest
