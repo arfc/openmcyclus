@@ -1,20 +1,10 @@
 version: 2.1
 
 on:
-  push:
-    paths:
-      - 'openmcyclus/**'
-      - 'tests/**'
-
   pull_request:
   workflow_run:
     workflows: []
     types: [completed]
-
-  workflow_dispatch:
-
-env:
-  CACHE_NUMBER: 0 
 
 jobs:
   build-and-test:
@@ -34,8 +24,7 @@ jobs:
       - run:
         name: Build OpenMC
         command: |
-          conda install mamba
-          mamba install openmc
+          echo "Need to install OpenMC"
 
       - run:
         name: Run Tests
