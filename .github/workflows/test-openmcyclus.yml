@@ -15,13 +15,14 @@ jobs:
           activate-environment: openmcyclus-env
           use-mamba: true
 #          environment-file: ~/project/environment.yml
-      - run: |
+      - name: Conda config
+        run: |
           conda config --env --set pip_interop_enabled True 
       
 #      - name: Update Environment
 #        run: mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Install OpenMC dependencies
+      - name: Install Dependencies
         run: |
           pip install -r requirements.txt
           sudo apt -y update 
@@ -29,7 +30,7 @@ jobs:
 
       - name: Build OpenMC
         run: |
-          echo "Need to install OpenMC"
+          mamba install openmc
 
       - name: Install OpenMCyclus
         run: |
@@ -37,5 +38,4 @@ jobs:
           
       - name: Run Tests
         run: |
-          conda list
           pytest
