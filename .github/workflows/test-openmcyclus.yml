@@ -16,7 +16,6 @@ jobs:
           use-mamba: true
       - run: |
           conda config --env --set pip_interop_enabled True 
-          conda install pytest
       
 #      - name: Update Environment
 #        run: mamba env update -n openmcyclus-env -f environment.yml
@@ -36,4 +35,5 @@ jobs:
           
       - name: Run Tests
         run: |
+          conda install pytest
           pytest
