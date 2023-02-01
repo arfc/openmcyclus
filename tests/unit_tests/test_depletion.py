@@ -42,7 +42,7 @@ class TestDepletion(unittest.TestCase):
         self.deplete.run_depletion()  # make sure database is present
         self.deplete.create_recipe()
         os.system("rm " + self.deplete.path + "depltion_results.h5")
-        output_recipe = "../Reactor_fuel.xml"
+        output_recipe = "tests/Reactor_fuel.xml"
         tree = ET.parse(output_recipe)
         root = tree.getroot()
         assert root.tag == 'recipes'
