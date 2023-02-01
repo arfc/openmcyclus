@@ -1,25 +1,20 @@
 version: 2.1
 
-on:
-  pull_request:
-  workflow_run:
-    workflows: []
-    types: [completed]
+name: test-openmcyclus
+run-name: Creating Actions
+on: [push]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - checkout
       - python/install-deps
       - run:
         name: Build Environment
         command: |
           pip install -r requirements.txt
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake \
-            autoconf \
       
       - run:
         name: Build OpenMC
@@ -27,13 +22,11 @@ jobs:
           echo "Need to install OpenMC"
 
       - run:
+        name: Install OpenMCyclus
+        command: |
+          pip install .
+
+      - run:
         name: Run Tests
         command: |
-          cd ~/project 
           pytest
-
-workflows:
-  version: 2.1
-  main:
-    jobs:
-      - build-and-test
