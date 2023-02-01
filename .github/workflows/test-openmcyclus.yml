@@ -13,7 +13,7 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: environment.yml
+          environment-file: ../environment.yml
           python-version: 3.11
           use-mamba: true
       - run: |
