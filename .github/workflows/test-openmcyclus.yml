@@ -17,23 +17,22 @@ jobs:
       - run: |
           conda config --env --set pip_interop_enabled True 
       
-#      - name: Update Environment
-#        run: mamba env update -n openmcyclus-env -f environment.yml
+      - name: Update Environment
+        run: mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Install OpenMC dependencies
-        run: |
-          sudo apt -y update 
-          sudo apt install -y libhdf5-dev
+#      - name: Install OpenMC dependencies
+#        run: |
+#          sudo apt -y update 
+#          sudo apt install -y libhdf5-dev
 
-      - name: Build OpenMC
-        run: |
-          echo "Need to install OpenMC"
+#      - name: Build OpenMC
+#        run: |
+#          echo "Need to install OpenMC"
 
-      - name: Install OpenMCyclus
-        run: |
-          pip install .
+#      - name: Install OpenMCyclus
+#        run: |
+#          pip install .
           
-
-      - name: Run Tests
-        run: |
-          pytest
+#      - name: Run Tests
+#        run: |
+#          pytest
