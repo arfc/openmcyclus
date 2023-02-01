@@ -14,7 +14,7 @@ jobs:
           miniforge-version: latest
           activate-environment: openmcyclus-env
           use-mamba: true
-          environment-file: environment.yml
+          environment-file: ../environment.yml
       - run: |
           conda config --env --set pip_interop_enabled True 
       
