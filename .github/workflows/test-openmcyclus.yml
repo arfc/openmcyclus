@@ -28,9 +28,15 @@ jobs:
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
 
-#      - name: Build OpenMC
-#        run: |
-#          mamba install openmc
+      - name: Install OpenMC
+        uses: actions/checkout@v3
+        with:
+          repository: openmc-dev/openmc
+          path: openmc
+          submodules: recursive
+       
+      - name: Build OpenMC
+        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
 
       - name: Install OpenMCyclus
         run: |
@@ -38,5 +44,4 @@ jobs:
           
       - name: Run Tests
         run: |
-          mamba install openmc
           pytest
