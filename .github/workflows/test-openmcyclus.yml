@@ -13,7 +13,7 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          python-version: 3.6
+          #python-version: 3.6
           use-mamba: true
 #          environment-file: ~/project/environment.yml
       - name: Conda config
