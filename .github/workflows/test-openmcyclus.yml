@@ -38,6 +38,7 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
+          
 
       - name: Run Tests
         run: |
