@@ -45,5 +45,5 @@ jobs:
           
       - name: Run Tests
         run: |
-          cd ~/project
+          cd ~/openmcyclus
           python -m pytest
