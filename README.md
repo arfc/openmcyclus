@@ -1,4 +1,5 @@
 # openmcyclus
+![Build Status](https://github.com/abachma2/openmcyclus/actions/workflows/test-openmcyclus.yml/badge.svg?branch=main)
 Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with [OpenMC](https://docs.openmc.org/en/develop/pythonapi/generated/openmc.run.html)
 
 ## Installation 
