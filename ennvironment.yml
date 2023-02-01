@@ -1,4 +1,4 @@
-name: openmc-env
+name: openmcyclus-env
 channels:
   - conda-forge
   - defaults
