@@ -12,15 +12,19 @@ jobs:
         with:
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          activate-environment: openmc-env
+          activate-environment: openmcyclus-env
           use-mamba: true
       - run: |
           conda config --env --set pip_interop_enabled true 
       
-      - name: Install requirements
-        run: | 
-          pip install -r requirement.txt
-          
+      - name: Update Environment
+        run: mamba env update -n openmcyclus-env -f environment.yml
+
+      - name: Install OpenMC dependencies
+        run: |
+          sudo apt -y update 
+          sudo apt install -y libhdf5-dev
+
       - name: Build OpenMC
         run: |
           echo "Need to install OpenMC"
