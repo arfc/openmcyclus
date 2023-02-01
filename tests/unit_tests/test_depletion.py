@@ -15,7 +15,7 @@ class TestDepletion(unittest.TestCase):
         Set up the instantiation of the Deplete class
         '''
         self.deplete = Depletion(
-            "../", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
+            "tests/", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
 
     def test_read_model(self):
         '''
