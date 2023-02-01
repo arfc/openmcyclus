@@ -17,17 +17,17 @@ jobs:
       - run: |
           conda config --env --set pip_interop_enabled true 
       
-#      - run:
-#        name: Build OpenMC
-#        command: |
-#          echo "Need to install OpenMC"
+      - run:
+        name: Build OpenMC
+        command: |
+          echo "Need to install OpenMC"
 
-#      - run:
-#        name: Install OpenMCyclus
-#        command: |
-#          pip install .
+      - run:
+        name: Install OpenMCyclus
+        command: |
+          pip install .
 
-#      - run:
-#        name: Run Tests
-#        command: |
-#          pytest
+      - run:
+        name: Run Tests
+        command: |
+          pytest
