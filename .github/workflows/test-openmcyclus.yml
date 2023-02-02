@@ -16,10 +16,10 @@ jobs:
           #python-version: 3.6
           use-mamba: true
 #          environment-file: ~/project/environment.yml
-        run: mamba activate openmcyclus-env
         
       - name: Conda config
         run: |
+          mamba activate openmcyclus-env
           conda config --env --set pip_interop_enabled True 
       
       - name: Update Environment
