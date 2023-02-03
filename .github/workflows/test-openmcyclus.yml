@@ -28,11 +28,9 @@ jobs:
           conda info 
           conda list
       
-#      - name: Update Environment
-#        run: |
-#          mamba init
-#          mamba activate openmcyclus-env
-#          mamba env update -n openmcyclus-env -f environment.yml
+      - name: Update Environment
+        run: |
+          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install Dependencies
         run: |
