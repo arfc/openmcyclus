@@ -33,15 +33,8 @@ jobs:
           pip install -r requirements.txt
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
-
-      - name: Install OpenMC
-        uses: actions/checkout@v3
-        with:
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
        
-      - name: Build OpenMC
+      - name: Install OpenMC
         run: mamba install openmc
 #        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
 
@@ -51,7 +44,6 @@ jobs:
           
       - name: Run Tests
         run: |
-          conda list
           pytest --version
           which pytest
-          python -m pytest
+          pytest
