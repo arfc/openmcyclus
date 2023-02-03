@@ -117,7 +117,7 @@ class Depletion(object):
             in from the class instantiation. Path will need to
             be relative to Cyclus input file location
         '''
-        results = od.Results.from_hdf5(str(self.path + "depletion_results.h5"))
+        results = od.Results(str(self.path + "depletion_results.h5"))
         composition = results.export_to_materials(-1)
         root = minidom.Document()
         recipe = root.createElement('recipes')
