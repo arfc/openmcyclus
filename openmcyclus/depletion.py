@@ -7,7 +7,7 @@ import pathlib
 
 class Depletion(object):
     def __init__(self, path:str, prototype:str, chain_file:str, 
-    timesteps:int, power:float):
+    timesteps:int, power:float, conversion_factor:float=3):
         '''
         Class to hold objects related to calling 
         ~:class:`~openmc.deplete.IndependentOperator`
@@ -30,12 +30,16 @@ class Depletion(object):
             multiplied by 30 to give a timestep in days. 
         power: float
             power output of the reactor, assumed in MWe.
+        conversion_factor: float
+            conversion factor to go from MWe to MWth. Default value of 3,
+            representing a thermal efficiency of 1/3
         '''
         self.path = pathlib.Path(path)
         self.prototype = prototype
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
+        self.conversion_factor = conversion_factor
 
     def read_model(self):
         '''
@@ -91,10 +95,11 @@ class Depletion(object):
         model = self.read_model()
         micro_xs = self.read_microxs()
         ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                        str(self.path / self.chain_file),
-                                        output_dir = self.path)
+                                        str(self.path / self.chain_file))
+        ind_op.output_dir = self.path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
-            self.timesteps*30), power=self.power*1000, timestep_units='d')
+            self.timesteps*30), power=self.power*1000*self.conversion_factor, 
+            timestep_units='d')
         integrator.integrate()
 
         return
@@ -147,7 +152,7 @@ class Depletion(object):
                 material_recipe.appendChild(nuclide)
             recipe.appendChild(material_recipe)
         xml_str = root.toprettyxml(newl='\n')
-        file_name = str(self.path + self.prototype + "_fuel.xml")
+        file_name = str(self.path / str(self.prototype + "_fuel.xml"))
         with open(file_name, "w") as f:
             f.write(xml_str)
         return
