@@ -16,7 +16,7 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          #environment-file: environment.yml
+          environment-file: environment.yml
           auto-activate-base: false
           #python-version: 3.6
           use-mamba: true
@@ -56,6 +56,7 @@ jobs:
           
       - name: Run Tests
         run: |
+          conda list
           pytest --version
           which pytest
           python -m pytest
