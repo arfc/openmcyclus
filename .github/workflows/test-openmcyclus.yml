@@ -5,6 +5,9 @@ on: [push]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run: 
+        shell: bash -l {0}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
@@ -12,14 +15,18 @@ jobs:
         with:
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          #activate-environment: openmcyclus-env
+          activate-environment: openmcyclus-env
+          environment-file: ~/project/environment.yml
+          auto-activate-base: false
           #python-version: 3.6
           use-mamba: true
-#          environment-file: ~/project/environment.yml
+          
         
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
+          conda info 
+          conda list
       
 #      - name: Update Environment
 #        run: |
@@ -33,19 +40,19 @@ jobs:
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
 
-      - name: Install OpenMC
-        uses: actions/checkout@v3
-        with:
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
+#      - name: Install OpenMC
+#        uses: actions/checkout@v3
+#        with:
+#          repository: openmc-dev/openmc
+#          path: openmc
+#          submodules: recursive
        
-      - name: Build OpenMC
-        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
+#      - name: Build OpenMC
+#        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
 
-      - name: Install OpenMCyclus
-        run: |
-          pip install .
+#      - name: Install OpenMCyclus
+#        run: |
+#          pip install .
           
       - name: Run Tests
         run: |
