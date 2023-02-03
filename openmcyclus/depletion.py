@@ -31,7 +31,7 @@ class Depletion(object):
         power: float
             power output of the reactor, assumed in MWe.
         '''
-        self.path = Path(path).resolve()
+        self.path = pathlib.Path(path)
         self.prototype = prototype
         self.chain_file = chain_file
         self.timesteps = timesteps
