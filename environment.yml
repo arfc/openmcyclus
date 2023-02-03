@@ -3,7 +3,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - numpy>=1.14.0
+  - numpy
   - pytest
   - pip
-    - argparse==1.4.0

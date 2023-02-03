@@ -32,6 +32,8 @@ jobs:
           pip install -r requirements.txt
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
+          which numpy
+          conda list
 
       - name: Install OpenMC
         uses: actions/checkout@v3
