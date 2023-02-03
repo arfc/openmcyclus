@@ -42,7 +42,8 @@ jobs:
           submodules: recursive
        
       - name: Build OpenMC
-        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
+        run: mamba install openmc
+#        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
 
       - name: Install OpenMCyclus
         run: |
