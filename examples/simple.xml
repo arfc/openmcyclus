@@ -142,11 +142,11 @@
       <basis>mass</basis>
       <nuclide>
         <id>92235</id>
-        <comp>0.00711</comp>
+        <comp>0.05</comp>
       </nuclide>
       <nuclide>
         <id>92238</id>
-        <comp>0.99289</comp>
+        <comp>0.95</comp>
       </nuclide>
     </recipe>
 
