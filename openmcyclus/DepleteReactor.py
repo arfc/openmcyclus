@@ -163,12 +163,15 @@ class DepleteReactor(Facility):
             #self.record("CYCLE_END", "")
         
         if (self.cycle_step >= self.cycle_time) and (self.discharged != False):
-            print("discharge fuel")
+            print("Discharge fuel")
             self.discharged = self.discharge()
         if self.cycle_step >= self.cycle_time:
             print("Load fuel")
             self.load()
+        #self.record("Tick", "")
         print("end tick", self.context.time)
+        #lib.Logger('5', str("DepleteReactor" + str(self.power_cap) + "is ticking"))
+
  
     def tock(self):
         '''
@@ -196,6 +199,7 @@ class DepleteReactor(Facility):
         if self.retired():
             print("Retired")
             return
+        print(self.discharged)
         if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == True):
             self.discharged = False
             print(self.context.time, "reset cycle_step")
@@ -247,7 +251,7 @@ class DepleteReactor(Facility):
         If the reactor does not need more fuel or is retired, then 
         submit no bids for materials.
         '''
-        print("start get requests")
+        print("start get requests", self.context.time)
         port = []
         n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
         if self.exit_time != -1:
@@ -257,15 +261,13 @@ class DepleteReactor(Facility):
             n_cycles_left = math.ceil(n_cycles_left)
             n_need = max(0, n_cycles_left*self.n_assem_batch - self.n_assem_fresh + self.assem_core - self.core.count)
             n_assem_order = min(n_assem_order, n_need)
-        print("n_assem_order:", n_assem_order)
         if n_assem_order == 0:
             return port
         elif self.retired():
             return port
         for ii in range(n_assem_order):
-            for jj in range(len(self.fuel_incommods)):
-                commod = self.fuel_incommods[jj]
-                recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
+            for commod in self.fuel_incommods:
+                recipe = self.context.get_recipe(commod)
                 material = ts.Material.create_untracked(self.assem_size, recipe)
             lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
@@ -297,49 +299,51 @@ class DepleteReactor(Facility):
         Add a constraint of the total quantity of the commodity available.
         Create a bid portfolio for each request that can be met. 
         '''
-        print("start get material bids")
-        got_mats = False
+        print("start get Material bids")
+        #got_mats = False
         bids = []
-        unique_commods_ = []
-        if len(unique_commods_) == 0:
-            for ii in range(len(self.fuel_outcommods)):
-                unique_commods_.append(self.fuel_outcommods[ii])
-        for commod in unique_commods_:
-            reqs = requests[commod]
-            if len(reqs) == 0:
-                continue
-            elif (got_mats == False):
-                all_mats = self.peek_spent()
+        #for commod in self.fuel_outcommods:
+        #    reqs = requests[commod]
+        #    if len(reqs) == 0:
+        #        continue
+        #    elif (got_mats == False):
+        #        all_mats = self.peek_spent()
 
-            if len(all_mats) == 0:
-                tot_qty = 0
-                continue
-            mats = [all_mats[commod]]
-            if len(mats) == 0:
-                continue
-            for ii in range(len(self.fuel_outrecipes)):
-                recipe_comp = self.context.get_recipe(self.fuel_outrecipes[ii])
+        #    if len(all_mats) == 0:
+        #        tot_qty = 0
+        #        continue
+        #    mats = [all_mats[commod]]
+        #    if len(mats) == 0:
+        #        continue
+        #    for ii in range(len(self.fuel_outrecipes)):
+        #        recipe_comp = self.context.get_recipe(self.fuel_outrecipes[ii])
+        #        for req in reqs:
+        #            tot_bid = 0
+        #            for jj in range(len(mats)):
+        #                tot_bid += mats[jj].quantity
+        #                qty = min(req.target.quantity, self.spent_fuel.quantity)
+        #                mat = ts.Material.create_untracked(qty, recipe_comp)
+        #                bids.append({'request':req,'offer':mat})
+        #            if tot_bid >= req.target.quantity:
+        #                break
+        #    tot_qty = 0
+        #    for mat in mats:
+        #        tot_qty += mat.quantity
+        for commod in self.fuel_outcommods:
+            if commod in requests.keys():
+                reqs = requests[commod]
                 for req in reqs:
-                    tot_bid = 0
-                    for jj in range(len(mats)):
-                        tot_bid += mats[jj].quantity
-                        qty = min(req.target.quantity, self.spent_fuel.quantity)
-                        mat = ts.Material.create_untracked(qty, recipe_comp)
-                        bids.append({'request':req,'offer':mat})
-                    if tot_bid >= req.target.quantity:
+                    if self.spent_fuel.empty():
                         break
-            tot_qty = 0
-            for mat in mats:
-                tot_qty += mat.quantity
-
-        if bids == []:
+                    qty = min(req.target.quantity, self.spent_fuel.quantity)
+                    next_fuel = self.spent_fuel.peek()
+                    mat = ts.Material.create_untracked(qty, next_fuel.comp())
+                    bids.append({'request':req, 'offer':mat})
+        if len(bids) == 0:
             return 
 
-        port = {'bids':bids, "constraint":tot_qty}
-        
+        port = {'bids':bids}
         print(port)
-        print(port['bids'][0]['request'].commodity)
-        print(port['bids'][0]['offer'].comp())
         print("end get material bids", self.context.time)
         return port
 
@@ -490,14 +494,11 @@ class DepleteReactor(Facility):
         val: str
             value of event
         '''
-        event = lib.Datum("ReactorEvents")
-        lib.Context.new_datum(self.context, "ReactorEvents")
-        #event.add_val("AgentId", id(), 1)
-        lib.Datum.add_val(event, "Time", self.context.time)
-        event.add_val(self.context, "Time", self.context.time, 1)
-        event.add_val("Event", event)
-        event.add_val("Value", val)
-        event.record()
+        events = self.context.new_datum("ReactorEvents") # creates tables with name ReactorEvents
+        datum = lib.Datum("Event")
+        lib.Datum.add_val(datum, "Event", event)
+        events.add_val("Value", val)
+        events.record()
         return
 
         
