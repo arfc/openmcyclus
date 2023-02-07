@@ -5,9 +5,17 @@ import math
 
 class DepleteReactor(Facility):
     '''
+<<<<<<< HEAD
     Reactor facility that performs depletion of the materials
     in it's inventory using the IndependentOperator in 
     OpenMC.
+=======
+    Archetype class to model a reactor facility that is 
+    coupled to the stand alone depletion solver in OpenMC.
+    With the exception of the depletion solver, this 
+    archetype has the same functionality as the 
+    cycamore:Reactor archetype.
+>>>>>>> main
     '''
 
     fuel_incommods = ts.VectorString(

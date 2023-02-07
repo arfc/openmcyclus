@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<materials>
+  <material depletable="true" id="1" temperature="900" volume="1256.6370614359173">
+    <density units="g/cm3" value="19.1" />
+    <nuclide ao="1" name="U235" />
+  </material>
+</materials>
