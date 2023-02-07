@@ -41,10 +41,10 @@ jobs:
         run: |
           pip install .
       
-      - name: Find cross section data
-      - run: |
-          export $OPENMC_CROSS_SECTIONS=cross_sections.xml
+#      - name: Find cross section data
+#        run: |
+#          export $OPENMC_CROSS_SECTIONS=cross_sections.xml
           
       - name: Run Tests
-      - run: |
+        run: |
           pytest
