@@ -348,7 +348,6 @@ class DepleteReactor(Facility):
             return 
 
         port = {'bids':bids}
-        print(port)
         print("end get material bids", self.context.time, port)
         return port
 
@@ -481,13 +480,13 @@ class DepleteReactor(Facility):
         old = self.core.pop_n(min(n_assem, self.core.count))
         print("number of assem to transmute:", len(old))
         for ii in range(len(old)):
-            self.core.push(old[ii]) # problem line
-        print("core inventory:", self.core.count) # good through here
-        if (self.core.count > len(old)):
-            self.core.push(self.core.pop_n(self.core.count - len(old)))
+            self.core.push(old[ii]) 
+        print("core inventory:", self.core.count) 
+        #if (self.core.count > len(old)):
+        #    self.core.push(self.core.pop_n(self.core.count - len(old)))
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
-
+        print(ss)
         for ii in range(len(old)):
             print("call OpenMC")
         return
@@ -543,11 +542,13 @@ class DepleteReactor(Facility):
         first and make sure they get traded away first. 
         '''
         mats = self.spent_fuel.pop_n(self.spent_fuel.count)
-        print("Pop_Spent, mats", mats)
+        print("Pop_Spent, mats", mats) 
         mapped = {}
+        for commod in self.fuel_outcommods:
+            mapped[commod] = []
         for ii in range(len(mats)):
-            commod = self.fuel_outcommods[mats[ii]]
-            mapped[commod].append(mats[ii]) # not sure what push_back does
+            for commod in self.fuel_outcommods:
+                mapped[commod].append(mats[ii])
         
         #for it in mapped:
         #    ts.reverse(it.second.begin(), it.second.end())
