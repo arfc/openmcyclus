@@ -10,7 +10,7 @@ class Depletion(object):
     timesteps:int, power:float, conversion_factor:float=3):
         '''
         Class to hold objects related to calling 
-        ~:class:`~openmc.deplete.IndependentOperator`
+        :class:`~openmc.deplete.IndependentOperator`
         to perform transport-independent depletion.
 
         Inputs:
