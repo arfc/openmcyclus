@@ -37,7 +37,7 @@ jobs:
         run: mamba install openmc
 
       - name: Install OpenMC cross section library
-        run: $GITHUB_WORKSPACE/openmc-xs.bash
+        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: |
