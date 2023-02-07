@@ -35,11 +35,10 @@ jobs:
        
       - name: Install OpenMC
         run: mamba install openmc
-#        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
 
       - name: Find cross section data
         run: |
-          export $OPENMC_CROSS_SECTIONS=cross_sections.xml
+          export OPENMC_CROSS_SECTIONS=cross_sections.xml
 
       - name: Install OpenMCyclus
         run: |
