@@ -5,17 +5,11 @@ import math
 
 class DepleteReactor(Facility):
     '''
-<<<<<<< HEAD
-    Reactor facility that performs depletion of the materials
-    in it's inventory using the IndependentOperator in 
-    OpenMC.
-=======
     Archetype class to model a reactor facility that is 
     coupled to the stand alone depletion solver in OpenMC.
     With the exception of the depletion solver, this 
     archetype has the same functionality as the 
     cycamore:Reactor archetype.
->>>>>>> main
     '''
 
     fuel_incommods = ts.VectorString(
@@ -372,15 +366,17 @@ class DepleteReactor(Facility):
         print("start get material trades")
         responses = {}
         mats = self.pop_spent()
+        print(mats)
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
             m = mats[commod][-1] 
             mats[commod].pop
-            responses.append(trades[ii], m)
-            self.resource_indexes.remove(m.obj_id)
+            responses[trades[ii]] = m
+            #self.resource_indexes.remove(m.obj_id)
+        print("responses:", responses)
         self.push_spent(mats)
         print("end get material trades", self.context.time)
-        return 
+        return responses
 
     def accept_material_trades(self, responses): # phase 5.2
         '''
@@ -567,9 +563,11 @@ class DepleteReactor(Facility):
         Reverse the order of materials in the leftover list
 
         '''
-        for item in leftover:
+        print("call push_spent", leftover)
+        for commod in leftover:
+            for material in leftover[commod]:
             #reverse(item.second.begin, item.second.end)
-            self.spent_fuel.push(item)
+                self.spent_fuel.push(material)
 
     def peek_spent(self):
         '''
