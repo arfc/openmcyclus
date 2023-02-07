@@ -1,38 +1,45 @@
 import numpy as np
 import openmc
 import openmc.deplete as od
-import os
 from xml.dom import minidom
+import pathlib
 
 
 class Depletion(object):
-    def __init__(self, path, prototype, chain_file, timesteps, power):
+    def __init__(self, path:str, prototype:str, chain_file:str, 
+    timesteps:int, power:float, conversion_factor:float=3):
         '''
-        Class to hold objects related to calling the IndependentOperator
-        in OpenMC to perform stand alone depletion.
+        Class to hold objects related to calling 
+        :class:`~openmc.deplete.IndependentOperator`
+        to perform transport-independent depletion.
 
         Inputs:
         ----------
         path: str
-            path to file for OpenMC model (geometry, materials,
+            path to directory containing for OpenMC model (geometry, materials,
             and settings) and the results (depletion_results.h5)
         prototype: str
             name of prototype undergoing depletion
         chain_file: str
-            name of file with decay chain data. Just the file name is
+            name of file with depletion chain data. Just the file name is
             required, it is assumed that the file is in the same
             location as the other files for the OpenMC model
         timesteps: int
-            number of time steps to perform irradiation. It is assumed that
-            the number given is in units of months.
-        power: int
+            number of time steps to perform depletion. It is assumed that
+            the number given is in units of months. This value is 
+            multiplied by 30 to give a timestep in days. 
+        power: float
             power output of the reactor, assumed in MWe.
+        conversion_factor: float
+            conversion factor to go from MWe to MWth. Default value of 3,
+            representing a thermal efficiency of 1/3
         '''
-        self.path = path
+        self.path = pathlib.Path(path)
         self.prototype = prototype
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
+        self.conversion_factor = conversion_factor
 
     def read_model(self):
         '''
@@ -46,23 +53,20 @@ class Depletion(object):
         model: openmc.model.model object
             OpenMC model of reactor geometry.
         '''
-        model = openmc.Model.from_xml(
-            geometry=str(
-                self.path +
-                "geometry.xml"),
-            materials=str(
-                self.path +
-                "materials.xml"),
-            settings=str(
-                self.path +
-                "materials.xml"))
+        model_kwargs = {"geometry": (self.path / "geometry.xml"),
+                        "materials": (self.path / "materials.xml"),
+                        "settings": (self.path / "settings.xml")}
+        tallies_path = self.path / "tallies.xml"
+        if tallies_path.exists():
+            model_kwargs["tallies"] = tallies_path
+        model = openmc.Model.from_xml(**model_kwargs)
         return model
 
     def read_microxs(self):
         '''
         Reads .csv file with microscopic cross sections. The
         csv file is assumed to be named "micro_xs.csv". This will need to
-            be relative to Cyclus input file location
+        be relative to Cyclus input file location
 
         Parameters:
         -----------
@@ -72,13 +76,13 @@ class Depletion(object):
         microxs: object
             microscopic cross section data
         '''
-        microxs = od.MicroXS.from_csv(str(self.path + "micro_xs.csv"))
+        microxs = od.MicroXS.from_csv(self.path / "micro_xs.csv")
         return microxs
 
     def run_depletion(self):
         '''
         Run the IndependentOperator class in OpenMC to perform
-        stand-alone depletion.
+        transport-independent depletion.
 
         Parameters:
         -----------
@@ -91,14 +95,13 @@ class Depletion(object):
         model = self.read_model()
         micro_xs = self.read_microxs()
         ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                        str(self.path + self.chain_file))
+                                        str(self.path / self.chain_file))
+        ind_op.output_dir = self.path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
-            self.timesteps), power=self.power, timestep_units='d')
+            self.timesteps*30), power=self.power*1000*self.conversion_factor, 
+            timestep_units='d')
         integrator.integrate()
-        os.system(
-            'mv ./depletion_results.h5 ' +
-            self.path +
-            "depletion_results.h5")
+
         return
 
     def create_recipe(self):
@@ -117,7 +120,7 @@ class Depletion(object):
             in from the class instantiation. Path will need to
             be relative to Cyclus input file location
         '''
-        results = od.Results(str(self.path + "depletion_results.h5"))
+        results = od.Results(self.path / "depletion_results.h5")
         composition = results.export_to_materials(-1)
         root = minidom.Document()
         recipe = root.createElement('recipes')
@@ -149,7 +152,7 @@ class Depletion(object):
                 material_recipe.appendChild(nuclide)
             recipe.appendChild(material_recipe)
         xml_str = root.toprettyxml(newl='\n')
-        file_name = str(self.path + self.prototype + "_fuel.xml")
+        file_name = str(self.path / str(self.prototype + "_fuel.xml"))
         with open(file_name, "w") as f:
             f.write(xml_str)
         return
