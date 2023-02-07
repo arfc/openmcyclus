@@ -157,9 +157,11 @@ class DepleteReactor(Facility):
                 self.spent_fuel.push(self.fresh_fuel.pop())
             if self.check_decommission_condition():
                 self.decommission()
-        if self.cycle_step == self.cycle_time:
-            print("Transmute fuel")
-            self.transmute(math.ceil(self.n_assem_core))
+        if self.cycle_step == self.cycle_time:  
+            print("Transmute fuel")          
+            #print("core inventory before transmuting:", self.core.count)
+            self.transmute(math.ceil(self.n_assem_batch))
+            
             #self.record("CYCLE_END", "")
         
         if (self.cycle_step >= self.cycle_time) and (self.discharged != False):
@@ -199,12 +201,12 @@ class DepleteReactor(Facility):
         if self.retired():
             print("Retired")
             return
-        print(self.discharged)
+        
         if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == True):
             self.discharged = False
             print(self.context.time, "reset cycle_step")
             self.cycle_step = 0
-        print("check fuel discharged")
+        
         if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
             #self.record("CYCLE_START", "")
             print("Cycle start")
@@ -262,8 +264,10 @@ class DepleteReactor(Facility):
             n_need = max(0, n_cycles_left*self.n_assem_batch - self.n_assem_fresh + self.assem_core - self.core.count)
             n_assem_order = min(n_assem_order, n_need)
         if n_assem_order == 0:
+            print("nothing to order")
             return port
         elif self.retired():
+            print("facility is retired")
             return port
         for ii in range(n_assem_order):
             for commod in self.fuel_incommods:
@@ -271,7 +275,7 @@ class DepleteReactor(Facility):
                 material = ts.Material.create_untracked(self.assem_size, recipe)
             lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
-        print("end get material requests", self.context.time)
+        print("end get material requests", self.context.time, port)
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -340,14 +344,15 @@ class DepleteReactor(Facility):
                     mat = ts.Material.create_untracked(qty, next_fuel.comp())
                     bids.append({'request':req, 'offer':mat})
         if len(bids) == 0:
+            print("no responses to requests", self.context.time)
             return 
 
         port = {'bids':bids}
         print(port)
-        print("end get material bids", self.context.time)
+        print("end get material bids", self.context.time, port)
         return port
 
-    def get_material_trades(self, trades, responses): #phase 5.1
+    def get_material_trades(self, trades): #phase 5.1
         '''
         Trade away material in the spent_fuel material buffer.
 
@@ -358,6 +363,7 @@ class DepleteReactor(Facility):
         Then trade the materials from the spent fuel inventory. 
         '''
         print("start get material trades")
+        responses = {}
         mats = self.pop_spent()
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
@@ -402,6 +408,7 @@ class DepleteReactor(Facility):
                 self.fresh_fuel.push(m)
         print("core:", self.core.count, "fresh:", self.fresh_fuel.count)
         print("end accept material trades", self.context.time)
+        return 
 
     def retired(self):
         '''
@@ -470,9 +477,12 @@ class DepleteReactor(Facility):
 
         There seem to be two Transmute functions in the cycamore reactor?
         '''
+        #print("core inventory before transmuting:", self.core.count)
         old = self.core.pop_n(min(n_assem, self.core.count))
+        print("number of assem to transmute:", len(old))
         for ii in range(len(old)):
             self.core.push(old[ii]) # problem line
+        print("core inventory:", self.core.count) # good through here
         if (self.core.count > len(old)):
             self.core.push(self.core.pop_n(self.core.count - len(old)))
         ss = str(len(old)) + " assemblies"
