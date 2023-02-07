@@ -36,9 +36,8 @@ jobs:
       - name: Install OpenMC
         run: mamba install openmc
 
-      - name: Find cross section data
-        run: |
-          export OPENMC_CROSS_SECTIONS=cross_sections.xml
+      - name: Install OpenMC cross section library
+        run: $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMCyclus
         run: |
