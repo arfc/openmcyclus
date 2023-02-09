@@ -129,7 +129,7 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
         self.cycle_step = 0
         self.power_name = "power"
-        self.discharged = True
+        self.discharged = True 
         self.resource_indexes = {}
 
     def tick(self):
@@ -172,7 +172,7 @@ class DepleteReactor(Facility):
             
             #self.record("CYCLE_END", "")
         
-        if (self.cycle_step >= self.cycle_time) and (self.discharged != False):
+        if (self.cycle_step >= self.cycle_time) and (self.discharged == True):
             print("Discharge fuel")
             self.discharged = self.discharge()
         if self.cycle_step >= self.cycle_time:
@@ -209,15 +209,19 @@ class DepleteReactor(Facility):
         if self.retired():
             print("Retired")
             return
-        
-        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == True):
-            self.discharged = False
+
+        print("cycle step:", self.cycle_step)
+        print(self.cycle_time+self.refuel_time)
+
+        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == False):
+            self.discharged = True
             print(self.context.time, "reset cycle_step")
             self.cycle_step = 0
         
         if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
             #self.record("CYCLE_START", "")
             print("Cycle start")
+
         if (self.cycle_step >=0) and (self.cycle_step < self.cycle_time) and (self.core.count == self.n_assem_core):
             lib.record_time_series(lib.POWER, self, self.power_cap)
             lib.record_time_series("supplyPOWER", self, self.power_cap)
@@ -283,7 +287,7 @@ class DepleteReactor(Facility):
                 material = ts.Material.create_untracked(self.assem_size, recipe)
             lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
-        print("end get material requests", self.context.time, port)
+        print("end get material requests", self.context.time)
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -356,7 +360,7 @@ class DepleteReactor(Facility):
             return 
 
         port = {'bids':bids}
-        print("end get material bids", self.context.time, port)
+        print("end get material bids", self.context.time)
         return port
 
     def get_material_trades(self, trades): #phase 5.1
@@ -375,12 +379,12 @@ class DepleteReactor(Facility):
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
             m = mats[commod][-1] 
-            mats[commod].pop
-            responses.append(trades[ii], m)
+            mats[commod].pop(-1)
+            responses[trades[ii]] = m
             self.resource_indexes.remove(m.obj_id)
         self.push_spent(mats)
         print("end get material trades", self.context.time)
-        return 
+        return responses 
 
     def accept_material_trades(self, responses): # phase 5.2
         '''
@@ -550,7 +554,7 @@ class DepleteReactor(Facility):
         first and make sure they get traded away first. 
         '''
         mats = self.spent_fuel.pop_n(self.spent_fuel.count)
-        print("Pop_Spent, mats", mats) 
+        print("Pop_Spent, mats") 
         mapped = {}
         for commod in self.fuel_outcommods:
             mapped[commod] = []
@@ -567,9 +571,12 @@ class DepleteReactor(Facility):
         Reverse the order of materials in the leftover list
 
         '''
-        for item in leftover:
+        print("call push_spent")
+        for commod in leftover:
             #reverse(item.second.begin, item.second.end)
-            self.spent_fuel.push(item)
+            for material in leftover[commod]:
+                self.spent_fuel.push(material)
+        return
 
     def peek_spent(self):
         '''
@@ -581,5 +588,5 @@ class DepleteReactor(Facility):
             for ii in range(len(mats)):
                 self.spent_fuel.push(mats[ii])
                 commod = self.fuel_outcommods[ii]
-                mapped[commod] = mats[ii] # not sure what push_back does
+                mapped[commod] = mats[ii] 
         return mapped
