@@ -5,17 +5,11 @@ import math
 
 class DepleteReactor(Facility):
     '''
-<<<<<<< HEAD
-    Reactor facility that performs depletion of the materials
-    in it's inventory using the IndependentOperator in 
-    OpenMC.
-=======
     Archetype class to model a reactor facility that is 
     coupled to the stand alone depletion solver in OpenMC.
     With the exception of the depletion solver, this 
     archetype has the same functionality as the 
     cycamore:Reactor archetype.
->>>>>>> main
     '''
 
     fuel_incommods = ts.VectorString(
@@ -129,7 +123,7 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
         self.cycle_step = 0
         self.power_name = "power"
-        self.discharged = True 
+        self.discharged = False
         self.resource_indexes = {}
 
     def tick(self):
@@ -171,11 +165,11 @@ class DepleteReactor(Facility):
             self.transmute(math.ceil(self.n_assem_batch))
             
             #self.record("CYCLE_END", "")
-        
-        if (self.cycle_step >= self.cycle_time) and (self.discharged == True):
+        print("discharge:", self.discharged)
+        if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
             print("Discharge fuel")
             self.discharged = self.discharge()
-        if self.cycle_step >= self.cycle_time:
+        if self.cycle_step > self.cycle_time:
             print("Load fuel")
             self.load()
         #self.record("Tick", "")
@@ -209,12 +203,15 @@ class DepleteReactor(Facility):
         if self.retired():
             print("Retired")
             return
-
-        print("cycle step:", self.cycle_step)
+        print("core:", self.core.count)
+        print("waste:", self.spent_fuel.count)
+        print("fresh:", self.fresh_fuel.count)
+        print("cycle_step:", self.cycle_step)
         print(self.cycle_time+self.refuel_time)
-
-        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem) and (self.discharged == False):
-            self.discharged = True
+        print(self.discharged)
+        
+        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem_core) and (self.discharged == True):
+            self.discharged = False
             print(self.context.time, "reset cycle_step")
             self.cycle_step = 0
         
@@ -233,7 +230,7 @@ class DepleteReactor(Facility):
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
             self.cycle_step += 1  
-        print("end tock", self.context.time, "cycle_step:", self.cycle_step)
+        print("end tock", self.context.time, "cycle_step:", self.cycle_step, "\n")
 
     def enter_notify(self):
         super().enter_notify()       
@@ -378,6 +375,7 @@ class DepleteReactor(Facility):
         mats = self.pop_spent()
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
+            print(mats[commod])
             m = mats[commod][-1] 
             mats[commod].pop(-1)
             responses[trades[ii]] = m
@@ -405,6 +403,7 @@ class DepleteReactor(Facility):
 
         '''
         print("start accept material trades")
+        #print("core:", self.core.count, "fresh:", self.fresh_fuel.count)
         n_load = min(len(responses), self.n_assem_core - self.core.count)
         if n_load > 0:
             ss = str(n_load) + " assemblies"
@@ -493,12 +492,12 @@ class DepleteReactor(Facility):
         print("number of assem to transmute:", len(old))
         for ii in range(len(old)):
             self.core.push(old[ii]) 
-        print("core inventory:", self.core.count) 
+        #print("core inventory:", self.core.count) 
         #if (self.core.count > len(old)):
         #    self.core.push(self.core.pop_n(self.core.count - len(old)))
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
-        print(ss)
+        #print(ss)
         for ii in range(len(old)):
             print("call OpenMC")
         return
@@ -573,10 +572,9 @@ class DepleteReactor(Facility):
         '''
         print("call push_spent")
         for commod in leftover:
-            #reverse(item.second.begin, item.second.end)
             for material in leftover[commod]:
+            #reverse(item.second.begin, item.second.end)
                 self.spent_fuel.push(material)
-        return
 
     def peek_spent(self):
         '''

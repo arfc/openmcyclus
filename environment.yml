@@ -1,0 +1,8 @@
+name: openmcyclus-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy
+  - pytest
+  - pip
