@@ -31,18 +31,17 @@ jobs:
           conda install -y liblapack pkg-config coincbc=2.9 boost-cpp hdf5 sqlite pcre gettext bzip2 xz
           conda install -y setuptools nose pytables pandas jinja2 cython==0.26 websockets pprintpp
           conda install -y cyclus cycamore
-          conda list
       
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
-          conda list
-          python --version
+          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
+          cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
+          
 
       - name: Install Dependencies
         run: |
-          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
-          cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
+          pip install requirements.txt          
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
           
