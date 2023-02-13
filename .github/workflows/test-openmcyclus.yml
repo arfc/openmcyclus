@@ -31,10 +31,13 @@ jobs:
           conda install -y liblapack pkg-config coincbc=2.9 boost-cpp hdf5 sqlite pcre gettext bzip2 xz
           conda install -y setuptools nose pytables pandas jinja2 cython==0.26 websockets pprintpp
           conda install -y cyclus cycamore
+          conda list
       
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
+          conda list
+          python --version
 
 #      - name: Install Dependencies
 #        run: |
