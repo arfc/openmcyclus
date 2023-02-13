@@ -123,7 +123,7 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
         self.cycle_step = 0
         self.power_name = "power"
-        self.discharged = 0
+        self.discharged = False
         self.resource_indexes = {}
 
     def tick(self):
@@ -163,19 +163,17 @@ class DepleteReactor(Facility):
             print("Transmute fuel")          
             #print("core inventory before transmuting:", self.core.count)
             self.transmute(math.ceil(self.n_assem_batch))
-            print("finish transmuting")
             
             #self.record("CYCLE_END", "")
-        print("discharge:", self.discharged)
-        if (self.cycle_step >= self.cycle_time) and (self.discharged == 0):
+
+        if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
             print("Discharge fuel")
             self.discharged = self.discharge()
-            print(self.discharged)
 
         if self.cycle_step > self.cycle_time:
             print("Load fuel")
             self.load()
-        #self.record("Tick", "")
+
         print("end tick", self.context.time)
         #lib.Logger('5', str("DepleteReactor" + str(self.power_cap) + "is ticking"))
         return
@@ -206,15 +204,9 @@ class DepleteReactor(Facility):
         if self.retired():
             print("Retired")
             return
-        print("core:", self.core.count)
-        print("waste:", self.spent_fuel.count)
-        print("fresh:", self.fresh_fuel.count)
-        print("cycle_step:", self.cycle_step)
-        print(self.cycle_time+self.refuel_time)
-        print(self.discharged)
         
-        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem_core) and (self.discharged == 1):
-            self.discharged = 0
+        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem_core) and (self.discharged == True):
+            self.discharged = False
             print(self.context.time, "reset cycle_step")
             self.cycle_step = 0
         
@@ -223,20 +215,17 @@ class DepleteReactor(Facility):
             print("Cycle start")
 
         if (self.cycle_step >=0) and (self.cycle_step < self.cycle_time) and (self.core.count == self.n_assem_core):
-            #lib.record_time_series(lib.POWER, self, self.power_cap)
-            #lib.record_time_series("supplyPOWER", self, self.power_cap)
+            lib.record_time_series(lib.POWER, self, self.power_cap)
+            lib.record_time_series("supplyPOWER", self, int(self.power_cap))
             print('record power', self.power_cap)
         else:
-            #lib.record_time_series(lib.POWER, self, 0)
-            #lib.record_time_series("supplyPOWER", self, 0)  
+            lib.record_time_series(lib.POWER, self, 0)
+            lib.record_time_series("supplyPOWER", self, 0)  
             print('record power 0')
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
             self.cycle_step += 1  
-        print("end tock", self.context.time, "cycle_step:", self.cycle_step)
-        print("core:", self.core.count)
-        print("fresh:", self.fresh_fuel.count)
-        print("spent:", self.spent_fuel.count, "\n")
+        print("end tock", self.context.time, "cycle_step:", self.cycle_step, "\n")
         return 
 
     def enter_notify(self):
@@ -271,9 +260,7 @@ class DepleteReactor(Facility):
         '''
         print("start get requests", self.context.time)
         port = []
-        print("port at beginning:", port)
         n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
-        print("n assem order:", n_assem_order)
         if self.exit_time != -1:
             time_left = self.exit_time - self.context.time + 1
             time_left_cycle = self.cycle_time + self.refuel_time - self.cycle_step
@@ -291,7 +278,7 @@ class DepleteReactor(Facility):
             for commod in self.fuel_incommods:
                 recipe = self.context.get_recipe(commod)
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-            #lib.record_time_series("demand"+commod, self, self.assem_size)
+            lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
         print("end get material requests", self.context.time)
         return port
@@ -322,52 +309,42 @@ class DepleteReactor(Facility):
         Create a bid portfolio for each request that can be met. 
         '''
         print("start get Material bids")
-        #got_mats = False
+        got_mats = False
         bids = []
         port = []
-        #for commod in self.fuel_outcommods:
-        #    reqs = requests[commod]
-        #    if len(reqs) == 0:
-        #        continue
-        #    elif (got_mats == False):
-        #        all_mats = self.peek_spent()
-
-        #    if len(all_mats) == 0:
-        #        tot_qty = 0
-        #        continue
-        #    mats = [all_mats[commod]]
-        #    if len(mats) == 0:
-        #        continue
-        #    for ii in range(len(self.fuel_outrecipes)):
-        #        recipe_comp = self.context.get_recipe(self.fuel_outrecipes[ii])
-        #        for req in reqs:
-        #            tot_bid = 0
-        #            for jj in range(len(mats)):
-        #                tot_bid += mats[jj].quantity
-        #                qty = min(req.target.quantity, self.spent_fuel.quantity)
-        #                mat = ts.Material.create_untracked(qty, recipe_comp)
-        #                bids.append({'request':req,'offer':mat})
-        #            if tot_bid >= req.target.quantity:
-        #                break
-        #    tot_qty = 0
-        #    for mat in mats:
-        #        tot_qty += mat.quantity
         for commod in self.fuel_outcommods:
-            if commod in requests.keys():
-                reqs = requests[commod]
+            reqs = requests[commod]
+            if len(reqs) == 0:
+                continue
+            elif (got_mats == False):
+                all_mats = self.peek_spent()
+
+            if len(all_mats) == 0:
+                tot_qty = 0
+                continue
+            mats = [all_mats[commod]]
+            if len(mats) == 0:
+                continue
+            for ii in range(len(self.fuel_outrecipes)):
+                recipe_comp = self.context.get_recipe(self.fuel_outrecipes[ii])
                 for req in reqs:
-                    if self.spent_fuel.empty():
+                    tot_bid = 0
+                    for jj in range(len(mats)):
+                        tot_bid += mats[jj].quantity
+                        qty = min(req.target.quantity, self.spent_fuel.quantity)
+                        mat = ts.Material.create_untracked(qty, recipe_comp)
+                        bids.append({'request':req,'offer':mat})
+                    if tot_bid >= req.target.quantity:
                         break
-                    qty = min(req.target.quantity, self.spent_fuel.quantity)
-                    next_fuel = self.spent_fuel.peek()
-                    mat = ts.Material.create_untracked(qty, next_fuel.comp())
-                    bids.append({'request':req, 'offer':mat})
+            tot_qty = 0
+            for mat in mats:
+                tot_qty += mat.quantity
+
         if len(bids) == 0:
             print("no responses to requests", self.context.time)
             return 
 
         port = {'bids':bids}
-        print("Before DRE spent fuel count:", self.spent_fuel.count)
         print("end get material bids", self.context.time)
         return port
 
@@ -382,38 +359,16 @@ class DepleteReactor(Facility):
         Then trade the materials from the spent fuel inventory. 
         '''
         print("start get material trades")
-        #print("After DRE spent fuel count:", self.spent_fuel.count)
         responses = {}
-        #mats = self.pop_spent()
-        #print("resource indexes:", self.resource_indexes)
-        #print("before loop:", self.spent_fuel.count)
+        mats = self.pop_spent()
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
-            #print("mats[commod]:", mats[commod])
-            for commodity in self.fuel_outcommods:
-                #print(commodity)
-                #print("inside second loop:", self.spent_fuel.count)
-                if commod == commodity:
-                    #print("commod:", commod)
-                    #print(self.spent_fuel.count)
-                    mat_list = self.spent_fuel.pop_n(self.spent_fuel.count)
-                    #print("mat_list:", mat_list)
-                print("mat_list:", mat_list[0])
-                if len(mat_list) > 1:
-                    for mat in mat_list[1:]:
-                        mat_list[0].absorb(mat)
-            responses[trades[ii]] = mat_list[0]
-            #m = mats[commod][-1] 
-            #mats[commod].pop(-1)
-            #print("pop end of mats")
-            #responses[trades[ii]] = m
-            #print("resource indexes:", self.resource_indexes, "obj id:", m.obj_id)
-            #self.resource_indexes.pop(m.obj_id)
-            #print("after remove:", self.resource_indexes)
-        print("end loop")
-        print(responses)
-            
-        #self.push_spent(mats)
+            m = mats[commod][-1]
+            mats[commod].pop(-1)
+            responses[trades[ii]] = m
+            self.resource_indexes.pop(m.obj_id)
+        self.push_spent(mats)
+
         print("end get material trades", self.context.time)
         return responses 
 
@@ -451,7 +406,6 @@ class DepleteReactor(Facility):
                 self.core.push(m)
             else:
                 self.fresh_fuel.push(m)
-        print("core:", self.core.count, "fresh:", self.fresh_fuel.count)
         print("end accept material trades", self.context.time)
         return 
 
@@ -470,11 +424,10 @@ class DepleteReactor(Facility):
         npop = min(self.n_assem_batch, self.core.count)
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
             #self.record("DISCHARGE", "failed")
-            return 0
+            return False
         #ss = stringstream 
         ss = str(npop) + " assemblies"
         #self.record("DISCHARGE", ss)
-        print(ss)
         core_pop = self.core.pop_n(npop)
         for ii in range(len(core_pop)):
             self.spent_fuel.push(core_pop[ii])
@@ -483,9 +436,8 @@ class DepleteReactor(Facility):
             spent_mats = self.peek_spent()
             mats = spent_mats[self.fuel_outcommods[ii]]
             tot_spent += mats.quantity
-            print("loop:", ii, "tot_spent:", tot_spent)
-            #lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
-        return 1
+            lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
+        return True
 
     def load(self):
         '''
@@ -526,15 +478,12 @@ class DepleteReactor(Facility):
         '''
         #print("core inventory before transmuting:", self.core.count)
         old = self.core.pop_n(min(n_assem, self.core.count))
-        print("number of assem to transmute:", len(old))
         for ii in range(len(old)):
             self.core.push(old[ii]) 
-        print("core inventory:", self.core.count) 
         #if (self.core.count > len(old)):
         #    self.core.push(self.core.pop_n(self.core.count - len(old)))
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
-        print(ss)
         for ii in range(len(old)):
             print("call OpenMC")
         return
@@ -590,14 +539,12 @@ class DepleteReactor(Facility):
         first and make sure they get traded away first. 
         '''
         mats = self.spent_fuel.pop_n(self.spent_fuel.count)
-        print("Pop_Spent, mats") 
         mapped = {}
         for commod in self.fuel_outcommods:
             mapped[commod] = []
         for ii in range(len(mats)):
             for commod in self.fuel_outcommods:
                 mapped[commod].append(mats[ii])
-        print("end pop spent")
         #for it in mapped:
         #    ts.reverse(it.second.begin(), it.second.end())
         return mapped
@@ -607,7 +554,6 @@ class DepleteReactor(Facility):
         Reverse the order of materials in the leftover list
 
         '''
-        print("call push_spent")
         for commod in leftover:
             for material in leftover[commod]:
             #reverse(item.second.begin, item.second.end)
