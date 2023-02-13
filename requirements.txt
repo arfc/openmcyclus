@@ -1,3 +1,5 @@
+numpy
+pytest
 openssh 
 gxx_linux-64
 gcc_linux-64 
@@ -7,16 +9,16 @@ docker-pycreds
 git 
 xo
 python-json-logger 
-python==3.6 
+python
 glibmm 
-glib==2.56 
+glib
 libxml2 
 libxmlpp 
 libblas 
 libcblas
 liblapack 
 pkg-config 
-coincbc==2.9 
+coincbc
 boost-cpp 
 hdf5 
 sqlite 
@@ -29,6 +31,6 @@ nose
 pytables 
 pandas 
 jinja2 
-cython==0.26 
+cython
 websockets 
 pprintpp
