@@ -41,10 +41,11 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
+          cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
-          sudo find / -name _sysconfigdata_x86_64_*
-          pwd
+          
        
       - name: Install OpenMC
         run: mamba install openmc
