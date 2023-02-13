@@ -36,11 +36,11 @@ jobs:
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
-          sudo apt -y update 
-          sudo apt install -y libhdf5-dev
+#      - name: Install Dependencies
+#        run: |
+#          pip install -r requirements.txt
+#          sudo apt -y update 
+#          sudo apt install -y libhdf5-dev
        
       - name: Install OpenMC
         run: mamba install openmc
