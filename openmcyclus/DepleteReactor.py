@@ -107,7 +107,7 @@ class DepleteReactor(Facility):
         doc = "If true, the archetype transmutes all assemblies "\
               "upon decommisioning. If false, the archetype only "\
               "transmutes half.",
-        default = False
+        default = 0
     )
    
     fresh_fuel = ts.ResBufMaterialInv()
@@ -123,7 +123,7 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size*self.n_assem_spent
         self.cycle_step = 0
         self.power_name = "power"
-        self.discharged = False
+        self.discharged = 0
         self.resource_indexes = {}
 
     def tick(self):
@@ -144,13 +144,13 @@ class DepleteReactor(Facility):
         #    self.record("RETIRED", "")
             print("retired")
             if self.context.time == self.exit_time + 1:
-                if self.decom_transmute_all == True:
+                if self.decom_transmute_all == 1:
                     self.transmute(math.ceil(self.n_assem_core))
                 else:
                     self.transmute(math.ceil(self.n_assem_core/2))
 
             while self.core.count > 0:
-                if self.discharge() == False:
+                if self.discharge() == 0:
                     # Add string to print to terminal to see if this 
                     # gets triggered as expected
                     break
@@ -167,7 +167,7 @@ class DepleteReactor(Facility):
             
             #self.record("CYCLE_END", "")
         print("discharge:", self.discharged)
-        if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
+        if (self.cycle_step >= self.cycle_time) and (self.discharged == 0):
             print("Discharge fuel")
             self.discharged = self.discharge()
             print(self.discharged)
@@ -213,8 +213,8 @@ class DepleteReactor(Facility):
         print(self.cycle_time+self.refuel_time)
         print(self.discharged)
         
-        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem_core) and (self.discharged == True):
-            self.discharged = False
+        if (self.cycle_step >= self.cycle_time+self.refuel_time) and (self.core.count == self.n_assem_core) and (self.discharged == 1):
+            self.discharged = 0
             print(self.context.time, "reset cycle_step")
             self.cycle_step = 0
         
@@ -223,17 +223,20 @@ class DepleteReactor(Facility):
             print("Cycle start")
 
         if (self.cycle_step >=0) and (self.cycle_step < self.cycle_time) and (self.core.count == self.n_assem_core):
-            lib.record_time_series(lib.POWER, self, self.power_cap)
-            lib.record_time_series("supplyPOWER", self, self.power_cap)
+            #lib.record_time_series(lib.POWER, self, self.power_cap)
+            #lib.record_time_series("supplyPOWER", self, self.power_cap)
             print('record power', self.power_cap)
         else:
-            lib.record_time_series(lib.POWER, self, 0)
-            lib.record_time_series("supplyPOWER", self, 0)  
+            #lib.record_time_series(lib.POWER, self, 0)
+            #lib.record_time_series("supplyPOWER", self, 0)  
             print('record power 0')
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
             self.cycle_step += 1  
-        print("end tock", self.context.time, "cycle_step:", self.cycle_step, "\n")
+        print("end tock", self.context.time, "cycle_step:", self.cycle_step)
+        print("core:", self.core.count)
+        print("fresh:", self.fresh_fuel.count)
+        print("spent:", self.spent_fuel.count, "\n")
         return 
 
     def enter_notify(self):
@@ -245,9 +248,9 @@ class DepleteReactor(Facility):
         decommissioned.
         '''
         if (self.core.count == 0) and (self.spent_fuel.count == 0):
-            return True
+            return 1
         else:
-            return False
+            return 0
 
     def get_material_requests(self): # phase 1
         '''
@@ -288,7 +291,7 @@ class DepleteReactor(Facility):
             for commod in self.fuel_incommods:
                 recipe = self.context.get_recipe(commod)
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-            lib.record_time_series("demand"+commod, self, self.assem_size)
+            #lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
         print("end get material requests", self.context.time)
         return port
@@ -457,9 +460,9 @@ class DepleteReactor(Facility):
         Determine if the prototype is retired
         '''
         if (self.exit_time != -1) and (self.context.time > self.exit_time):
-            return True
+            return 1
         else:
-            return False
+            return 0
 
     def discharge(self):
         '''
@@ -467,7 +470,7 @@ class DepleteReactor(Facility):
         npop = min(self.n_assem_batch, self.core.count)
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
             #self.record("DISCHARGE", "failed")
-            return False
+            return 0
         #ss = stringstream 
         ss = str(npop) + " assemblies"
         #self.record("DISCHARGE", ss)
@@ -481,8 +484,8 @@ class DepleteReactor(Facility):
             mats = spent_mats[self.fuel_outcommods[ii]]
             tot_spent += mats.quantity
             print("loop:", ii, "tot_spent:", tot_spent)
-            lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
-        return True
+            #lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
+        return 1
 
     def load(self):
         '''
