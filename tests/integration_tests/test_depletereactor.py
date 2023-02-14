@@ -79,5 +79,13 @@ class TestDepleteReactor(unittest.TestCase):
         agent_ids = self.to_ary(self.agent_entry, "AgentId")
         enter_time = self.to_ary(self.agent_entry, "EnterTime")
         rx_id = self.find_ids(":openmcyclus.DepleteReactor:DepleteReactor", tbl)
-        assert_equal(len(agent_ids), 5)
+        assert len(agent_ids) == 5
         #assert_equal(enter_time , 0)
+
+    def test_transactions(self):
+        tbl = self.transactions
+        assert len(tbl) == 9
+
+    def test_resources(self):
+        tbl = self.resources
+        assert len(tbl) == 6
