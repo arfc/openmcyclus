@@ -266,14 +266,16 @@ class DepleteReactor(Facility):
             time_left_cycle = self.cycle_time + self.refuel_time - self.cycle_step
             n_cycles_left = (time_left - time_left_cycle)/(self.cycle_time + self.refuel_time)
             n_cycles_left = math.ceil(n_cycles_left)
-            n_need = max(0, n_cycles_left*self.n_assem_batch - self.n_assem_fresh + self.assem_core - self.core.count)
+            n_need = max(0, n_cycles_left*self.n_assem_batch - self.n_assem_fresh + self.n_assem_core - self.core.count)
             n_assem_order = min(n_assem_order, n_need)
+
         if n_assem_order == 0:
             print("nothing to order")
             return port
         elif self.retired():
             print("facility is retired")
             return port
+
         for ii in range(n_assem_order):
             for commod in self.fuel_incommods:
                 recipe = self.context.get_recipe(commod)
