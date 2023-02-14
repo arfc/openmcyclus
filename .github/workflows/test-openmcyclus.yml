@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Cyclus 
         run: | 
-          conda -y install cyclus cycamore
+          conda install -y cyclus cycamore
       
       - name: Update Environment
         run: |
