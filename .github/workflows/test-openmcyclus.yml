@@ -24,16 +24,46 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-      - name: Install Cyclus 
+      - name: Install Cyclus Dependencies
         run: | 
-          conda install -y cyclus cycamore
+          conda install -y openssh gxx_linux-64 gcc_linux-64 cmake make docker-pycreds git xo
+          conda install -y python-json-logger python=3.6 glibmm glib=2.56 libxml2 libxmlpp libblas libcblas
+          conda install -y liblapack pkg-config coincbc=2.9 boost-cpp hdf5 sqlite pcre gettext bzip2 xz
+          conda install -y setuptools nose pytables pandas jinja2 cython==0.26 websockets pprintpp
+          
+          
+      - name: Download Cyclus
+        uses: actions/checkout@v3
+        with:
+          repository: cyclus/cyclus
+          path: cyclus
+          submodules: recursive
+      
+      - name: Download Cycamore
+        uses: actions/checkout@v3
+        with:
+          repository: cyclus/cycamore
+          path: cycamore
+          submodules: recursive
+
+      - name: Move files
+        run: |
+          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
+          cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
+          
+      
+      - name: Build Cyclus 
+        run: |
+          cd cyclus
+          python install.py
+      - name: Build Cycamore
+        run: |
+          cd cycamore
+          python install.py
       
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
-          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
-          cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
-          
 
       - name: Install Dependencies
         run: |
