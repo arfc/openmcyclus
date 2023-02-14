@@ -220,7 +220,7 @@ class DepleteReactor(Facility):
             print('record power', self.power_cap)
         else:
             lib.record_time_series(lib.POWER, self, 0)
-            lib.record_time_series("supplyPOWER", self, 0)  
+            lib.record_time_series("supplyPOWER", self, int(0))
             print('record power 0')
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
