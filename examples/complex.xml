@@ -1,0 +1,148 @@
+<simulation>
+
+<control>
+    <duration>20</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+</control>
+<archetypes>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Source</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Sink</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Enrichment</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Storage</name>
+        </spec>
+        <spec>
+            <lib>agents</lib>
+            <name>NullRegion</name>
+        </spec>
+        <spec>
+            <lib>agents</lib>
+            <name>NullInst</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>DeployInst</name>
+        </spec>
+        <spec>
+            <lib>openmcyclus.DepleteReactor</lib>
+            <name>DepleteReactor</name>
+        </spec>
+    </archetypes>
+
+    <facility>
+      <config>
+        <Source>
+          <outcommod>uox</outcommod>
+          <outrecipe>uox</outrecipe>
+        </Source>
+      </config>
+      <name>OneSource</name>
+    </facility>
+
+    <facility>
+      <config>
+        <Sink>
+          <in_commods>
+            <val>spent_uox</val>
+          </in_commods>
+        </Sink>
+      </config>
+      <name>OneSink</name>
+    </facility>
+        
+ 
+    <facility>
+        <name>OneReactor</name>
+        <lifetime>10</lifetime>
+        <config>
+	      <DepleteReactor>
+            <fuel_incommods> <val>uox</val> </fuel_incommods>
+            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
+            <fuel_inrecipes> 
+              <val>uox</val> 
+            </fuel_inrecipes>
+            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
+            <assem_size>10</assem_size>
+            <cycle_time>2</cycle_time>
+            <refuel_time>1</refuel_time>
+            <n_assem_core>3</n_assem_core>
+            <n_assem_batch>1</n_assem_batch>
+            <power_cap>100</power_cap>
+          </DepleteReactor>
+        </config>
+    </facility>
+
+   <region>
+        <config>
+            <NullRegion>
+            </NullRegion>
+        </config>
+
+        <institution>
+          <config>
+            <DeployInst>
+              <prototypes>
+                <val>OneReactor</val>
+              </prototypes>  
+              <build_times>
+                <val>3</val>
+              </build_times>
+              <n_build>
+                <val>1</val>
+              </n_build>
+            </DeployInst>
+          </config>
+          <initialfacilitylist>
+            <entry>
+              <number>1</number>
+              <prototype>OneSource</prototype>
+            </entry>  
+            <entry>
+              <number>1</number>
+              <prototype>OneSink</prototype>
+            </entry>    
+          </initialfacilitylist>
+          <name>OneInst</name>
+        </institution>
+        <name>OneRegion</name>
+  </region>
+    
+    <recipe>
+      <name>uox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.99289</comp>
+      </nuclide>
+    </recipe>
+
+    <recipe>
+      <name>spent_uox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.05</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.95</comp>
+      </nuclide>
+    </recipe>
+
+
+ </simulation>
