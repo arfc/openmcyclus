@@ -24,37 +24,9 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-      - name: Install Cyclus Dependencies
+      - name: Install Cyclus 
         run: | 
-          conda install -y openssh gxx_linux-64 gcc_linux-64 cmake make docker-pycreds git xo
-          conda install -y python-json-logger python=3.6 glibmm glib=2.56 libxml2 libxmlpp libblas libcblas
-          conda install -y liblapack pkg-config coincbc=2.9 boost-cpp hdf5 sqlite pcre gettext bzip2 xz
-          conda install -y setuptools nose pytables pandas jinja2 cython==0.26 websockets pprintpp
-          
-          
-      - name: Download Cyclus
-        uses: actions/checkout@v3
-        with:
-          repository: cyclus/cyclus
-          path: cyclus
-          submodules: recursive
-      
-      - name: Download Cycamore
-        uses: actions/checkout@v3
-        with:
-          repository: cyclus/cycamore
-          path: cycamore
-          submodules: recursive
-      
-      - name: Build Cyclus 
-        run: |
-          cd cyclus
-          python install.py
-
-      - name: Build Cycamore
-        run: |
-          cd cycamore
-          python install.py
+          conda -y install cyclus cycamore
       
       - name: Update Environment
         run: |
