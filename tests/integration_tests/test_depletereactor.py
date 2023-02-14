@@ -29,8 +29,8 @@ class TestDepleteReactor(unittest.TestCase):
 
     def setUp(self):
         self.ext = ".sqlite"
-        self.output_file = "integration_tests.sqlite"
-        self.input_file = "examples/simple.xml"
+        #self.output_file = None
+        #self.input_file = None
 
         os.system('rm ' + self.output_file)
         run_cyclus("cyclus", os.getcwd(), self.input_file, self.output_file)
@@ -73,19 +73,39 @@ class TestDepleteReactor(unittest.TestCase):
         else:
             return a[k]
 
+class TestSimple(TestDepleteReactor):
+    def setUp(self):
+        self.input_file = "examples/simple.xml"
+        self.output_file = "simple_integration.sqlite"
+        super(TestSimple, self).setUp()
+
     def test_agent_entry(self):
         pass  
         tbl = self.agent_entry
         agent_ids = self.to_ary(self.agent_entry, "AgentId")
         enter_time = self.to_ary(self.agent_entry, "EnterTime")
+        lifetimes = self.to_ary(self.agent_entry, "Lifetime")
         rx_id = self.find_ids(":openmcyclus.DepleteReactor:DepleteReactor", tbl)
         assert len(agent_ids) == 5
+        assert len(rx_id) == 1
+        assert all(enter_time == [0, 0, 0, 0, 0])
+        assert all(lifetimes == [-1, -1, -1, -1, -1])
         #assert_equal(enter_time , 0)
 
     def test_transactions(self):
         tbl = self.transactions
+        commodities = self.to_ary(tbl, "Commodity")
+        times = self.to_ary(tbl,"Time")
         assert len(tbl) == 9
+        assert all(commodities == ['uox','uox','uox','uox',
+                                   'spent_uox','uox','spent_uox','uox', 
+                                   'spent_uox'])
+        assert all(times == [0,0,0,2,2,5,5,8,8])
 
     def test_resources(self):
         tbl = self.resources
+        times = self.to_ary(tbl, "TimeCreated")
+        quantities = self.to_ary(tbl, "Quantity")
         assert len(tbl) == 6
+        assert all(times == [0,0,0,2,5,8])
+        assert all(quantities == [10]*6)
