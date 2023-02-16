@@ -35,7 +35,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt          
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
        
