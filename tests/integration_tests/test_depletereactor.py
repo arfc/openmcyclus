@@ -3,7 +3,7 @@ import uuid
 import sqlite3
 import platform
 
-import tables
+#import tables
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from numpy.testing import assert_almost_equal
