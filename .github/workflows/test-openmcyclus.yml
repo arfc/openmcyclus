@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Cyclus Dependencies
         run: | 
-          conda install -y python=3.6
+          conda install -y python=3.6 pytest
 
       - name: Move files
         run: |
@@ -37,12 +37,6 @@ jobs:
         run: |
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
-       
-      - name: Install OpenMC
-        run: mamba install openmc
-
-      - name: Install OpenMC cross section library
-        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
           
       - name: Build Cyclus 
         run: |
@@ -51,6 +45,12 @@ jobs:
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
+
+      - name: Install OpenMC
+        run: mamba install openmc
+
+      - name: Install OpenMC cross section library
+        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
 
       - name: Install OpenMCyclus
