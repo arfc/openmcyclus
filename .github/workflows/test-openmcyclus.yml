@@ -26,10 +26,6 @@ jobs:
 
       - name: Install Cyclus Dependencies
         run: | 
-#          conda install -y openssh gxx_linux-64 gcc_linux-64 cmake make docker-pycreds git xo
-#          conda install -y python-json-logger python=3.6 glibmm glib=2.56 libxml2 libxmlpp libblas libcblas
-#          conda install -y liblapack pkg-config coincbc=2.9 boost-cpp hdf5 sqlite pcre gettext bzip2 xz
-#          conda install -y setuptools nose pytables pandas jinja2 cython==0.26 websockets pprintpp
           conda install -y python=3.6
 
       - name: Move files
@@ -49,20 +45,6 @@ jobs:
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
           
-#      - name: Download Cyclus
-#        uses: actions/checkout@v3
-#        with:
-#          repository: cyclus/cyclus
-#          path: cyclus
-#          submodules: recursive
-#      
-#      - name: Download Cycamore
-#        uses: actions/checkout@v3
-#        with:
-#          repository: cyclus/cycamore
-#          path: cycamore
-#          submodules: recursive
-      
       - name: Build Cyclus 
         run: |
           conda install -y cyclus cycamore
