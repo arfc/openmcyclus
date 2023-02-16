@@ -10,9 +10,6 @@ from numpy.testing import assert_almost_equal
 #from cyclus.lib import Env
 import unittest
 
-from nose.plugins.skip import SkipTest
-from nose.tools import assert_equal, assert_true
-
 import tests.helper
 from tests.helper import check_cmd, run_cyclus, table_exist, cyclus_has_coin
 
@@ -93,7 +90,6 @@ class TestSimple(TestDepleteReactor):
         assert len(rx_id) == 1
         assert all(enter_time == [0, 0, 0, 0, 0])
         assert all(lifetimes == [-1, -1, -1, -1, -1])
-        #assert_equal(enter_time , 0)
 
     def test_transactions(self):
         tbl = self.transactions
@@ -139,7 +135,6 @@ class TestComplex(TestDepleteReactor):
         assert len(rx_id) == 1
         assert all(enter_time == [0, 0, 0, 0, 3])
         assert all(lifetimes == [-1, -1, -1, -1, 10])
-        #assert_equal(enter_time , 0)
 
     def test_transactions(self):
         tbl = self.transactions
