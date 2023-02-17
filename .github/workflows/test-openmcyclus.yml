@@ -30,7 +30,7 @@ jobs:
 
       - name: Move files
         run: |
-          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.6/
+          cd /usr/share/miniconda3/envs/openmcyclus-env/lib/python3.7/
           cp _sysconfigdata_x86_64_conda_cos6_linux_gnu.py _sysconfigdata_x86_64_conda_cos7_linux_gnu.py
 
       - name: Install Dependencies
@@ -53,7 +53,7 @@ jobs:
           path: openmc
           submodules: recursive
 
-      - name: Build OpenMC from source if no cache is found
+      - name: Build OpenMC from source 
         run: $GITHUB_WORKSPACE/build-openmc.sh
 
       - name: Install OpenMC cross section library
