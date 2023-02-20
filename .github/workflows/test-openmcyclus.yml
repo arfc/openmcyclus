@@ -30,7 +30,7 @@ jobs:
 
       - name: Build OpenMC 
         run: |
-          conda install -y python=3.11
+          conda install -y python=3.11 nose pytest
           mamba install openmc
 
       - name: Install OpenMC cross section library
