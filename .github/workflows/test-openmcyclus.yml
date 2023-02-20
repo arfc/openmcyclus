@@ -1,14 +1,10 @@
 name: test-openmcyclus
 on: [push, pull_request]
 
-runs:
-  using: 'docker'
-  image: 'cyclus/cycamore'
-
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    container: cyclus/cycamore:latest
     defaults:
       run: 
         shell: bash -l {0}
