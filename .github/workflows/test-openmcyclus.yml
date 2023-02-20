@@ -24,7 +24,7 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-    - name: Install Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
