@@ -1,6 +1,10 @@
 name: test-openmcyclus
 on: [push, pull_request]
 
+runs:
+  using: 'docker'
+  image: 'cyclus/cycamore'
+
 
 jobs:
   build-and-test:
@@ -41,29 +45,6 @@ jobs:
         run: |
           sudo apt -y update 
           sudo apt install -y libhdf5-dev
-          
-      - name: Download Cyclus
-        uses: actions/checkout@v3
-        with:
-          repository: cyclus/cyclus
-          path: cyclus
-          submodules: recursive
-      
-      - name: Download Cycamore
-        uses: actions/checkout@v3
-        with:
-          repository: cyclus/cycamore
-          path: cycamore
-          submodules: recursive
-      
-      - name: Build Cyclus 
-        run: |
-          cd cyclus
-          python install.py
-      - name: Build Cycamore
-        run: |
-          cd cycamore
-          python install.py
       
       - name: Update Environment
         run: |
