@@ -10,8 +10,8 @@ from numpy.testing import assert_almost_equal
 #from cyclus.lib import Env
 import unittest
 
-import tests.helper
-from tests.helper import check_cmd, run_cyclus, table_exist, cyclus_has_coin
+import helper
+from helper import check_cmd, run_cyclus, table_exist, cyclus_has_coin
 
 #ALLOW_MILPS = Env().allow_milps
      
