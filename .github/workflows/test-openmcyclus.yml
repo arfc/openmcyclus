@@ -5,7 +5,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container: 
-      image: cyclus:cycamore
+      image: cyclus/cycamore:latest
     defaults:
       run: 
         shell: bash -l {0}
