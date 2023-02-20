@@ -39,7 +39,6 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
-          which openmcyclus
           which cyclus
       
       - name: Run Tests
