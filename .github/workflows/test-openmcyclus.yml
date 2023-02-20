@@ -4,7 +4,8 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: cyclus/cycamore:latest
+    container: 
+      image: cyclus/cycamore
     defaults:
       run: 
         shell: bash -l {0}
@@ -41,4 +42,5 @@ jobs:
       
       - name: Run Tests
         run: |
+          cyclus -a
           pytest --ignore tests/unit_tests
