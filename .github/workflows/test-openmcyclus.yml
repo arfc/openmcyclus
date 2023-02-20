@@ -42,5 +42,4 @@ jobs:
       
       - name: Run Tests
         run: |
-          cyclus -a
-          pytest --ignore tests/unit_tests
+          pytest --ignore tests/integration_tests
