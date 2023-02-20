@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: cyclus/cycamore
+    container: cyclus/cycamore:latest
     defaults:
       run: 
         shell: bash -l {0}
@@ -17,7 +17,6 @@ jobs:
           miniforge-version: latest
           activate-environment: openmcyclus-env
           environment-file: environment.yml
-          auto-activate-base: false
           use-mamba: true          
         
       - name: Conda config
@@ -39,7 +38,6 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
-          which cyclus
       
       - name: Run Tests
         run: |
