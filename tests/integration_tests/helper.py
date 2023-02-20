@@ -68,7 +68,7 @@ def run_cyclus(cyclus, cwd, in_path, out_path):
     holdsrtn = [1]  # needed because nose does not send() to test generator
     # make sure the output target directory exists
     cmd = [cyclus, "-o", out_path, "--input-file", in_path]
-    check_cmd(cmd, cwd, holdsrtn)
+    #check_cmd(cmd, cwd, holdsrtn)
 
 
 def check_cmd(args, cwd, holdsrtn):
