@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: cyclus/cycamore:latest
+    container: cyclus/cycamore
     defaults:
       run: 
         shell: bash -l {0}
@@ -39,6 +39,8 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
+          which openmcyclus
+          which cyclus
       
       - name: Run Tests
         run: |
