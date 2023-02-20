@@ -46,19 +46,11 @@ jobs:
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Download OpenMC
-        uses: actions/checkout@v3
-        with: 
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
-
-      - name: Build OpenMC from source 
-        run: $GITHUB_WORKSPACE/build-openmc.sh
+      - name: Build OpenMC 
+        run: mamba install openmc
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
-
 
       - name: Install OpenMCyclus
         run: |
