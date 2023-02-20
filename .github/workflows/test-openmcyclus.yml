@@ -71,8 +71,8 @@ jobs:
 
       - name: Build OpenMC 
         run: |
-        conda install -y python=3.11
-        mamba install openmc
+          conda install -y python=3.11
+          mamba install openmc
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
