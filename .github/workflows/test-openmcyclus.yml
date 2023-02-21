@@ -4,8 +4,6 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: 
-      image: cyclus/cycamore:latest
     defaults:
       run: 
         shell: bash -l {0}
@@ -41,4 +39,8 @@ jobs:
           pip install .
       
       - name: Run Tests
-        run: pytest 
+        uses: addnab/docker-run-action@v3
+        with:
+          image: cyclus/cycamore:latest
+          run: |
+            pytest 
