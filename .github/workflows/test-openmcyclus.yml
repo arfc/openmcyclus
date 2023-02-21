@@ -43,4 +43,4 @@ jobs:
       - name: Run Tests
         with:
           image: cyclus/cycamore
-          run: pytest 
+        run: pytest 
