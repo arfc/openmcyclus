@@ -34,7 +34,7 @@ jobs:
           submodules: recursive
 
       - name: Build OpenMC from source
-        run: $GITHUB_WORKSPACE/.github/workflows/build-openmc.sh
+        run: $GITHUB_WORKSPACE/build-openmc.sh
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
