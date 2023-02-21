@@ -2,10 +2,10 @@ name: test-openmcyclus
 on: [push, pull_request]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: docker://cyclus/cycamore:latest
+      image: cyclus/cycamore
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
@@ -25,10 +25,13 @@ jobs:
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
 
+      - name: Install pytest
+        run: conda install -y pytest nose
+
       - name: Build OpenMC 
         run: |
           mamba install openmc
-          
+
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
