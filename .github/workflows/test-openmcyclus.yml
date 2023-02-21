@@ -23,11 +23,12 @@ jobs:
       
       - name: Update Environment
         run: |
-          conda install -y pytest numpy nose
+          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Build OpenMC 
         run: |
           mamba install openmc
+          
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
