@@ -5,7 +5,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container: 
-      image: cyclus/cycamore
+      image: cyclus/cycamore:latest
     steps:
       - uses: actions/checkout@v3
         
@@ -36,5 +36,7 @@ jobs:
           pip install .
       
       - name: Run Tests
-        run: |
-          pytest --ignore tests/unit_tests
+        uses: docker://cyclus/cycamore:latest
+        with:
+          run: |
+            pytest --ignore tests/unit_tests
