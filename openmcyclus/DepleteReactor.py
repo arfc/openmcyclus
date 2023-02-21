@@ -16,7 +16,6 @@ class DepleteReactor(Facility):
         doc="Fresh fuel commodity",
         tooltip="Name of commodity requested",
         uilabel="Input Commodity",
-        #uitype="incommodity",
     )
 
     fuel_inrecipes = ts.VectorString(
@@ -42,7 +41,6 @@ class DepleteReactor(Facility):
         doc = "Mass (kg) of a single fuel assembly",
         tooltip="Mass (kg) of a single fuel assembly",
         uilabel="Assembly Size",
-        #uitype='assemsize',
         units="kg",
         default= 0
     )
@@ -51,7 +49,6 @@ class DepleteReactor(Facility):
         doc="Amount of time between requests for new fuel",
         tooltip = "Amount of time between requests for new fuel",
         uilabel="Cycle Time",
-        #uitype="cycletime",
         units="months",
         default=0
     )
@@ -89,8 +86,7 @@ class DepleteReactor(Facility):
     n_assem_spent = ts.Int(
         doc = "Number of spent fuel assemblies that can be stored "\
               "on-site before reactor operation stalls",
-        default = 10000000, #default of None? would need more logic to 
-        # account for different data types
+        default = 10000000,
         uilabel="Maximum spent fuel inventory",
         units = "assemblies"
     )
@@ -340,8 +336,7 @@ class DepleteReactor(Facility):
         mats = self.pop_spent()
         for ii in range(len(trades)):
             commod = trades[ii].request.commodity
-            m = mats[commod][-1]
-            mats[commod].pop(-1)
+            m = mats[commod].pop(-1)
             responses[trades[ii]] = m
             self.resource_indexes.pop(m.obj_id)
         self.push_spent(mats)
@@ -476,7 +471,7 @@ class DepleteReactor(Facility):
         return
 
         
-    def index_res(self, m, incommod):
+    def index_res(self, material, incommod):
         '''
         For the name of any item in the fuel in_commods list 
         match the name of the commodity given, then 
@@ -485,12 +480,14 @@ class DepleteReactor(Facility):
         If the name of the given commodity isn't in the 
         fuel in_commods list, then return an error. 
         '''
-        for ii in range(len(self.fuel_incommods)):
-            if self.fuel_incommods[ii] == incommod:
-                self.resource_indexes[m.obj_id] = ii 
-                return
-        raise ValueError (
-            "openmcyclus.DepleteReactor:DepleteReactor received "\
+        try:
+            for ii in range(len(self.fuel_incommods)):
+                if self.fuel_incommods[ii] == incommod:
+                    self.resource_indexes[material.obj_id] = ii 
+                    return
+        except:
+            raise ValueError (
+                "openmcyclus.DepleteReactor:DepleteReactor received "\
                 "unsupported incommod material"
             )
 
@@ -511,8 +508,6 @@ class DepleteReactor(Facility):
         for ii in range(len(mats)):
             for commod in self.fuel_outcommods:
                 mapped[commod].append(mats[ii])
-        #for it in mapped:
-        #    ts.reverse(it.second.begin(), it.second.end())
         return mapped
 
     def push_spent(self, leftover):
