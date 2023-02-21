@@ -15,7 +15,7 @@ jobs:
       
       - name: Update Environment
         run: |
-          conda env update --file environment.yml 
+          conda install -y pytest numpy nose
 
       - name: Install OpenMCyclus
         run: |
