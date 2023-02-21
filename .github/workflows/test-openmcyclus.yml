@@ -22,7 +22,5 @@ jobs:
           pip install .
       
       - name: Run Tests
-        uses: docker://cyclus/cycamore:latest
-        with:
-          run: |
-            pytest --ignore tests/unit_tests
+        run: |
+          pytest --ignore tests/unit_tests
