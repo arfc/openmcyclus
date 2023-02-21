@@ -34,6 +34,7 @@ jobs:
 
       - name: Install OpenMCyclus
         run: |
+          pip install pytest nose
           pip install .
 
       - name: Run Tests
