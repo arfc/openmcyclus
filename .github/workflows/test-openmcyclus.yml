@@ -28,7 +28,6 @@ jobs:
 
       - name: Build OpenMC 
         run: |
-          conda install -y nose pytest
           mamba install openmc
 
       - name: Install OpenMC cross section library
@@ -43,4 +42,5 @@ jobs:
         with:
           image: cyclus/cycamore:latest
           run: |
+            conda install -y pytest nose
             pytest 
