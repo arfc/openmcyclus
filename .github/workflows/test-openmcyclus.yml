@@ -8,7 +8,15 @@ jobs:
       image: docker://cyclus/cycamore:latest
     steps:
       - uses: actions/checkout@v3
-        
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: openmcyclus-env
+          environment-file: environment.yml
+          use-mamba: true  
+
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
@@ -16,6 +24,13 @@ jobs:
       - name: Update Environment
         run: |
           conda install -y pytest numpy nose
+          mamba env update -n openmcyclus-env -f environment.yml
+
+      - name: Build OpenMC 
+        run: |
+          mamba install openmc
+      - name: Install OpenMC cross section library
+        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: |
@@ -23,4 +38,4 @@ jobs:
       
       - name: Run Tests
         run: |
-          pytest --ignore tests/unit_tests
+          pytest 
