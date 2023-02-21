@@ -39,6 +39,11 @@ jobs:
         run: |
           pip install .
       
+      - name: Check environment 
+        run: |
+          conda list
+          pip list
+          
       - name: Run Tests
         run: |
           pytest 
