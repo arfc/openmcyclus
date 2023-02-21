@@ -4,10 +4,8 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: cyclus/cycamore:latest
-    defaults:
-      run: 
-        shell: bash -l {0}
+    container: 
+      image: cyclus/cycamore
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
@@ -26,6 +24,20 @@ jobs:
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
+
+      - name: setup
+        run: |
+          echo "HOME=/github/home/" >> $GITHUB_ENV
+          echo "PATH=$PATH:${HOME}/.local/bin" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/lib" >>$GITHUB_ENV
+
+      - name: Build Cyclus
+        run: |
+          mkdir -p ${HOME}/.local/lib/python3.7/site-packages/
+          cd ${GITHUB_WORKSPACE}
+          python install.py -j 2 \
+                            --DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
+                            --DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
 
       - name: Build OpenMC 
         run: |
