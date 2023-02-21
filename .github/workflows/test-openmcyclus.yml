@@ -41,6 +41,4 @@ jobs:
           pip install .
       
       - name: Run Tests
-        with:
-          image: cyclus/cycamore
         run: pytest 
