@@ -37,6 +37,9 @@ jobs:
           pip install pytest nose
           pip install .
 
+      - name: Check environment
+        run: conda list
+
       - name: Run Tests
         run: |
           pytest 
