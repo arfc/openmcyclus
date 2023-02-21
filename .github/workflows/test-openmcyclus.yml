@@ -26,6 +26,10 @@ jobs:
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
 
+      - name: Install Dependencies
+        run: |
+          sudo apt -y update 
+          sudo apt install -y libhdf5-dev
       - name: Download OpenMC
         uses: actions/checkout@v3
         with: 
