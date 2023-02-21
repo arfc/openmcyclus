@@ -2,11 +2,10 @@ name: test-openmcyclus
 on: [push, pull_request]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-    services:
-      communication-db:
-        image: docker://cyclus/cycamore:latest
+    container:
+      image: docker://cyclus/cycamore:latest
     steps:
       - uses: actions/checkout@v3
         
@@ -16,7 +15,7 @@ jobs:
       
       - name: Update Environment
         run: |
-          conda install -y pytest numpy nose 
+          conda env update --file environment.yml 
 
       - name: Install OpenMCyclus
         run: |
