@@ -247,9 +247,7 @@ class DepleteReactor(Facility):
             n_need = max(0, n_cycles_left*self.n_assem_batch - self.n_assem_fresh + self.n_assem_core - self.core.count)
             n_assem_order = min(n_assem_order, n_need)
 
-        if n_assem_order == 0:
-            return port
-        elif self.retired():
+        if n_assem_order == 0 or self.retired():
             return port
 
         for ii in range(n_assem_order):
@@ -297,7 +295,6 @@ class DepleteReactor(Facility):
 
             if len(all_mats) == 0:
                 tot_qty = 0
-                continue
             mats = [all_mats[commod]]
             if len(mats) == 0:
                 continue
@@ -335,10 +332,10 @@ class DepleteReactor(Facility):
         responses = {}
         mats = self.pop_spent()
         for ii in range(len(trades)):
-            commod = trades[ii].request.commodity
-            m = mats[commod].pop(-1)
-            responses[trades[ii]] = m
-            self.resource_indexes.pop(m.obj_id)
+            commodity = trades[ii].request.commodity
+            mat = mats[commodity].pop(-1)
+            responses[trades[ii]] = mat
+            self.resource_indexes.pop(mat.obj_id)
         self.push_spent(mats)
 
         return responses 
@@ -366,13 +363,13 @@ class DepleteReactor(Facility):
             ss = str(n_load) + " assemblies"
             #self.record("LOAD", ss)
         for trade in responses:
-            commod = trade.request.commodity
-            m = trade.request.target
-            self.index_res(m, commod)
+            commodity = trade.request.commodity
+            material = trade.request.target
+            self.index_res(material, commodity)
             if self.core.count < self.n_assem_core:
-                self.core.push(m)
+                self.core.push(material)
             else:
-                self.fresh_fuel.push(m)
+                self.fresh_fuel.push(material)
         return 
 
     def retired(self):

@@ -53,7 +53,7 @@ class TestDepleteReactor(unittest.TestCase):
 
     def find_ids(self, spec, a, spec_col="Spec", id_col="AgentId"):
         '''
-        find the rows in a table that match the value in a colum to 
+        find the rows in a table that match the value in a column to 
         a specified value
 
         Parameters:
@@ -96,7 +96,6 @@ class TestSimple(TestDepleteReactor):
         super(TestSimple, self).setUp()
 
     def test_agent_entry(self):
-        pass  
         tbl = self.agent_entry
         agent_ids = self.to_array(self.agent_entry, "AgentId")
         enter_time = self.to_array(self.agent_entry, "EnterTime")
@@ -140,8 +139,7 @@ class TestComplex(TestDepleteReactor):
         self.output_file = "complex_integration.sqlite"
         super(TestComplex, self).setUp()
 
-    def test_agent_entry(self):
-        pass  
+    def test_agent_entry(self): 
         tbl = self.agent_entry
         agent_ids = self.to_array(self.agent_entry, "AgentId")
         enter_time = self.to_array(self.agent_entry, "EnterTime")
