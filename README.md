@@ -9,7 +9,9 @@ To run tests: ``pytest`` from the main directory.
 
 ### Dependencies
 You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org).
-and their required dependencies. Install both of these in the same conda environment.
+and their required dependencies. It is recommended to install Cyclus from source,
+then install OpenMC in a separate conda environment as their python dependencies 
+clash when both are installed via conda in the same environment.
 
 ### Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 

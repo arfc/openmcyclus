@@ -1,7 +1,7 @@
 <simulation>
 
 <control>
-    <duration>10</duration>
+    <duration>20</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
 </control>
@@ -16,7 +16,11 @@
         </spec>
         <spec>
             <lib>cycamore</lib>
-            <name>Reactor</name>
+            <name>Enrichment</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>Storage</name>
         </spec>
         <spec>
             <lib>agents</lib>
@@ -25,6 +29,10 @@
         <spec>
             <lib>agents</lib>
             <name>NullInst</name>
+        </spec>
+        <spec>
+            <lib>cycamore</lib>
+            <name>DeployInst</name>
         </spec>
         <spec>
             <lib>openmcyclus.DepleteReactor</lib>
@@ -52,11 +60,13 @@
       </config>
       <name>OneSink</name>
     </facility>
+        
  
     <facility>
         <name>OneReactor</name>
+        <lifetime>10</lifetime>
         <config>
-	  <DepleteReactor>
+	      <DepleteReactor>
             <fuel_incommods> <val>uox</val> </fuel_incommods>
             <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
             <fuel_inrecipes> 
@@ -73,24 +83,6 @@
         </config>
     </facility>
 
-    <facility>
-        <name>TwoReactor</name>
-        <config>
-	  <Reactor>
-            <fuel_incommods> <val>uox</val> </fuel_incommods>
-            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
-            <fuel_inrecipes> <val>uox</val> </fuel_inrecipes>
-            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
-            <assem_size>10</assem_size>
-            <cycle_time>2</cycle_time>
-            <refuel_time>1</refuel_time>
-            <n_assem_core>3</n_assem_core>
-            <n_assem_batch>1</n_assem_batch>
-            <power_cap>100</power_cap>
-          </Reactor>
-        </config>
-    </facility>
-
    <region>
         <config>
             <NullRegion>
@@ -99,7 +91,17 @@
 
         <institution>
           <config>
-            <NullInst/>
+            <DeployInst>
+              <prototypes>
+                <val>OneReactor</val>
+              </prototypes>  
+              <build_times>
+                <val>3</val>
+              </build_times>
+              <n_build>
+                <val>1</val>
+              </n_build>
+            </DeployInst>
           </config>
           <initialfacilitylist>
             <entry>
@@ -109,15 +111,7 @@
             <entry>
               <number>1</number>
               <prototype>OneSink</prototype>
-            </entry>  
-            <entry>
-              <number>1</number>
-              <prototype>OneReactor</prototype>
-            </entry>  
-            <!--entry>
-              <number>1</number>
-              <prototype>TwoReactor</prototype>
-            </entry-->  
+            </entry>    
           </initialfacilitylist>
           <name>OneInst</name>
         </institution>
