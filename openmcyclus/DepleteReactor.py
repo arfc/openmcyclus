@@ -295,6 +295,7 @@ class DepleteReactor(Facility):
 
             if len(all_mats) == 0:
                 tot_qty = 0
+                continue
             mats = [all_mats[commod]]
             if len(mats) == 0:
                 continue
