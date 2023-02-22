@@ -13,6 +13,22 @@ and their required dependencies. It is recommended to install Cyclus from source
 then install OpenMC in a separate conda environment as their python dependencies 
 clash when both are installed via conda in the same environment.
 
+Current installation:
+- install all cyclus dependencies, except cython, and use python 3.7
+- install mamba
+- install openmc
+- install openmcyclus, run depletion.py unit tests
+- install cython 0.289 via conda
+- build cyclus from source 
+- needed to uninstall and reinstall libxml2
+- need to install libxmlpp version 2.40, glibmm = 2.52, libsigcpp=2.10
+
+In secondary envrionment:
+- install all cyclus dependencies (as written in github)
+
+Whatever environment you first build in, cyclus points to those 
+python packages
+
 ### Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 
 files and the 
