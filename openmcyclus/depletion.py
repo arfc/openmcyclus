@@ -59,7 +59,7 @@ class Depletion(object):
         tallies_path = self.path / "tallies.xml"
         if tallies_path.exists():
             model_kwargs["tallies"] = tallies_path
-        model = openmc.Model.from_xml(**model_kwargs)
+        model = openmc.model.model.Model.from_xml(**model_kwargs)
         return model
 
     def read_microxs(self):
