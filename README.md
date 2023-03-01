@@ -18,9 +18,34 @@ Current installation:
 - install pytest
 - install mamba
 - install openmc
-- install openmcyclus, run depletion.py unit tests
-- install cython 0.289 via conda
-- build cyclus from source 
+- build cyclus from source -- din't work
+- install cyclus/cycamore from conda
+
+
+
+
+Conda isntallation: 
+conda install -y python=3.7 cyclus cycamore hdf5 sqlite bzip2 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre setuptools websockets xz libgfortran4
+conda install   - scipy
+  - cython
+  - matplotlib
+  - notebook
+  - nb_conda_kernels
+  - pandas
+  - uncertainties
+  - lxml
+  - pytest
+  - requests
+  - entrypoints
+  - pyyaml
+  - vtk
+  - coverage
+  - pytest-cov
+  - colorama
+
+
+
+
 - needed to uninstall and reinstall libxml2
 - need to install libxmlpp version 2.40, glibmm = 2.52, libsigcpp=2.10,
 python 3.7, unspecify cython
