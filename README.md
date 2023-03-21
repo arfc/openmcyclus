@@ -4,8 +4,7 @@
 Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with [OpenMC](https://docs.openmc.org/en/develop/pythonapi/generated/openmc.run.html)
 
 ## Installation 
-To install this archetype library run ``pip install .``. 
-To run tests: ``pytest`` from the main directory.
+
 
 ### Dependencies
 You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org).
@@ -13,48 +12,30 @@ and their required dependencies. It is recommended to install Cyclus from source
 then install OpenMC in a separate conda environment as their python dependencies 
 clash when both are installed via conda in the same environment.
 
-Current installation:
-- install all cyclus dependencies, see versions below
-- install pytest
-- install mamba
-- install openmc
-- build cyclus from source -- din't work
-- install cyclus/cycamore from conda
+conda install -y python=3.7 cyclus cycamore hdf5 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre websockets xz libgfortran4 cython matplotlib notebook nb_conda_kernels pandas requests entrypoints pyyaml vtk coverage pytest-cov colorama gcc_linux-64=12.2 gxx_linux-64=12.2 libpng cmake make
+
+pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+
+git clone --recurse-submodules https://github.com/openmc-dev/openmc.git
+
+cd openmc/
+
+mkdir build && cd build
+
+cmake ..
+
+make
+
+sudo make install
+
+cd ../
+
+pip install .
 
 
-
-
-Conda isntallation: 
-conda install -y python=3.7 cyclus cycamore hdf5 sqlite bzip2 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre setuptools websockets xz libgfortran4
-conda install   - scipy
-  - cython
-  - matplotlib
-  - notebook
-  - nb_conda_kernels
-  - pandas
-  - uncertainties
-  - lxml
-  - pytest
-  - requests
-  - entrypoints
-  - pyyaml
-  - vtk
-  - coverage
-  - pytest-cov
-  - colorama
-
-
-
-
-- needed to uninstall and reinstall libxml2
-- need to install libxmlpp version 2.40, glibmm = 2.52, libsigcpp=2.10,
-python 3.7, unspecify cython
-
-In secondary envrionment:
-- install all cyclus dependencies (as written in github)
-
-Whatever environment you first build in, cyclus points to those 
-python packages
+### Install OpenMCyclus
+To install this archetype library run ``pip install .``. 
+To run tests: ``pytest`` from the main directory.
 
 ### Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 

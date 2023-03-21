@@ -25,12 +25,30 @@ jobs:
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Install pytest
-        run: conda install -y pytest nose
-
-      - name: Build OpenMC 
+      - name: Install dependencies
         run: |
-          mamba install openmc
+          conda install -y python=3.7 cyclus cycamore hdf5 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre websockets xz libgfortran4 cython matplotlib notebook nb_conda_kernels pandas requests entrypoints pyyaml vtk coverage pytest-cov colorama 
+          HDF5_DIR=$CONDA_PREFIX && pip install h5py
+
+      - name: Install OpenMC cross section library
+        run: $GITHUB_WORKSPACE/openmc-xs.bash
+      
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
+      - name: Download OpenMC
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+          submodules: recursive
+
+      - name: Build OpenMC from source
+        run: |
+          run: build-openmc.sh
+
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
@@ -46,3 +64,4 @@ jobs:
       - name: Run Tests
         run: |
           pytest --ignore tests/unit_tests
+
