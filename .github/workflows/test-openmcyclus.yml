@@ -11,11 +11,8 @@ jobs:
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: environment.yml
-          use-mamba: true  
 
       - name: Conda config
         run: |
@@ -27,12 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda install -y python=3.7 cyclus cycamore hdf5 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre websockets xz libgfortran4 cython matplotlib notebook nb_conda_kernels pandas requests entrypoints pyyaml vtk coverage pytest-cov colorama 
+          conda install -y python=3.7 cyclus cycamore hdf5 coincbc=2.9 libxml2 libxmlpp nose pytest pcre websockets xz libgfortran4 cython gcc_linux-64=12.2 gxx_linux-64=12.2 cmake make
           HDF5_DIR=$CONDA_PREFIX && pip install h5py
-
-      - name: Install OpenMC cross section library
-        run: $GITHUB_WORKSPACE/openmc-xs.bash
-      
+   
       - name: OpenMC dependencies
         run: |
           sudo apt -y update
@@ -63,5 +57,5 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest --ignore tests/unit_tests
+          pytest 
 
