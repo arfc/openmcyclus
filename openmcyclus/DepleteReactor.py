@@ -2,7 +2,7 @@ from cyclus.agents import Facility
 from cyclus import lib
 import cyclus.typesystem as ts
 import math
-from openmcyclus.depletion import Depletion
+#from openmcyclus.depletion import Depletion
 
 class DepleteReactor(Facility):
     '''
