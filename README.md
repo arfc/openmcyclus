@@ -26,7 +26,43 @@ This archetype is then called during a Cyclus simulation by calling
 the ``DepleteReactor`` archetype from the ``openmcyclus.DepleteReactor`` 
 library. The input structure is:
 
-    <DepleteReactor/>
+    <DepleteReactor>
+      <fuel_incommods>
+        <val>string</val>
+        ...
+        <val>string<val>
+      </fuel_incommods>
+      <fuel_prefs>
+        <val>double</val>
+        ...
+        <val>double<val>
+      </fuel_prefs>
+      <fuel_outcommods>
+        <val>string</val>
+        ...
+        <val>string<val>
+      </fuel_outcommods>
+      <fuel_inrecipes>
+        <val>string</val> 
+        ...
+        <val>string<val>
+      </fuel_inrecipes>
+      <fuel_outrecipes>
+        <val>string</val> 
+        ...
+        <val>string<val>
+      </fuel_outrecipes>
+      <assem_size>double<assem_size>
+      <cycle_time>int</cycle_time>
+      <refuel_time>int</refuel_time>
+      <n_assem_core>int</n_assem_core>
+      <n_assem_batch>int</n_assem_batch>
+      <power_cap>double</power_cap>
+    </DeployReactor>
+
+The `fuel_prefs`, `fuel_inrecipes` and `fuel_outrecipes` state variables are optional, but 
+must be of equal length to the `fuel_incommods` or `fuel_outcommods`.
+
 
 ### Outputs
 The compositions for the spent fuel are saved to an ``.xml`` file named 
