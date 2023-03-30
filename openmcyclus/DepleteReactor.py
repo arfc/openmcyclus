@@ -23,6 +23,13 @@ class DepleteReactor(Facility):
         tooltip = "Fresh fuel recipe",
         uilabel = "Input commodity recipe"
     )
+    
+    fuel_prefs = ts.VectorDouble(
+        doc = "Fuel incommod preference",
+        tooltip = "Fuel incommod preference",
+        uilabel = "Fuel incommod preference",
+        default = []
+    )
 
     fuel_outcommods = ts.VectorString(
         doc="Spent fuel commodity",
@@ -121,7 +128,7 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-
+    
     def tick(self):
         '''
         Logic to implement at the tick phase of each 
@@ -209,6 +216,8 @@ class DepleteReactor(Facility):
 
     def enter_notify(self):
         super().enter_notify()       
+        if len(self.fuel_prefs) == 0:
+            self.fuel_prefs = [0]*len(self.fuel_incommods)
   
     def check_decommission_condition(self):
         '''
@@ -250,8 +259,10 @@ class DepleteReactor(Facility):
         if n_assem_order == 0 or self.retired():
             return port
 
-        for ii in range(n_assem_order):
-            for commod in self.fuel_incommods:
+        for ii in range(n_assem_order): 
+            for jj in range(0, len(self.fuel_incommods)):
+                commod = self.fuel_incommods[jj]
+                pref = self.fuel_prefs[jj]
                 recipe = self.context.get_recipe(commod)
                 material = ts.Material.create_untracked(self.assem_size, recipe)
             lib.record_time_series("demand"+commod, self, self.assem_size)
