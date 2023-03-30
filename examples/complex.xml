@@ -52,9 +52,20 @@
 
     <facility>
       <config>
+        <Source>
+          <outcommod>mox</outcommod>
+          <outrecipe>mox</outrecipe>
+        </Source>
+      </config>
+      <name>TwoSource</name>
+    </facility>
+
+    <facility>
+      <config>
         <Sink>
           <in_commods>
             <val>spent_uox</val>
+            <val>spent_mox</val>
           </in_commods>
         </Sink>
       </config>
@@ -66,13 +77,27 @@
         <name>OneReactor</name>
         <lifetime>10</lifetime>
         <config>
-	      <DepleteReactor>
-            <fuel_incommods> <val>uox</val> </fuel_incommods>
-            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
+	  <DepleteReactor>
+            <fuel_incommods> 
+              <val>uox</val> 
+              <val>mox</val>
+            </fuel_incommods>
+            <fuel_prefs>
+              <val>1</val>
+              <val>2</val>
+            </fuel_prefs>
+            <fuel_outcommods> 
+              <val>spent_uox</val> 
+              <val>spent_mox</val>
+            </fuel_outcommods>
             <fuel_inrecipes> 
               <val>uox</val> 
+              <val>mox</val>
             </fuel_inrecipes>
-            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
+            <fuel_outrecipes> 
+              <val>spent_uox</val> 
+              <val>spent_mox</val>
+            </fuel_outrecipes>
             <assem_size>10</assem_size>
             <cycle_time>2</cycle_time>
             <refuel_time>1</refuel_time>
@@ -110,6 +135,10 @@
             </entry>  
             <entry>
               <number>1</number>
+              <prototype>TwoSource</prototype>
+            </entry>  
+            <entry>
+              <number>1</number>
               <prototype>OneSink</prototype>
             </entry>    
           </initialfacilitylist>
@@ -144,5 +173,31 @@
       </nuclide>
     </recipe>
 
+
+    <recipe>
+      <name>mox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.99289</comp>
+      </nuclide>
+    </recipe>
+
+    <recipe>
+      <name>spent_mox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.05</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.95</comp>
+      </nuclide>
+    </recipe>
 
  </simulation>
