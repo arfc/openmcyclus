@@ -14,7 +14,9 @@ clash when both are installed via conda in the same environment.
 
 conda install -y python=3.7 cyclus cycamore hdf5 coincbc=2.9 gettext jinja2 libxml2 libxmlpp nose pytest pcre websockets xz libgfortran4 cython matplotlib notebook nb_conda_kernels pandas requests entrypoints pyyaml vtk coverage pytest-cov colorama gcc_linux-64=12.2 gxx_linux-64=12.2 libpng cmake make
 
+HDF5_DIR=$CONDA_PREFIX \
 pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+
 
 git clone --recurse-submodules https://github.com/openmc-dev/openmc.git
 
