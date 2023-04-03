@@ -142,6 +142,7 @@ class DepleteReactor(Facility):
         then the fuel is discharged. If it's after a cycle ends, then 
         fuel is loaded
         '''
+        print("time:", self.context.time, "tick")
         if self.retired():
         #    self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
@@ -158,16 +159,21 @@ class DepleteReactor(Facility):
                 self.spent_fuel.push(self.fresh_fuel.pop())
             if self.check_decommission_condition():
                 self.decommission()
-        if self.cycle_step == self.cycle_time:        
+        if self.cycle_step == self.cycle_time:   
+            print("time:", self.context.time, "transmute", math.ceil(self.n_assem_batch))     
             self.transmute(math.ceil(self.n_assem_batch))
 
         if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
             self.discharged = self.discharge()
 
-        if self.cycle_step > self.cycle_time:
+        if self.cycle_step >= self.cycle_time:
+            print("time:", self.context.time, "load")
+            print("time:", self.context.time, self.core.count)
+            print("time:", self.context.time, self.fresh_fuel.count)
             self.load()
 
         #lib.Logger('5', str("DepleteReactor" + str(self.power_cap) + "is ticking"))
+        print("time:", self.context.time, "end tick")
         return
  
     def tock(self):
@@ -192,6 +198,7 @@ class DepleteReactor(Facility):
         If it's in the middle of a cycle or the core is full, then 
         the cycle duration counter increases by one. 
         '''
+        print("time:", self.context.time, "tock")
         if self.retired():
             return
         
@@ -206,12 +213,15 @@ class DepleteReactor(Facility):
         if (self.cycle_step >=0) and (self.cycle_step < self.cycle_time) and (self.core.count == self.n_assem_core):
             lib.record_time_series(lib.POWER, self, self.power_cap)
             lib.record_time_series("supplyPOWER", self, int(self.power_cap))
+            print("time:", self.context.time, "record 100 power")
         else:
             lib.record_time_series(lib.POWER, self, 0)
             lib.record_time_series("supplyPOWER", self, int(0))
+            print("time:", self.context.time, "record 0 power")
 
         if (self.cycle_step > 0) or (self.core.count == self.n_assem_core):
             self.cycle_step += 1  
+            print("time:", self.context.time, "end tock, cycle step:", self.cycle_step)
         return 
 
     def enter_notify(self):
@@ -248,6 +258,7 @@ class DepleteReactor(Facility):
         '''
         port = []
         n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
+        print("time:", self.context.time, "request", n_assem_order, "assemblies")
         if self.exit_time != -1:
             time_left = self.exit_time - self.context.time + 1
             time_left_cycle = self.cycle_time + self.refuel_time - self.cycle_step
@@ -329,6 +340,7 @@ class DepleteReactor(Facility):
             return 
 
         port = {'bids':bids}
+        print("time:", self.context.time, "respond", len(bids), "assemblies")
         return port
 
     def get_material_trades(self, trades): #phase 5.1
@@ -343,6 +355,7 @@ class DepleteReactor(Facility):
         '''
         responses = {}
         mats = self.pop_spent()
+        print("time:", self.context.time, "trade away", len(trades), "assemblies")
         for ii in range(len(trades)):
             commodity = trades[ii].request.commodity
             mat = mats[commodity].pop(-1)
@@ -371,6 +384,7 @@ class DepleteReactor(Facility):
 
         '''
         n_load = min(len(responses), self.n_assem_core - self.core.count)
+        print("time:", self.context.time, "accept", n_load, "assemblies")
         if n_load > 0:
             ss = str(n_load) + " assemblies"
             #self.record("LOAD", ss)
@@ -403,6 +417,7 @@ class DepleteReactor(Facility):
 
         ss = str(npop) + " assemblies"
         #self.record("DISCHARGE", ss)
+        print("time:", self.context.time, "discharge", ss)
         core_pop = self.core.pop_n(npop)
         for ii in range(len(core_pop)):
             self.spent_fuel.push(core_pop[ii])
@@ -426,10 +441,14 @@ class DepleteReactor(Facility):
         them from the fresh fuel inventory to the core inventory. 
         '''
         n = min(self.n_assem_core-self.core.count, self.fresh_fuel.count)
+        print("time:", self.context.time, self.n_assem_core-self.core.count)
+        print("time:", self.context.time, self.fresh_fuel.count)
+        print("time:", self.context.time, "load", n, "assemblies")
         if n == 0:
             return
         ss = str(n) + " assemblies"
         #self.record("LOAD", ss)
+        print("time:", self.context.time, "load", ss)
         assemblies = self.fresh_fuel.pop_n(n)
         for ii in range(len(assemblies)):
             self.core.push(assemblies[ii])
@@ -456,6 +475,7 @@ class DepleteReactor(Facility):
             self.core.push(old[ii]) 
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
+        print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
             print("call OpenMC")
         return
