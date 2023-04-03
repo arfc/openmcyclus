@@ -278,6 +278,7 @@ class DepleteReactor(Facility):
                 material = ts.Material.create_untracked(self.assem_size, recipe)
             lib.record_time_series("demand"+commod, self, self.assem_size)
             port.append({"commodities":{commod:material}, "constraints":self.assem_size})
+        print("time:", self.context.time, "finish get_material_requests")
         return port
 
     def get_material_bids(self, requests): # phase 2
@@ -305,37 +306,40 @@ class DepleteReactor(Facility):
         Add a constraint of the total quantity of the commodity available.
         Create a bid portfolio for each request that can be met. 
         '''
+        print("time:", self.context.time, "start get material_bids")
         got_mats = False
         bids = []
         port = []
-        for commod in self.fuel_outcommods:
+        for commod_index, commod in enumerate(self.fuel_outcommods):
             reqs = requests[commod]
             if len(reqs) == 0:
                 continue
             elif (got_mats == False):
                 all_mats = self.peek_spent()
-
             if len(all_mats) == 0:
                 tot_qty = 0
                 continue
-            mats = [all_mats[commod]]
+            if commod in all_mats: 
+                mats = [all_mats[commod]]
+            else:
+                mats = []
             if len(mats) == 0:
-                continue
-            for ii in range(len(self.fuel_outrecipes)):
-                recipe_comp = self.context.get_recipe(self.fuel_outrecipes[ii])
-                for req in reqs:
-                    tot_bid = 0
-                    for jj in range(len(mats)):
-                        tot_bid += mats[jj].quantity
-                        qty = min(req.target.quantity, self.spent_fuel.quantity)
-                        mat = ts.Material.create_untracked(qty, recipe_comp)
-                        bids.append({'request':req,'offer':mat})
+                continue 
+
+            recipe_comp = self.context.get_recipe(self.fuel_outrecipes[commod_index])
+    
+            for req in reqs:
+                tot_bid = 0
+                for jj in range(len(mats)):
+                    tot_bid += mats[jj].quantity
+                    qty = min(req.target.quantity, self.spent_fuel.quantity)
+                    mat = ts.Material.create_untracked(qty, recipe_comp)
+                    bids.append({'request':req,'offer':mat})
                     if tot_bid >= req.target.quantity:
-                        break
+                         break
             tot_qty = 0
             for mat in mats:
                 tot_qty += mat.quantity
-
         if len(bids) == 0:
             return 
 
@@ -423,15 +427,11 @@ class DepleteReactor(Facility):
         for ii in range(len(core_pop)):
             self.spent_fuel.push(core_pop[ii])
         tot_spent = 0
-        print("time:", self.context.time, "initial tot_spent:", tot_spent)
-
+        
         for ii in range(len(self.fuel_outcommods)):
             spent_mats = self.peek_spent()
-            print("time:", self.context.time, "spent_mats", spent_mats)
-            print("time:", self.context.time, "commod:", self.fuel_outcommods[ii])
             if self.fuel_outcommods[ii] in spent_mats:
                 mats = spent_mats[self.fuel_outcommods[ii]]
-                print("time:", self.context.time, "mats:", mats)
                 tot_spent += mats.quantity
                 lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
 
@@ -449,15 +449,11 @@ class DepleteReactor(Facility):
         them from the fresh fuel inventory to the core inventory. 
         '''
         n = min((self.n_assem_core-self.core.count), self.fresh_fuel.count)
-        print("time:", self.context.time,"core count:", self.core.count)
-        print("time:", self.context.time, self.n_assem_core-self.core.count)
-        print("time:", self.context.time, self.fresh_fuel.count)
         print("time:", self.context.time, "load", n, "assemblies")
         if n == 0:
             return
         ss = str(n) + " assemblies"
         #self.record("LOAD", ss)
-        print("time:", self.context.time, "load", ss)
         assemblies = self.fresh_fuel.pop_n(n)
         for ii in range(len(assemblies)):
             self.core.push(assemblies[ii])
