@@ -442,7 +442,8 @@ class DepleteReactor(Facility):
         Record the number of assemblies that are to be loaded, then move 
         them from the fresh fuel inventory to the core inventory. 
         '''
-        n = min(self.n_assem_core-self.core.count, self.fresh_fuel.count)
+        n = min((self.n_assem_core-self.core.count), self.fresh_fuel.count)
+        print("time:", self.context.time,"core count:", self.core.count)
         print("time:", self.context.time, self.n_assem_core-self.core.count)
         print("time:", self.context.time, self.fresh_fuel.count)
         print("time:", self.context.time, "load", n, "assemblies")
@@ -564,3 +565,33 @@ class DepleteReactor(Facility):
                 commod = self.fuel_outcommods[ii]
                 mapped[commod] = mats[ii] 
         return mapped
+
+    def get_commod(self, material, flow):
+        '''
+        Get the index in fuel_incommods or fuel_outcommods 
+        corresponding to the object id of a material
+        '''
+        ii = self.resource_indexes[material.obj_id]
+        if flow == 'in':
+            return self.fuel_incommods[ii]
+        elif flow == 'out':
+            return self.fuel_outcommods[ii]
+    
+    def get_recipe(self, material, flow):
+        '''
+        Get the index in fuel_inrecipes or fuel_outrecipes 
+        corresponding to the object id of a material
+        '''
+        ii = self.resource_indexes[material.obj_id]
+        if flow == 'in':
+            return self.fuel_inrecipes[ii]
+        elif flow == 'out':
+            return self.fuel_outrecipes[ii]
+    
+    def get_pref(self, material):
+        '''
+        Get the index in fuel_prefs 
+        corresponding to the object id of a material
+        '''
+        ii = self.resource_indexes[material.obj_id]
+        return self.fuel_prefs[ii]
