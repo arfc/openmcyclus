@@ -121,9 +121,9 @@ class TestSimple(TestDepleteReactor):
         tbl = self.resources
         times = self.to_array(tbl, "TimeCreated")
         quantities = self.to_array(tbl, "Quantity")
-        assert len(tbl) == 6
-        assert all(times == [0,0,0,2,5,8])
-        assert all(quantities == [10]*6)
+        assert len(tbl) == 9
+        assert all(times == [0,0,0,2,2,5,5,8,8])
+        assert all(quantities == [10]*9)
 
 class TestComplex(TestDepleteReactor):
     '''This class tests the results of a more 
