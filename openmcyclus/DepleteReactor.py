@@ -418,17 +418,23 @@ class DepleteReactor(Facility):
         ss = str(npop) + " assemblies"
         #self.record("DISCHARGE", ss)
         print("time:", self.context.time, "discharge", ss)
+
         core_pop = self.core.pop_n(npop)
         for ii in range(len(core_pop)):
             self.spent_fuel.push(core_pop[ii])
         tot_spent = 0
+        print("time:", self.context.time, "initial tot_spent:", tot_spent)
+
         for ii in range(len(self.fuel_outcommods)):
             spent_mats = self.peek_spent()
-            mats = spent_mats[self.fuel_outcommods[ii]]
-            tot_spent += mats.quantity
-            lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
-        print("time:", self.context.time, self.core.count)
-        print("time:", self.context.time, self.spent_fuel.count)
+            print("time:", self.context.time, "spent_mats", spent_mats)
+            print("time:", self.context.time, "commod:", self.fuel_outcommods[ii])
+            if self.fuel_outcommods[ii] in spent_mats:
+                mats = spent_mats[self.fuel_outcommods[ii]]
+                print("time:", self.context.time, "mats:", mats)
+                tot_spent += mats.quantity
+                lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
+
         return True
 
     def load(self):
@@ -538,8 +544,9 @@ class DepleteReactor(Facility):
         for commod in self.fuel_outcommods:
             mapped[commod] = []
         for ii in range(len(mats)):
-            for commod in self.fuel_outcommods:
-                mapped[commod].append(mats[ii])
+            commod = self.get_commod(mats[ii], 'out')
+            mapped[commod].append(mats[ii])
+        print("time:", self.context.time, "pop_spent mapped:", mapped)
         return mapped
 
     def push_spent(self, leftover):
@@ -562,7 +569,7 @@ class DepleteReactor(Facility):
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
             for ii in range(len(mats)):
                 self.spent_fuel.push(mats[ii])
-                commod = self.fuel_outcommods[ii]
+                commod = self.get_commod(mats[ii], 'out')
                 mapped[commod] = mats[ii] 
         return mapped
 
