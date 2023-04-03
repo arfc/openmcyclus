@@ -427,6 +427,8 @@ class DepleteReactor(Facility):
             mats = spent_mats[self.fuel_outcommods[ii]]
             tot_spent += mats.quantity
             lib.record_time_series("supply"+self.fuel_outcommods[ii], self, tot_spent)
+        print("time:", self.context.time, self.core.count)
+        print("time:", self.context.time, self.spent_fuel.count)
         return True
 
     def load(self):
