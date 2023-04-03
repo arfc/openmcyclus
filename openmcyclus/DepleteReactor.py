@@ -144,6 +144,7 @@ class DepleteReactor(Facility):
         '''
         print("time:", self.context.time, "tick")
         if self.retired():
+            print("time:", self.context.time, "retired")
         #    self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
                 if self.decom_transmute_all == 1:
@@ -152,13 +153,18 @@ class DepleteReactor(Facility):
                     self.transmute(math.ceil(self.n_assem_core/2))
 
             while self.core.count > 0:
-                if self.discharge() == 0:
+                if self.discharge() == False:
                     break
-
-            while (self.fresh_fuel > 0) and (self.spent_fuel.space >= self.assem_size):
+            print("time:", self.context.time, "end discharge loop")
+            while (self.fresh_fuel.count > 0) and (self.spent_fuel.space >= self.assem_size):
                 self.spent_fuel.push(self.fresh_fuel.pop())
+
+            print("time:", self.context.time, "decommission?", self.check_decommission_condition())
             if self.check_decommission_condition():
                 self.decommission()
+                
+
+        print("time:", self.context.time, "end retired loop")
         if self.cycle_step == self.cycle_time:   
             print("time:", self.context.time, "transmute", math.ceil(self.n_assem_batch))     
             self.transmute(math.ceil(self.n_assem_batch))
@@ -234,6 +240,7 @@ class DepleteReactor(Facility):
         If the core and the spent fuel are empty, then the core can be 
         decommissioned.
         '''
+        print("time:", self.context.time, "core count:", self.core.count)
         if (self.core.count == 0) and (self.spent_fuel.count == 0):
             return True
         else:
@@ -312,6 +319,7 @@ class DepleteReactor(Facility):
         port = []
         for commod_index, commod in enumerate(self.fuel_outcommods):
             reqs = requests[commod]
+            print("time:", self.context.time, "reqs:", reqs)
             if len(reqs) == 0:
                 continue
             elif (got_mats == False):
@@ -321,8 +329,10 @@ class DepleteReactor(Facility):
                 continue
             if commod in all_mats: 
                 mats = [all_mats[commod]]
+                
             else:
                 mats = []
+            print("time:", self.context.time, "mats to trade matching request commod:", mats)
             if len(mats) == 0:
                 continue 
 
@@ -332,9 +342,10 @@ class DepleteReactor(Facility):
                 tot_bid = 0
                 for jj in range(len(mats)):
                     tot_bid += mats[jj].quantity
-                    qty = min(req.target.quantity, self.spent_fuel.quantity)
+                    qty = min(req.target.quantity, self.assem_size)
                     mat = ts.Material.create_untracked(qty, recipe_comp)
-                    bids.append({'request':req,'offer':mat})
+                    for kk in range(self.spent_fuel.count):
+                        bids.append({'request':req,'offer':mat})
                     if tot_bid >= req.target.quantity:
                          break
             tot_qty = 0
@@ -344,6 +355,7 @@ class DepleteReactor(Facility):
             return 
 
         port = {'bids':bids}
+        print("time:", self.context.time, "portfolio:", port)
         print("time:", self.context.time, "respond", len(bids), "assemblies")
         return port
 
@@ -361,6 +373,7 @@ class DepleteReactor(Facility):
         mats = self.pop_spent()
         print("time:", self.context.time, "trade away", len(trades), "assemblies")
         for ii in range(len(trades)):
+            print("time:", self.context.time, "number of trades:", len(trades))
             commodity = trades[ii].request.commodity
             mat = mats[commodity].pop(-1)
             responses[trades[ii]] = mat
