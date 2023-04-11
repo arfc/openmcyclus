@@ -572,15 +572,23 @@ class DepleteReactor(Facility):
 
     def peek_spent(self):
         '''
-        
+        Get the material in the spent fuel inventory. Then for each material,
+        get the index of its out commodity, and append that index to the 
+        end of a list that is a value in a dictionary, the keys are 
+        the names of each commodity
         '''
+        print("peek_spent")
         mapped = {}
+        #for commod in self.fuel_outcommods:
+        #    mapped[commod] = []
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
             self.spent_fuel.push_many(mats)
             for ii in range(len(mats)):
                 commod = self.get_commod(mats[ii], 'out')
-                mapped[commod] = mats[ii] 
+                print("get_commod", commod, mats[ii])
+                mapped[commod].append(mats[ii])
+        print(mapped)
         return mapped
 
     def get_commod(self, material, flow):
