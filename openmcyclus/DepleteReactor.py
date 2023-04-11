@@ -436,9 +436,8 @@ class DepleteReactor(Facility):
         #self.record("DISCHARGE", ss)
         print("time:", self.context.time, "discharge", ss)
 
-        core_pop = self.core.pop_n(npop)
-        for ii in range(len(core_pop)):
-            self.spent_fuel.push(core_pop[ii])
+        self.spent_fuel.push_many(self.core.pop_n(npop))
+
         tot_spent = 0
         
         for ii in range(len(self.fuel_outcommods)):
@@ -467,9 +466,7 @@ class DepleteReactor(Facility):
             return
         ss = str(n) + " assemblies"
         #self.record("LOAD", ss)
-        assemblies = self.fresh_fuel.pop_n(n)
-        for ii in range(len(assemblies)):
-            self.core.push(assemblies[ii])
+        self.core.push_many(self.fresh_fuel.pop_n(n))
         return 
 
     def transmute(self, n_assem):
@@ -489,8 +486,7 @@ class DepleteReactor(Facility):
         There seem to be two Transmute functions in the cycamore reactor?
         '''
         old = self.core.pop_n(min(n_assem, self.core.count))
-        for ii in range(len(old)):
-            self.core.push(old[ii]) 
+        self.core.push_many(old)
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
@@ -576,8 +572,8 @@ class DepleteReactor(Facility):
         mapped = {}
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
+            self.spent_fuel.push_many(mats)
             for ii in range(len(mats)):
-                self.spent_fuel.push(mats[ii])
                 commod = self.get_commod(mats[ii], 'out')
                 mapped[commod] = mats[ii] 
         return mapped
