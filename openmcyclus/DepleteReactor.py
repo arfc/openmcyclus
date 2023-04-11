@@ -435,9 +435,10 @@ class DepleteReactor(Facility):
         ss = str(npop) + " assemblies"
         #self.record("DISCHARGE", ss)
         print("time:", self.context.time, "discharge", ss)
-
+        print(self.spent_fuel.count, self.core.count)
         self.spent_fuel.push_many(self.core.pop_n(npop))
-
+        print(self.spent_fuel.count, self.core.count)
+        print(self.spent_fuel.peek().comp())
         tot_spent = 0
         
         for ii in range(len(self.fuel_outcommods)):
@@ -487,11 +488,15 @@ class DepleteReactor(Facility):
         '''
         old = self.core.pop_n(min(n_assem, self.core.count))
         self.core.push_many(old)
+        if self.core.count > len(old):
+            self.core.push_many(self.core.pop_n(self.core.count - len(old)))
+
         ss = str(len(old)) + " assemblies"
         #self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
             print("call OpenMC")
+            old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
         return
 
     def record(self, event, val):
