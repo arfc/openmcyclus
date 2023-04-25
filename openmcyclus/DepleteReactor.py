@@ -2,10 +2,16 @@ from cyclus.agents import Facility
 from cyclus import lib
 import cyclus.typesystem as ts
 import math
-
+import numpy as np
 #import requests
 #import nb_conda_kernels 
 from openmcyclus.depletion import Depletion
+
+import openmc.deplete as od
+import openmc
+from xml.dom import minidom
+import pathlib
+
 
 class DepleteReactor(Facility):
     '''
@@ -126,7 +132,7 @@ class DepleteReactor(Facility):
     chain_file = ts.String(
         doc = "File with OpenMC decay chain information",
         tooltip = "Absolute path to decay chain file",
-        default = "/home/abachmann/openmcyclus/tests/chain_endfb71_pwr.xml"
+        default = "chain_endfb71_pwr.xml"
     )
    
     fresh_fuel = ts.ResBufMaterialInv()
@@ -144,7 +150,8 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        self.deplete = Depletion(self.path, "OneReactor", self.chain_file, 
+        self.deplete = Depletion("/home/abachmann/openmcyclus/tests/", 
+                                 "OneReactor", "chain_endfb71_pwr.xml", 
                                  self.cycle_time, self.power_cap)
 
     def tick(self):
@@ -514,8 +521,19 @@ class DepleteReactor(Facility):
         #self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
-            self.deplete.run_depletion()
+            print("Call OpenMC")            
+            model = self.deplete.read_model()
+            micro_xs = self.deplete.read_microxs()
+            ind_op = od.IndependentOperator(model.materials, micro_xs,
+                                            "/home/abachmann/openmcyclus/tests/chain_endfb71_pwr.xml")
+            ind_op.output_dir = "/home/abachmann/openmcyclus/tests/"
+            integrator = od.PredictorIntegrator(ind_op, np.ones(
+                int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
+                timestep_units='d')
+            integrator.integrate()
+
             self.deplete.create_recipe()
+
         return
 
     def record(self, event, val):
