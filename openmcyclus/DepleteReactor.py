@@ -2,6 +2,9 @@ from cyclus.agents import Facility
 from cyclus import lib
 import cyclus.typesystem as ts
 import math
+
+#import requests
+#import nb_conda_kernels 
 from openmcyclus.depletion import Depletion
 
 class DepleteReactor(Facility):
@@ -113,6 +116,18 @@ class DepleteReactor(Facility):
               "transmutes half.",
         default = 0
     )
+
+    path = ts.String(
+        doc = "Path to files with the OpenMC model information",
+        tooltip = "Path to files with OpenMC model",
+        default = "/home/abachmann/openmcyclus/tests/"
+    )
+
+    chain_file = ts.String(
+        doc = "File with OpenMC decay chain information",
+        tooltip = "Absolute path to decay chain file",
+        default = "/home/abachmann/openmcyclus/tests/chain_endfb71_pwr.xml"
+    )
    
     fresh_fuel = ts.ResBufMaterialInv()
     core = ts.ResBufMaterialInv()
@@ -129,8 +144,8 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        #self.deplete = Depletion("tests/", "OneReactor", "chain_endfb71_pwr.xml", 
-        #                         self.cycle_time, self.power_cap)
+        self.deplete = Depletion(self.path, "OneReactor", self.chain_file, 
+                                 self.cycle_time, self.power_cap)
 
     def tick(self):
         '''
@@ -146,6 +161,7 @@ class DepleteReactor(Facility):
         fuel is loaded
         '''
         print("time:", self.context.time, "tick")
+        #print(self.context.name)
         if self.retired():
             print("time:", self.context.time, "retired")
         #    self.record("RETIRED", "")
@@ -498,7 +514,8 @@ class DepleteReactor(Facility):
         #self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
-            print("call OpenMC")
+            self.deplete.run_depletion()
+            self.deplete.create_recipe()
         return
 
     def record(self, event, val):
