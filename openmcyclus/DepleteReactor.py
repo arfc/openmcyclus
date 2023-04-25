@@ -123,7 +123,7 @@ class DepleteReactor(Facility):
         default = 0
     )
 
-    path = ts.String(
+    model_path = ts.String(
         doc = "Path to files with the OpenMC model information",
         tooltip = "Path to files with OpenMC model",
         default = "/home/abachmann/openmcyclus/tests/"
@@ -131,8 +131,7 @@ class DepleteReactor(Facility):
 
     chain_file = ts.String(
         doc = "File with OpenMC decay chain information",
-        tooltip = "Absolute path to decay chain file",
-        default = "chain_endfb71_pwr.xml"
+        tooltip = "Absolute path to decay chain file"
     )
    
     fresh_fuel = ts.ResBufMaterialInv()
@@ -150,8 +149,8 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        self.deplete = Depletion("/home/abachmann/openmcyclus/tests/", 
-                                 "OneReactor", "chain_endfb71_pwr.xml", 
+        self.deplete = Depletion(self.model_path, 
+                                 self.prototype, self.chain_file, 
                                  self.cycle_time, self.power_cap)
 
     def tick(self):
@@ -168,7 +167,6 @@ class DepleteReactor(Facility):
         fuel is loaded
         '''
         print("time:", self.context.time, "tick")
-        #print(self.context.name)
         if self.retired():
             print("time:", self.context.time, "retired")
         #    self.record("RETIRED", "")
@@ -525,8 +523,8 @@ class DepleteReactor(Facility):
             model = self.deplete.read_model()
             micro_xs = self.deplete.read_microxs()
             ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                            "/home/abachmann/openmcyclus/tests/chain_endfb71_pwr.xml")
-            ind_op.output_dir = "/home/abachmann/openmcyclus/tests/"
+                                            str(self.model_path + self.chain_file))
+            ind_op.output_dir = self.model_path
             integrator = od.PredictorIntegrator(ind_op, np.ones(
                 int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
                 timestep_units='d')
