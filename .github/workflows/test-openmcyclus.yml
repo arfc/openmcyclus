@@ -18,7 +18,10 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-      - name: Install dependencies
+      - name: Install pytest
+        run: conda install -y pytest
+
+      - name: Build OpenMC 
         run: |
           conda install -y python=3.7 cyclus cycamore 
           HDF5_DIR=$CONDA_PREFIX && pip install h5py
