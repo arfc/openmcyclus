@@ -5,7 +5,6 @@ import subprocess
 import sys
 from hashlib import sha1
 import numpy as np
-from nose.tools import assert_equal
 
 
 CYCLUS_HAS_COIN = None
@@ -84,8 +83,7 @@ def check_cmd(args, cwd, holdsrtn):
             f.seek(0)
             print("STDOUT + STDERR:\n\n" + f.read().decode())
     holdsrtn[0] = return_code
-    assert_equal(return_code, 0)
-
+    assert return_code == 0
 
 def cyclus_has_coin():
     global CYCLUS_HAS_COIN

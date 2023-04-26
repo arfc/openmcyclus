@@ -26,7 +26,7 @@ jobs:
           mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install pytest
-        run: conda install -y pytest nose
+        run: conda install -y pytest
 
       - name: Build OpenMC 
         run: |
