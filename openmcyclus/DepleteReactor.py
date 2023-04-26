@@ -264,7 +264,7 @@ class DepleteReactor(Facility):
         submit no bids for materials.
         '''
         port = []
-        n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh + self.fresh_fuel.count
+        n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh - self.fresh_fuel.count
         print("time:", self.context.time, "request", n_assem_order, "assemblies")
         if self.exit_time != -1:
             time_left = self.exit_time - self.context.time + 1

@@ -61,13 +61,14 @@ class TestDepleteReactor(unittest.TestCase):
         spec: str
             value to find in a column
         a: table
-            database table to searc
+            database table to search
         spec_col: str
             Name of column to search
         id_col: str
             column name to search
 
         Returns:
+        --------
         array
         '''
 
