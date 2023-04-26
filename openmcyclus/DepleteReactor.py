@@ -281,11 +281,12 @@ class DepleteReactor(Facility):
             for jj in range(0, len(self.fuel_incommods)):
                 commod = self.fuel_incommods[jj]
                 pref = self.fuel_prefs[jj]
-                recipe = self.context.get_recipe(commod)
+                recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-            lib.record_time_series("demand"+commod, self, self.assem_size)
-            port.append({"commodities":{commod:material}, "constraints":self.assem_size})
-        print("time:", self.context.time, "finish get_material_requests")
+            port.append({"commodities":{commod:material}, "preference":pref,"constraints":self.assem_size})
+            max_index = 1
+            lib.record_time_series("demand"+self.fuel_incommods[max_index], self, self.assem_size)
+            print("time:", self.context.time, "finish get_material_requests")
         return port
 
     def get_material_bids(self, requests): # phase 2
