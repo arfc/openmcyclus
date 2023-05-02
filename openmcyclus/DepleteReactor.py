@@ -262,8 +262,15 @@ class DepleteReactor(Facility):
         
         If the reactor does not need more fuel or is retired, then 
         submit no bids for materials.
+
+        Create a request portfolio for each assembly needed to be ordered. 
+        Create an untracked material for each possible in commodity that 
+        can be used to meet the demand of each assembly. Set up a mutual request 
+        (logic OR) for each material that can meet a single assembly demand.
+        Apply the mass constraint of an assembly size for each assembly to 
+        order. 
         '''
-        port = []
+        ports = []
         n_assem_order = self.n_assem_core - self.core.count + self.n_assem_fresh - self.fresh_fuel.count
         print("time:", self.context.time, "request", n_assem_order, "assemblies")
         if self.exit_time != -1:
@@ -275,19 +282,24 @@ class DepleteReactor(Facility):
             n_assem_order = min(n_assem_order, n_need)
 
         if n_assem_order == 0 or self.retired():
-            return port
+            return ports
 
         for ii in range(n_assem_order): 
+            port = {}
             for jj in range(0, len(self.fuel_incommods)):
                 commod = self.fuel_incommods[jj]
                 pref = self.fuel_prefs[jj]
                 recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-            port.append({"commodities":{commod:material}, "preference":pref,"constraints":self.assem_size})
-            max_index = 1
-            lib.record_time_series("demand"+self.fuel_incommods[max_index], self, self.assem_size)
-            print("time:", self.context.time, "finish get_material_requests")
-        return port
+                port.update({commod:material})
+                
+                lib.record_time_series("demand"+commod, self, self.assem_size)
+                #print("updated port:", port)
+            ports.append({"commodities":port, "constraints":self.assem_size})
+            # ports = {"commodities":{"fuelA":target_a, "fuelB":target_b}, "constraints":self.assem_size}
+        print("time:", self.context.time, "finish get_material_requests")
+        print("request portfolio:", ports, len(ports))
+        return ports
 
     def get_material_bids(self, requests): # phase 2
         '''
@@ -401,12 +413,14 @@ class DepleteReactor(Facility):
         fuel inventory. 
 
         '''
-        n_load = min(len(responses), self.n_assem_core - self.core.count)
+        print("time:", self.context.time, "responses:", responses)
+        n_load = len(responses) #min(len(responses), self.n_assem_core - self.core.count)
         print("time:", self.context.time, "accept", n_load, "assemblies")
         if n_load > 0:
             ss = str(n_load) + " assemblies"
             #self.record("LOAD", ss)
         for trade in responses:
+            print(trade.request.commodity, trade.request.preference, trade.amt)
             commodity = trade.request.commodity
             material = trade.request.target
             self.index_res(material, commodity)
@@ -414,6 +428,8 @@ class DepleteReactor(Facility):
                 self.core.push(material)
             else:
                 self.fresh_fuel.push(material)
+
+        print("core:", self.core.count, "fresh:", self.fresh_fuel.count)
         return 
 
     def retired(self):
