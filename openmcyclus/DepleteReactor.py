@@ -291,15 +291,22 @@ class DepleteReactor(Facility):
                 pref = self.fuel_prefs[jj]
                 recipe = self.context.get_recipe(self.fuel_inrecipes[jj])
                 material = ts.Material.create_untracked(self.assem_size, recipe)
-                port.update({commod:material})
+                # the material should have the preference defined with it. 
+                #print(material.preference, pref)
+
+                #port.update({commod:material, "preference":pref})
+                #print(port)
                 
                 lib.record_time_series("demand"+commod, self, self.assem_size)
                 #print("updated port:", port)
-            ports.append({"commodities":port, "constraints":self.assem_size})
+                ports.append({"commodities":{commod:material}, 
+                              "constraints":self.assem_size,
+                              'preference': pref})
             # ports = {"commodities":{"fuelA":target_a, "fuelB":target_b}, "constraints":self.assem_size}
         print("time:", self.context.time, "finish get_material_requests")
-        print("request portfolio:", ports, len(ports))
+        print("request portfolio:", ports)
         return ports
+    
 
     def get_material_bids(self, requests): # phase 2
         '''
@@ -370,7 +377,7 @@ class DepleteReactor(Facility):
         port = {'bids':bids}
         print("time:", self.context.time, "portfolio:", port)
         print("time:", self.context.time, "respond", len(bids), "assemblies")
-        return port
+        return port     
 
     def get_material_trades(self, trades): #phase 5.1
         '''
