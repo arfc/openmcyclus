@@ -233,7 +233,7 @@ class DepleteReactor(Facility):
     def enter_notify(self):
         super().enter_notify()       
         if len(self.fuel_prefs) == 0:
-            self.fuel_prefs = [0]*len(self.fuel_incommods)
+            self.fuel_prefs = [1]*len(self.fuel_incommods)
   
     def check_decommission_condition(self):
         '''
