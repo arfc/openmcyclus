@@ -3,8 +3,6 @@ from cyclus import lib
 import cyclus.typesystem as ts
 import math
 import numpy as np
-#import requests
-#import nb_conda_kernels 
 from openmcyclus.depletion import Depletion
 
 import openmc.deplete as od
@@ -371,7 +369,7 @@ class DepleteReactor(Facility):
                     for kk in range(self.spent_fuel.count):
                         bids.append({'request':req,'offer':mat})
                     if tot_bid >= req.target.quantity:
-                         break
+                        break
             tot_qty = 0
             for mat in mats:
                 tot_qty += mat.quantity
