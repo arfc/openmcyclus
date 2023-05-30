@@ -570,10 +570,10 @@ class DepleteReactor(Facility):
         core_pop = self.core.pop_n(npop)
         for ii in range(len(core_pop)):
             self.spent_fuel.push(core_pop[ii])
-        tot_spent = 0
 
         for ii in range(len(self.fuel_outcommods)):
             spent_mats = self.peek_spent()
+            tot_spent = 0
             if self.fuel_outcommods[ii] in spent_mats:
                 mats = spent_mats[self.fuel_outcommods[ii]]
                 tot_spent += mats.quantity
