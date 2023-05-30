@@ -6,9 +6,7 @@ import numpy as np
 from openmcyclus.depletion import Depletion
 
 import openmc.deplete as od
-import openmc
-from xml.dom import minidom
-import pathlib
+
 
 
 class DepleteReactor(Facility):
