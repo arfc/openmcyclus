@@ -88,7 +88,7 @@ library. The input structure is:
       <fuel_outrecipes>
         <val>string</val> 
         ...
-        <val>string<v/al>
+        <val>string</val>
       </fuel_outrecipes>
       <assem_size>double</assem_size>
       <cycle_time>int</cycle_time>
