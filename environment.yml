@@ -4,6 +4,5 @@ channels:
   - defaults
 dependencies:
   - numpy
-  - nose
   - pytest
   - pip

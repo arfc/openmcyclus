@@ -52,13 +52,13 @@ library. The input structure is:
         ...
         <val>string<val>
       </fuel_outrecipes>
-      <assem_size>double<assem_size>
+      <assem_size>double</assem_size>
       <cycle_time>int</cycle_time>
       <refuel_time>int</refuel_time>
       <n_assem_core>int</n_assem_core>
       <n_assem_batch>int</n_assem_batch>
       <power_cap>double</power_cap>
-    </DeployReactor>
+    </DepleteReactor>
 
 The `fuel_prefs`, `fuel_inrecipes` and `fuel_outrecipes` state variables are optional, but 
 must be of equal length to the `fuel_incommods` or `fuel_outcommods`.
