@@ -161,7 +161,7 @@ class TestComplex(TestDepleteReactor):
         assert count_dict['uox'] == 2
         assert count_dict['mox'] == 4
         assert count_dict['spent_uox'] == 2
-        assert count_dict['spent_mox'] == 6
+        assert count_dict['spent_mox'] == 4
         assert all(times == [3,3,3,5,5,8,8,11,11,13,13,13])
 
     def test_resources(self):
