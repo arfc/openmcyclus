@@ -391,6 +391,7 @@ class DepleteReactor(Facility):
         got_mats = False
         bids = []
         port = []
+        all_mats = {}
         for commod_index, commod in enumerate(self.fuel_outcommods):
             reqs = requests[commod]
             print("time:", self.context.time, "reqs:", reqs)
@@ -398,22 +399,25 @@ class DepleteReactor(Facility):
                 continue
             elif (got_mats == False):
                 all_mats = self.peek_spent()
+                print(all_mats, len(all_mats))
             if len(all_mats) == 0:
                 tot_qty = 0
                 continue
             if commod in all_mats:
-                mats = [all_mats[commod]]
+                mats = all_mats[commod]
 
             else:
                 mats = []
+
             print(
                 "time:",
                 self.context.time,
                 "mats to trade matching request commod:",
-                mats)
+                mats, len(mats))
             if len(mats) == 0:
+                print("no materials")
                 continue
-
+            print("not skipping end of function")
             recipe_comp = self.context.get_recipe(
                 self.fuel_outrecipes[commod_index])
 
@@ -574,9 +578,11 @@ class DepleteReactor(Facility):
         for ii in range(len(self.fuel_outcommods)):
             spent_mats = self.peek_spent()
             tot_spent = 0
+            print(spent_mats)
             if self.fuel_outcommods[ii] in spent_mats:
                 mats = spent_mats[self.fuel_outcommods[ii]]
-                tot_spent += mats.quantity
+                for mat in mats:
+                    tot_spent += mat.quantity
                 lib.record_time_series(
                     "supply" + self.fuel_outcommods[ii], self, tot_spent)
 
@@ -737,14 +743,15 @@ class DepleteReactor(Facility):
         '''
         print("peek_spent")
         mapped = {}
-        #for commod in self.fuel_outcommods:
-        #    mapped[commod] = []
+        for commod in self.fuel_outcommods:
+            mapped[commod] = []
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
             self.spent_fuel.push_many(mats)
             for ii in range(len(mats)):
                 commod = self.get_commod(mats[ii], 'out')
                 print("get_commod", commod, mats[ii])
+        #        mapped[commod] = mats[ii]
                 mapped[commod].append(mats[ii])
         print(mapped)
         return mapped
