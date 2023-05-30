@@ -68,35 +68,35 @@ library. The input structure is:
       <fuel_incommods>
         <val>string</val>
         ...
-        <val>string<val>
+        <val>string</val>
       </fuel_incommods>
       <fuel_prefs>
         <val>double</val>
         ...
-        <val>double<val>
+        <val>double</val>
       </fuel_prefs>
       <fuel_outcommods>
         <val>string</val>
         ...
-        <val>string<val>
+        <val>string</val>
       </fuel_outcommods>
       <fuel_inrecipes>
         <val>string</val> 
         ...
-        <val>string<val>
+        <val>string</val>
       </fuel_inrecipes>
       <fuel_outrecipes>
         <val>string</val> 
         ...
-        <val>string<val>
+        <val>string<v/al>
       </fuel_outrecipes>
-      <assem_size>double<assem_size>
+      <assem_size>double</assem_size>
       <cycle_time>int</cycle_time>
       <refuel_time>int</refuel_time>
       <n_assem_core>int</n_assem_core>
       <n_assem_batch>int</n_assem_batch>
       <power_cap>double</power_cap>
-    </DeployReactor>
+    </DepleteReactor>
 
 The `fuel_prefs`, `fuel_inrecipes`, and `fuel_outrecipes` state variables are optional.
 But if included, `fuel_prefs` and `fuel_inrecipes` must be equal in length to 
