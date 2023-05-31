@@ -11,26 +11,37 @@ jobs:
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: environment.yml
-          use-mamba: true  
 
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
-      
-      - name: Update Environment
-        run: |
-          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install pytest
         run: conda install -y pytest
 
       - name: Build OpenMC 
         run: |
-          mamba install openmc
+          conda install -y python=3.7 cyclus cycamore 
+          HDF5_DIR=$CONDA_PREFIX && pip install h5py
+   
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
+      - name: Download OpenMC
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+          submodules: recursive
+
+      - name: Build OpenMC from source
+        run: |
+          run: build-openmc.sh
+
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
@@ -45,4 +56,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest --ignore tests/unit_tests
+          pytest 

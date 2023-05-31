@@ -2,6 +2,12 @@ from cyclus.agents import Facility
 from cyclus import lib
 import cyclus.typesystem as ts
 import math
+import numpy as np
+from openmcyclus.depletion import Depletion
+
+import openmc.deplete as od
+
+
 
 
 class DepleteReactor(Facility):
@@ -114,6 +120,16 @@ class DepleteReactor(Facility):
         default=0
     )
 
+    model_path = ts.String(
+        doc = "Path to files with the OpenMC model information",
+        tooltip = "Path to files with OpenMC model",
+        default = "/home/abachmann/openmcyclus/tests/"
+    )
+
+    chain_file = ts.String(
+        doc = "File with OpenMC decay chain information",
+        tooltip = "Absolute path to decay chain file"
+    )
     fresh_fuel = ts.ResBufMaterialInv()
     core = ts.ResBufMaterialInv()
     spent_fuel = ts.ResBufMaterialInv()
@@ -129,7 +145,10 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-
+        self.deplete = Depletion(self.model_path, 
+                                 self.prototype, self.chain_file, 
+                                 self.cycle_time, self.power_cap)
+        
     def tick(self):
         '''
         Logic to implement at the tick phase of each
@@ -630,7 +649,19 @@ class DepleteReactor(Facility):
         # self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
-            print("call OpenMC")
+            print("Call OpenMC")            
+            model = self.deplete.read_model()
+            micro_xs = self.deplete.read_microxs()
+            ind_op = od.IndependentOperator(model.materials, micro_xs,
+                                            str(self.model_path + self.chain_file))
+            ind_op.output_dir = self.model_path
+            integrator = od.PredictorIntegrator(ind_op, np.ones(
+                int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
+                timestep_units='d')
+            integrator.integrate()
+
+            self.deplete.create_recipe()
+
         return
 
     def record(self, event, val):
