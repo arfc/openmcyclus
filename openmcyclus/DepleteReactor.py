@@ -402,7 +402,7 @@ class DepleteReactor(Facility):
                 tot_qty = 0
                 continue
             if commod in all_mats:
-                mats = [all_mats[commod]]
+                mats = all_mats[commod]
 
             else:
                 mats = []
@@ -423,8 +423,8 @@ class DepleteReactor(Facility):
                     tot_bid += mats[jj].quantity
                     qty = min(req.target.quantity, self.assem_size)
                     mat = ts.Material.create_untracked(qty, recipe_comp)
-                    for kk in range(self.spent_fuel.count):
-                        bids.append({'request': req, 'offer': mat})
+                    #for kk in range(self.spent_fuel.count):
+                    bids.append({'request': req, 'offer': mat})
                     if tot_bid >= req.target.quantity:
                         break
             tot_qty = 0
@@ -576,7 +576,8 @@ class DepleteReactor(Facility):
             tot_spent = 0
             if self.fuel_outcommods[ii] in spent_mats:
                 mats = spent_mats[self.fuel_outcommods[ii]]
-                tot_spent += mats.quantity
+                for mat in mats:
+                    tot_spent += mat.quantity
                 lib.record_time_series(
                     "supply" + self.fuel_outcommods[ii], self, tot_spent)
 
@@ -598,17 +599,10 @@ class DepleteReactor(Facility):
         if n == 0:
             return
         ss = str(n) + " assemblies"
-<<<<<<< HEAD
-        #self.record("LOAD", ss)
-        self.core.push_many(self.fresh_fuel.pop_n(n))
-        return 
-=======
         # self.record("LOAD", ss)
-        assemblies = self.fresh_fuel.pop_n(n)
-        for ii in range(len(assemblies)):
-            self.core.push(assemblies[ii])
+
+        self.core.push_many(self.fresh_fuel.pop_n(n))
         return
->>>>>>> preferences
 
     def transmute(self, n_assem):
         '''
@@ -630,15 +624,11 @@ class DepleteReactor(Facility):
             Number of assemblies to be transmuted
         '''
         old = self.core.pop_n(min(n_assem, self.core.count))
-<<<<<<< HEAD
+        #for ii in range(len(old)):
+        #    self.core.push(old[ii])
         self.core.push_many(old)
         if self.core.count > len(old):
             self.core.push_many(self.core.pop_n(self.core.count - len(old)))
-
-=======
-        for ii in range(len(old)):
-            self.core.push(old[ii])
->>>>>>> preferences
         ss = str(len(old)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
@@ -738,12 +728,6 @@ class DepleteReactor(Facility):
 
     def peek_spent(self):
         '''
-<<<<<<< HEAD
-        Get the material in the spent fuel inventory. Then for each material,
-        get the index of its out commodity, and append that index to the 
-        end of a list that is a value in a dictionary, the keys are 
-        the names of each commodity
-=======
         Creates a dictionary of the materials in the spent 
         fuel inventory based on their commodity name. 
 
@@ -753,24 +737,17 @@ class DepleteReactor(Facility):
             Keys are the commodity names of the spent fuel. 
             Values are the Materials with the given commodity names. 
 
->>>>>>> preferences
         '''
         print("peek_spent")
         mapped = {}
-        #for commod in self.fuel_outcommods:
-        #    mapped[commod] = []
+        for commod in self.fuel_outcommods:
+            mapped[commod] = []
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
             self.spent_fuel.push_many(mats)
             for ii in range(len(mats)):
                 commod = self.get_commod(mats[ii], 'out')
-<<<<<<< HEAD
-                print("get_commod", commod, mats[ii])
                 mapped[commod].append(mats[ii])
-        print(mapped)
-=======
-                mapped[commod] = mats[ii]
->>>>>>> preferences
         return mapped
 
     def get_commod(self, material, flow):
