@@ -121,9 +121,9 @@ class TestSimple(TestDepleteReactor):
         tbl = self.resources
         times = self.to_array(tbl, "TimeCreated")
         quantities = self.to_array(tbl, "Quantity")
-        assert len(tbl) == 6
-        assert all(times == [0,0,0,2,5,8])
-        assert all(quantities == [10]*6)
+        assert len(tbl) == 9
+        assert all(times == [0,0,0,2,2,5,5,8,8])
+        assert all(quantities == [10]*9)
 
 class TestComplex(TestDepleteReactor):
     '''This class tests the results of a more 
@@ -145,10 +145,10 @@ class TestComplex(TestDepleteReactor):
         enter_time = self.to_array(self.agent_entry, "EnterTime")
         lifetimes = self.to_array(self.agent_entry, "Lifetime")
         rx_id = self.find_ids(":openmcyclus.DepleteReactor:DepleteReactor", tbl)
-        assert len(agent_ids) == 5
+        assert len(agent_ids) == 6
         assert len(rx_id) == 1
-        assert all(enter_time == [0, 0, 0, 0, 3])
-        assert all(lifetimes == [-1, -1, -1, -1, 10])
+        assert all(enter_time == [0, 0, 0, 0, 0, 3])
+        assert all(lifetimes == [-1, -1, -1, -1, -1, 10])
 
     def test_transactions(self):
         tbl = self.transactions
@@ -156,15 +156,17 @@ class TestComplex(TestDepleteReactor):
         times = self.to_array(tbl,"Time")
         unique, counts = np.unique(commodities, return_counts=True)
         count_dict = dict(zip(unique,counts))
-        assert len(tbl) == 9
-        assert count_dict['uox'] == 6
-        assert count_dict['spent_uox'] == 3
-        assert all(times == [3,3,3,5,5,8,8,11,11])
+        assert len(tbl) == 12
+        assert 'uox' not in unique
+        assert count_dict['mox'] == 6
+        assert 'spent_uox' not in unique
+        assert count_dict['spent_mox'] == 6
+        assert all(times == [3,3,3,5,5,8,8,11,11,13,13,13])
 
     def test_resources(self):
         tbl = self.resources
         times = self.to_array(tbl, "TimeCreated")
         quantities = self.to_array(tbl, "Quantity")
-        assert len(tbl) == 6
-        assert all(times == [3,3,3,5,8,11])
-        assert all(quantities == [10]*6)
+        assert len(tbl) == 11
+        assert all(times == [3,3,3,5,5,8,8,11,11,13,13])
+        assert all(quantities == [10]*11)
