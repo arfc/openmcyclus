@@ -3,7 +3,7 @@ import openmc
 import openmc.deplete as od
 from xml.dom import minidom
 import pathlib
-
+import xml.etree.ElementTree as ET
 
 class Depletion(object):
     def __init__(self, path:str, prototype:str, chain_file:str, 
@@ -61,6 +61,46 @@ class Depletion(object):
             model_kwargs["tallies"] = tallies_path
         model = openmc.model.model.Model.from_xml(**model_kwargs)
         return model
+    
+    def update_materials(self, comp_list):
+        '''
+        Read in the material compositions of the fuel assemblies present 
+        in the reactor to be transmuted. Then modify the composition of 
+        the pre-defined materials to match the compositions from 
+        Cyclus. 
+
+
+        Parameters:
+        -----------
+        comp_list: list of dicts
+            list of the fresh fuel compositions present in the core 
+            at the calling of the transmute function.
+
+        Outputs:
+        --------
+        materials.xml: file 
+            updated XML for OpenMC with new compositions
+
+        '''
+        print("updating materials")
+        openmc_materials = ET.parse(str(self.path / "materials.xml"))
+        openmc_root = openmc_materials.getroot()
+
+        for child in openmc_root:
+            if '_' in child.attrib['name']:
+                underscore_index = child.attrib['name'].index('_')
+                assembly_number = child.attrib['name'][underscore_index+1:]
+                if child.attrib['name'][:underscore_index] == 'assembly':
+                    for material in child.findall('nuclide'):
+                        child.remove(material)
+                    new_comp = comp_list[int(assembly_number)-1]
+                    for nuclide in new_comp:
+                        new_nuclide = f"""<nuclide ao="{str(new_comp[nuclide])}" name="{str(nuclide)}" />"""
+                        new_nuclide_xml = ET.fromstring(new_nuclide)
+                        child.insert(1, new_nuclide_xml)
+        openmc_material.write(str(self.path / "materials.xml"))
+
+        return
 
     def read_microxs(self):
         '''
