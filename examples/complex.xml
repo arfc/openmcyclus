@@ -1,4 +1,4 @@
-<simulation>
+<simulation xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <control>
     <duration>20</duration>
@@ -55,6 +55,7 @@
         <Source>
           <outcommod>mox</outcommod>
           <outrecipe>mox</outrecipe>
+          <throughput>10</throughput>
         </Source>
       </config>
       <name>TwoSource</name>
@@ -163,20 +164,6 @@
     </recipe>
 
     <recipe>
-      <name>spent_uox</name>
-      <basis>mass</basis>
-      <nuclide>
-        <id>92235</id>
-        <comp>0.05</comp>
-      </nuclide>
-      <nuclide>
-        <id>92238</id>
-        <comp>0.95</comp>
-      </nuclide>
-    </recipe>
-
-
-    <recipe>
       <name>mox</name>
       <basis>mass</basis>
       <nuclide>
@@ -189,17 +176,6 @@
       </nuclide>
     </recipe>
 
-    <recipe>
-      <name>spent_mox</name>
-      <basis>mass</basis>
-      <nuclide>
-        <id>94239</id>
-        <comp>0.05</comp>
-      </nuclide>
-      <nuclide>
-        <id>94241</id>
-        <comp>0.95</comp>
-      </nuclide>
-    </recipe>
+  <xi:include href="examples/OneReactor_fuel.xml#xpointer(/recipes/child::*)"/>
 
  </simulation>

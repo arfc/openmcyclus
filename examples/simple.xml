@@ -1,4 +1,4 @@
-<simulation>
+<simulation xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <control>
     <duration>10</duration>
@@ -139,18 +139,6 @@
       </nuclide>
     </recipe>
 
-    <recipe>
-      <name>spent_uox</name>
-      <basis>mass</basis>
-      <nuclide>
-        <id>92235</id>
-        <comp>0.05</comp>
-      </nuclide>
-      <nuclide>
-        <id>92238</id>
-        <comp>0.95</comp>
-      </nuclide>
-    </recipe>
-
+ <xi:include href="examples/OneReactor_fuel.xml#xpointer(/recipes/child::*)"/>
 
  </simulation>
