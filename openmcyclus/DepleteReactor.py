@@ -174,7 +174,6 @@ class DepleteReactor(Facility):
                 print("decommissioning facility")
                 self.decommission()
 
-        print("time:", self.context.time, "end retired loop")
         if self.cycle_step == self.cycle_time:
             print("core:", self.core.count, "spent:", self.spent_fuel.count)
             print(
@@ -192,9 +191,9 @@ class DepleteReactor(Facility):
             print("core:", self.core.count, "spent:", self.spent_fuel.count)
 
         if self.cycle_step >= self.cycle_time:
-            print("time:", self.context.time, "load")
-            print("time:", self.context.time, self.core.count)
-            print("time:", self.context.time, self.fresh_fuel.count)
+            #print("time:", self.context.time, "load")
+            #print("time:", self.context.time, self.core.count)
+            #print("time:", self.context.time, self.fresh_fuel.count)
             self.load()
 
         # lib.Logger('5', str("DepleteReactor" + str(self.power_cap) + "is ticking"))
@@ -403,6 +402,7 @@ class DepleteReactor(Facility):
         got_mats = False
         bids = []
         port = []
+        all_mats = {}
         for commod_index, commod in enumerate(self.fuel_outcommods):
             reqs = requests[commod]
             #print("time:", self.context.time, "reqs:", reqs)
@@ -414,7 +414,7 @@ class DepleteReactor(Facility):
                 tot_qty = 0
                 continue
             if commod in all_mats:
-                mats = [all_mats[commod]]
+                mats = all_mats[commod]
 
             else:
                 mats = []
@@ -425,7 +425,6 @@ class DepleteReactor(Facility):
             #    mats)
             if len(mats) == 0:
                 continue
-
             recipe_comp = self.context.get_recipe(
                 self.fuel_outrecipes[commod_index])
 
@@ -537,7 +536,7 @@ class DepleteReactor(Facility):
             else:
                 self.fresh_fuel.push(material)
 
-        print("core:", self.core.count, "fresh:", self.fresh_fuel.count)
+        print("core:", self.core.count, "fresh:", self.fresh_fuel.count, "spent:", self.spent_fuel.count)
         return
 
     def retired(self):
