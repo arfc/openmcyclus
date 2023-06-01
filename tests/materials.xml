@@ -1,7 +1,16 @@
-<?xml version='1.0' encoding='utf-8'?>
 <materials>
-  <material depletable="true" id="1" temperature="900" volume="1256.6370614359173">
+  <material depletable="true" id="5" name="assembly_1" temperature="900" volume="78.53981633974483">
     <density units="g/cm3" value="19.1" />
-    <nuclide ao="1" name="U235" />
+    <nuclide ao="0.99289" name="922380000" /><nuclide ao="0.00711" name="922350000" /></material>
+  <material depletable="true" id="6" name="assembly_2" temperature="900" volume="78.53981633974483">
+    <density units="g/cm3" value="19.1" />
+    <nuclide ao="0.99289" name="942410000" /><nuclide ao="0.00711" name="942390000" /></material>
+  <material depletable="true" id="7" name="assembly_3" temperature="900" volume="78.53981633974483">
+    <density units="g/cm3" value="19.1" />
+    <nuclide ao="0.99289" name="942410000" /><nuclide ao="0.00711" name="942390000" /></material>
+  <material id="8" name="water" temperature="900" volume="7853.981633974483">
+    <density units="g/cm3" value="1" />
+    <nuclide ao="0.6667" name="H1" />
+    <nuclide ao="0.3333" name="O16" />
   </material>
 </materials>
