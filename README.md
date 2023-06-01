@@ -98,9 +98,15 @@ library. The input structure is:
       <power_cap>double</power_cap>
     </DepleteReactor>
 
-The `fuel_prefs`, `fuel_inrecipes`, and `fuel_outrecipes` state variables are optional.
-But if included, `fuel_prefs` and `fuel_inrecipes` must be equal in length to 
+`fuel_prefs` and `fuel_inrecipes` must be equal in length to 
 `fuel_incommods` and `fuel_outrecipes` must be equal in length to `fuel_outcommods`. 
+
+The fresh fuel recipes (`fuel_increipes`) are to be defined in the main input file but 
+the spent fuel recipes (`fuel_outrecipes`) are to be defined in a separate xml file 
+name `prototype_fuel.xml`, in which `prototype` is the name given to the prototype 
+in the main input file. The spent fuel recipes should be named the same as the 
+fresh fuel recipes, with `spent_` prepended (e.g. `spent_uox` if the inrecipe is 
+named `uox`).  
 
 
 ### Outputs
