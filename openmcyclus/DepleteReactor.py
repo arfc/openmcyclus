@@ -553,7 +553,8 @@ class DepleteReactor(Facility):
             integrator.integrate()
 
             self.deplete.create_recipe()
-
+            old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
+            print(old[ii].comp())
         return
 
     def record(self, event, val):
