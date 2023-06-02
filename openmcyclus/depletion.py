@@ -95,7 +95,7 @@ class Depletion(object):
                         child.remove(material)
                     new_comp = comp_list[int(assembly_number)-1]
                     for nuclide in new_comp:
-                        new_nuclide = f"""<nuclide ao="{str(new_comp[nuclide])}" name="{str(nuclide)}" />"""
+                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{str(nuclide)}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
         openmc_material.write(str(self.path / "materials.xml"))
