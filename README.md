@@ -22,7 +22,7 @@ git clone https://github.com/abachma2/cyclus.git
 
 cd cyclus
 
-git checkout 2022-05-maintenance
+git checkout python-api
 
 python install.py
 
