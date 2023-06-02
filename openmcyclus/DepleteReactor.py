@@ -538,11 +538,9 @@ class DepleteReactor(Facility):
         comp_list = []
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())        
-        print(comp_list)
 
         for ii in range(len(old)):
             print("Call OpenMC")  
-            # get 
             self.deplete.update_materials(comp_list)          
             model = self.deplete.read_model()
             micro_xs = self.deplete.read_microxs()
