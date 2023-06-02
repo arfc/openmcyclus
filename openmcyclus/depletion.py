@@ -195,7 +195,7 @@ class Depletion(object):
                 material_recipe.appendChild(nuclide)
             recipe.appendChild(material_recipe)
         xml_str = root.toprettyxml(newl='\n')
-        file_name = str(self.path / str(self.prototype + "_fuel.xml"))
+        file_name = "examples/OneReactor_fuel.xml" #str(self.path / str(self.prototype + "_fuel.xml"))
         with open(file_name, "w") as f:
             f.write(xml_str)
         return
