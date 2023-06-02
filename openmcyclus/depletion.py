@@ -4,6 +4,7 @@ import openmc.deplete as od
 from xml.dom import minidom
 import pathlib
 import xml.etree.ElementTree as ET
+import math
 
 class Depletion(object):
     def __init__(self, path:str, prototype:str, chain_file:str, 
@@ -82,7 +83,6 @@ class Depletion(object):
             updated XML for OpenMC with new compositions
 
         '''
-        print("updating materials")
         openmc_materials = ET.parse(str(self.path / "materials.xml"))
         openmc_root = openmc_materials.getroot()
 
@@ -95,11 +95,14 @@ class Depletion(object):
                         child.remove(material)
                     new_comp = comp_list[int(assembly_number)-1]
                     for nuclide in new_comp:
-                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{str(nuclide)}" />"""
+                        Z = math.floor(nuclide/10000000)
+                        A = math.floor((nuclide - Z*10000000)/10000)
+                        m = nuclide - Z*10000000 - A*10000
+                        nucname = openmc.data.gnd_name(Z,A,m)
+                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
-        openmc_material.write(str(self.path / "materials.xml"))
-
+        openmc_materials.write(str(self.path / "materials.xml"))
         return
 
     def read_microxs(self):
