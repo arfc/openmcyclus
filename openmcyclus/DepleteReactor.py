@@ -122,7 +122,7 @@ class DepleteReactor(Facility):
     model_path = ts.String(
         doc = "Path to files with the OpenMC model information",
         tooltip = "Path to files with OpenMC model",
-        default = "/home/abachmann/openmcyclus/tests/"
+        default = "/home/abachmann/openmcyclus/examples/"
     )
 
     chain_file = ts.String(
@@ -145,8 +145,7 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        self.deplete = Depletion(self.model_path, 
-                                 self.prototype, self.chain_file, 
+        self.deplete = Depletion(self.model_path, self.chain_file, 
                                  self.cycle_time, self.power_cap)
 
     def tick(self):
@@ -541,7 +540,7 @@ class DepleteReactor(Facility):
 
         for ii in range(len(old)):
             print("Call OpenMC")  
-            self.deplete.update_materials(comp_list)          
+            self.deplete.update_materials(comp_list)       
             model = self.deplete.read_model()
             micro_xs = self.deplete.read_microxs()
             ind_op = od.IndependentOperator(model.materials, micro_xs,
@@ -551,8 +550,8 @@ class DepleteReactor(Facility):
                 int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
                 timestep_units='d')
             integrator.integrate()
-
-            self.deplete.create_recipe()
+            self.deplete.create_recipe(self.prototype)
+            print("done creating recipes")
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
             print(old[ii].comp())
         return

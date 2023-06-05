@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 import math
 
 class Depletion(object):
-    def __init__(self, path:str, prototype:str, chain_file:str, 
+    def __init__(self, path:str, chain_file:str, 
     timesteps:int, power:float, conversion_factor:float=3):
         '''
         Class to hold objects related to calling 
@@ -19,8 +19,6 @@ class Depletion(object):
         path: str
             path to directory containing for OpenMC model (geometry, materials,
             and settings) and the results (depletion_results.h5)
-        prototype: str
-            name of prototype undergoing depletion
         chain_file: str
             name of file with depletion chain data. Just the file name is
             required, it is assumed that the file is in the same
@@ -36,7 +34,6 @@ class Depletion(object):
             representing a thermal efficiency of 1/3
         '''
         self.path = pathlib.Path(path)
-        self.prototype = prototype
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
@@ -102,6 +99,7 @@ class Depletion(object):
                         new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
+        ET.indent(openmc_root)
         openmc_materials.write(str(self.path / "materials.xml"))
         return
 
@@ -119,7 +117,7 @@ class Depletion(object):
         microxs: object
             microscopic cross section data
         '''
-        microxs = od.MicroXS.from_csv(self.path / "micro_xs.csv")
+        microxs = od.MicroXS.from_csv(str(self.path / "micro_xs.csv"))
         return microxs
 
     def run_depletion(self):
@@ -147,7 +145,7 @@ class Depletion(object):
 
         return
 
-    def create_recipe(self):
+    def create_recipe(self, prototype):
         '''
         Converts the depleted material compositions to an XML file readable
         by cyclus.
@@ -167,19 +165,17 @@ class Depletion(object):
         composition = results.export_to_materials(-1)
         root = ET.Element("recipes")
         for material in composition:
-            print("material:", material)
             recipe = ET.SubElement(root, "recipe")
             name = ET.SubElement(recipe, "name").text = material.name
             basis = ET.SubElement(recipe, "basis").text='atom'
             nuclides = ET.SubElement(recipe, "nuclide")
             for nuclide in material.nuclides:
-                print(nuclide.name, nuclide.percent)
                 Z, A,  m = openmc.data.zam(nuclide.name)
                 nuc_id = ET.SubElement(nuclides, "id").text = str(Z*10000000 + A*10000 + m)
                 comp = ET.SubElement(nuclides, "comp").text = str(nuclide.percent)
         ET.indent(root)
         tree = ET.ElementTree(root)
 
-        file_name = str(self.path / str(self.prototype + "_fuel.xml"))
+        file_name = str(self.path / str(prototype + "_fuel.xml"))
         tree.write(file_name)
         return
