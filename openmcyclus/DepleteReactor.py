@@ -8,8 +8,6 @@ from openmcyclus.depletion import Depletion
 import openmc.deplete as od
 
 
-
-
 class DepleteReactor(Facility):
     '''
     Archetype class to model a reactor facility that is
@@ -121,14 +119,14 @@ class DepleteReactor(Facility):
     )
 
     model_path = ts.String(
-        doc = "Path to files with the OpenMC model information",
-        tooltip = "Path to files with OpenMC model",
-        default = "/home/abachmann/openmcyclus/tests/"
+        doc="Path to files with the OpenMC model information",
+        tooltip="Path to files with OpenMC model",
+        default="/home/abachmann/openmcyclus/tests/"
     )
 
     chain_file = ts.String(
-        doc = "File with OpenMC decay chain information",
-        tooltip = "Absolute path to decay chain file"
+        doc="File with OpenMC decay chain information",
+        tooltip="Absolute path to decay chain file"
     )
     fresh_fuel = ts.ResBufMaterialInv()
     core = ts.ResBufMaterialInv()
@@ -145,10 +143,10 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        self.deplete = Depletion(self.model_path, 
-                                 self.prototype, self.chain_file, 
+        self.deplete = Depletion(self.model_path,
+                                 self.prototype, self.chain_file,
                                  self.cycle_time, self.power_cap)
-        
+
     def tick(self):
         '''
         Logic to implement at the tick phase of each
@@ -163,7 +161,7 @@ class DepleteReactor(Facility):
         fuel is loaded
         '''
         if self.retired():
-        #    self.record("RETIRED", "")
+            #    self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
                 if self.decom_transmute_all == 1:
                     self.transmute(math.ceil(self.n_assem_core))
@@ -245,9 +243,9 @@ class DepleteReactor(Facility):
 
     def enter_notify(self):
         '''
-        Calls the enter_notify method of the parent class. 
-        Also defines a list for the input commodity preferences if 
-        not are provided by the user. 
+        Calls the enter_notify method of the parent class.
+        Also defines a list for the input commodity preferences if
+        not are provided by the user.
         '''
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
@@ -295,7 +293,7 @@ class DepleteReactor(Facility):
         --------
         ports: list of dictionaries
             Format: [{"commodities":
-                      [{commod_name(str):Material object, 
+                      [{commod_name(str):Material object,
                         "preference":int/float}, ...],
                       "constraints:int/float}, ...]
             Defines the request portfolio for the facility.
@@ -368,7 +366,7 @@ class DepleteReactor(Facility):
         Returns:
         --------
         port: dict
-            dictionary of materials held by facility that meets a request 
+            dictionary of materials held by facility that meets a request
             from another facility
         '''
         got_mats = False
@@ -426,14 +424,14 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         trades: tuple
-            tuple of material objects requested matched to the 
+            tuple of material objects requested matched to the
             material responses
 
         Returns:
         --------
         responses: dict
-            dictionary of {Material object:Material object}. The 
-            key is the Material request being matched. The value is the 
+            dictionary of {Material object:Material object}. The
+            key is the Material request being matched. The value is the
             Material in the spent fuel inventory
         '''
         responses = {}
@@ -467,11 +465,11 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         responses: dict
-            dictionary of {Material object:Material object}. The 
-            key is the Material request being matched. The value is the 
+            dictionary of {Material object:Material object}. The
+            key is the Material request being matched. The value is the
             Material in the spent fuel inventory
 
-        
+
         '''
         n_load = len(responses)
         if n_load > 0:
@@ -503,16 +501,16 @@ class DepleteReactor(Facility):
 
     def discharge(self):
         '''
-        Determine the number of assemblies to discharge. If the space for 
-        spent fuel assemblies is less than the number that need 
+        Determine the number of assemblies to discharge. If the space for
+        spent fuel assemblies is less than the number that need
         to be discharged, then don't discharge and return false
 
-        Record the number of assemblies discharged. 
+        Record the number of assemblies discharged.
 
         Remove the correct number of assemblies from the core.
-        Get the name of each spent fuel assembly. Then get the 
-        mass of each spent fuel commodity discharged. Return true if the 
-        fuel has been discharged. 
+        Get the name of each spent fuel assembly. Then get the
+        mass of each spent fuel commodity discharged. Return true if the
+        fuel has been discharged.
 
         Returns:
         --------
@@ -586,14 +584,15 @@ class DepleteReactor(Facility):
             self.core.push(old[ii])
         ss = str(len(old)) + " assemblies"
         # self.record("TRANSMUTE", ss)
-        for ii in range(len(old)):       
+        for ii in range(len(old)):
             model = self.deplete.read_model()
             micro_xs = self.deplete.read_microxs()
-            ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                            str(self.model_path + self.chain_file))
+            ind_op = od.IndependentOperator(
+                model.materials, micro_xs, str(
+                    self.model_path + self.chain_file))
             ind_op.output_dir = self.model_path
             integrator = od.PredictorIntegrator(ind_op, np.ones(
-                int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
+                int(self.cycle_time) * 30), power=int(self.power_cap) * 1000 * 3,
                 timestep_units='d')
             integrator.integrate()
 
@@ -633,7 +632,7 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         material: Material
-            Cyclus Material object to be checked 
+            Cyclus Material object to be checked
         incommod: str
             commodity name to compare against
         '''
@@ -661,7 +660,7 @@ class DepleteReactor(Facility):
         Returns:
         --------
         mapped: dict
-            Keys are the commodity names (str) and the values are 
+            Keys are the commodity names (str) and the values are
             lists of Material objects from the spent fuel inventory
         '''
         mats = self.spent_fuel.pop_n(self.spent_fuel.count)
@@ -680,8 +679,8 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         leftover: dict
-            Keys are the commodity names (str). Values are a list of 
-            Material objects. 
+            Keys are the commodity names (str). Values are a list of
+            Material objects.
         '''
         for commod in leftover:
             leftover[commod].reverse
@@ -691,14 +690,14 @@ class DepleteReactor(Facility):
 
     def peek_spent(self):
         '''
-        Creates a dictionary of the materials in the spent 
-        fuel inventory based on their commodity name. 
+        Creates a dictionary of the materials in the spent
+        fuel inventory based on their commodity name.
 
         Returns:
         --------
         mapped: dict
-            Keys are the commodity names of the spent fuel. 
-            Values are the Materials with the given commodity names. 
+            Keys are the commodity names of the spent fuel.
+            Values are the Materials with the given commodity names.
 
         '''
         mapped = {}
@@ -718,14 +717,14 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         material: Material obj
-            Material object to be queried 
+            Material object to be queried
         flow: str
             input or output commodity. "in" if input, "out"
-            if output commodity. 
+            if output commodity.
 
         Return:
         -------
-        string 
+        string
             name of commodity for the queried material
         '''
         ii = self.resource_indexes[material.obj_id]
@@ -742,14 +741,14 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         material: Material obj
-            Material object to be queried 
+            Material object to be queried
         flow: str
             input or output recipe. "in" if input, "out"
-            if output recipt. 
+            if output recipt.
 
         Return:
         -------
-        string 
+        string
             name of recipe for the queried material
         '''
         ii = self.resource_indexes[material.obj_id]
@@ -766,11 +765,11 @@ class DepleteReactor(Facility):
         Parameters:
         -----------
         material: Material obj
-            Material object to be queried. 
+            Material object to be queried.
 
         Return:
         -------
-        string 
+        string
             preference for the queried material
         '''
         ii = self.resource_indexes[material.obj_id]
