@@ -165,37 +165,21 @@ class Depletion(object):
         '''
         results = od.Results(self.path / "depletion_results.h5")
         composition = results.export_to_materials(-1)
-        root = minidom.Document()
-        recipe = root.createElement('recipes')
-        root.appendChild(recipe)
-        for index, material in enumerate(composition):
-            material_recipe = root.createElement('recipe')
-            name = root.createElement('name')
-            basis = root.createElement('basis')
+        root = ET.Element("recipes")
+        for material in composition:
+            print("material:", material)
+            recipe = ET.SubElement(root, "recipe")
+            name = ET.SubElement(recipe, "name").text = material.name
+            basis = ET.SubElement(recipe, "basis").text='atom'
+            nuclides = ET.SubElement(recipe, "nuclide")
+            for nuclide in material.nuclides:
+                print(nuclide.name, nuclide.percent)
+                Z, A,  m = openmc.data.zam(nuclide.name)
+                nuc_id = ET.SubElement(nuclides, "id").text = str(Z*10000000 + A*10000 + m)
+                comp = ET.SubElement(nuclides, "comp").text = str(nuclide.percent)
+        ET.indent(root)
+        tree = ET.ElementTree(root)
 
-            name_text = root.createTextNode(material.name)
-            basis_text = root.createTextNode('atom')
-
-            name.appendChild(name_text)
-            basis.appendChild(basis_text)
-            material_recipe.appendChild(name)
-            material_recipe.appendChild(basis)
-            for item in composition[index].nuclides:
-                nuclide = root.createElement('nuclide')
-                nuclide_id = root.createElement('id')
-                nuclide_comp = root.createElement('comp')
-
-                id_text = root.createTextNode(item.name)
-                comp_text = root.createTextNode(str(item.percent))
-
-                nuclide_id.appendChild(id_text)
-                nuclide_comp.appendChild(comp_text)
-                nuclide.appendChild(nuclide_id)
-                nuclide.appendChild(nuclide_comp)
-                material_recipe.appendChild(nuclide)
-            recipe.appendChild(material_recipe)
-        xml_str = root.toprettyxml(newl='\n')
-        file_name = "examples/OneReactor_fuel.xml" #str(self.path / str(self.prototype + "_fuel.xml"))
-        with open(file_name, "w") as f:
-            f.write(xml_str)
+        file_name = str(self.path / str(self.prototype + "_fuel.xml"))
+        tree.write(file_name)
         return
