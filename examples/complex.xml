@@ -55,6 +55,7 @@
         <Source>
           <outcommod>mox</outcommod>
           <outrecipe>mox</outrecipe>
+          <throughput>10</throughput>
         </Source>
       </config>
       <name>TwoSource</name>
