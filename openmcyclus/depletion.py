@@ -145,13 +145,18 @@ class Depletion(object):
 
         return
 
-    def create_recipe(self, prototype):
+    def create_recipe(self, prototype, recipe_list):
         '''
         Converts the depleted material compositions to an XML file readable
         by cyclus.
 
         Parameters:
         -----------
+        prototype: str
+            name of prototype deployed
+        recipe_list: list of strs
+            names of out recipe for the commodities going into the reactor. This 
+            name is applied to the updated recipes. 
 
         Outputs:
         --------
@@ -164,14 +169,14 @@ class Depletion(object):
         results = od.Results(self.path / "depletion_results.h5")
         #composition = results.export_to_materials(-1, None, "./examples/materials.xml")
         root = ET.Element("recipes")
-        for material_id in ['5','6','7']:
+        for index, material_id in enumerate(['5','6','7']):
             material = results[-1].get_material(material_id)
             recipe = ET.SubElement(root, "recipe")
-            name = ET.SubElement(recipe, "name").text = material.name
+            name = ET.SubElement(recipe, "name").text = recipe_list[index]
             basis = ET.SubElement(recipe, "basis").text='atom'
             nuclides = ET.SubElement(recipe, "nuclide")
             for nuclide in material.nuclides:
-                if nuclide.percent == 0:
+                if nuclide.percent < 1e-15:
                     continue
                 Z, A,  m = openmc.data.zam(nuclide.name)
                 nuc_id = ET.SubElement(nuclides, "id").text = str(Z*10000000 + A*10000 + m)
