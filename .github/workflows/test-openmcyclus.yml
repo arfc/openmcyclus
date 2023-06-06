@@ -33,7 +33,6 @@ jobs:
 
       - name: Install OpenMCyclus
         run: |
-          pip install pytest
           pip install .
 
       - name: Run Tests
