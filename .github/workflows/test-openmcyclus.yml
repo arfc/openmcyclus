@@ -23,7 +23,7 @@ jobs:
       
       - name: Update Environment
         run: |
-          conda isntall -y pytest
+          conda install -y pytest
           mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Download Cyclus
