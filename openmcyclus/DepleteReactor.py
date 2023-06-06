@@ -539,10 +539,9 @@ class DepleteReactor(Facility):
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())        
             recipe_list.append(self.get_recipe(assemblies[ii], 'out'))
-        print(recipe_list)
         for ii in range(len(old)):
             print("Call OpenMC")  
-            self.deplete.update_materials(comp_list)       
+            material_ids = self.deplete.update_materials(comp_list)       
             model = self.deplete.read_model()
             micro_xs = self.deplete.read_microxs()
             ind_op = od.IndependentOperator(model.materials, micro_xs,
@@ -552,7 +551,7 @@ class DepleteReactor(Facility):
                 int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
                 timestep_units='d')
             integrator.integrate()
-            self.deplete.create_recipe(self.prototype, recipe_list)
+            self.deplete.create_recipe(self.prototype, recipe_list, material_ids)
             print("done creating recipes")
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
             print(old[ii].comp())

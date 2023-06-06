@@ -74,6 +74,11 @@ class Depletion(object):
             list of the fresh fuel compositions present in the core 
             at the calling of the transmute function.
 
+        Returns:
+        --------
+        material_ids: list of strs
+            material id numbers for the OpenMC model
+
         Outputs:
         --------
         materials.xml: file 
@@ -82,11 +87,13 @@ class Depletion(object):
         '''
         openmc_materials = ET.parse(str(self.path / "materials.xml"))
         openmc_root = openmc_materials.getroot()
+        material_ids = []
 
         for child in openmc_root:
             if '_' in child.attrib['name']:
                 underscore_index = child.attrib['name'].index('_')
                 assembly_number = child.attrib['name'][underscore_index+1:]
+                material_ids.append(child.attrib['id'])
                 if child.attrib['name'][:underscore_index] == 'assembly':
                     for material in child.findall('nuclide'):
                         child.remove(material)
@@ -101,7 +108,7 @@ class Depletion(object):
                         child.insert(1, new_nuclide_xml)
         ET.indent(openmc_root)
         openmc_materials.write(str(self.path / "materials.xml"))
-        return
+        return material_ids
 
     def read_microxs(self):
         '''
@@ -145,7 +152,7 @@ class Depletion(object):
 
         return
 
-    def create_recipe(self, prototype, recipe_list):
+    def create_recipe(self, prototype, recipe_list, material_ids):
         '''
         Converts the depleted material compositions to an XML file readable
         by cyclus.
@@ -157,6 +164,8 @@ class Depletion(object):
         recipe_list: list of strs
             names of out recipe for the commodities going into the reactor. This 
             name is applied to the updated recipes. 
+        material_id: list of strs
+            material ids for the assembly materials in the OpenMC model
 
         Outputs:
         --------
@@ -167,9 +176,8 @@ class Depletion(object):
             be relative to Cyclus input file location
         '''
         results = od.Results(self.path / "depletion_results.h5")
-        #composition = results.export_to_materials(-1, None, "./examples/materials.xml")
         root = ET.Element("recipes")
-        for index, material_id in enumerate(['5','6','7']):
+        for index, material_id in enumerate(material_ids):
             material = results[-1].get_material(material_id)
             recipe = ET.SubElement(root, "recipe")
             name = ET.SubElement(recipe, "name").text = recipe_list[index]
