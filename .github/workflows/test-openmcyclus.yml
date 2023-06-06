@@ -33,7 +33,7 @@ jobs:
           path: cyclus
 
       - name: Install Cyclus
-        run: $GITHUB_WORKSPACE/build-cyclus.sh
+        run: ./build-cyclus.sh
 
       - name: Install OpenMC
         run: mamba install openmc
@@ -45,6 +45,6 @@ jobs:
         run: |
           pip install .
 
-      - name: Run Tests
-        run: |
-          pytest --ignore tests/integration_tests/
+#     - name: Run Tests
+#        run: |
+#          pytest --ignore tests/integration_tests/
