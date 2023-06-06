@@ -3,10 +3,39 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - openssh 
+  - pytest
   - gxx_linux-64=12.2 
+  - pip
   - gcc_linux-64=12.2 
   - cmake 
   - make 
+  - docker-pycreds 
+  - git 
+  - xo 
+  - python-json-logger 
+  - glib 
+  - libxml2 
+  - libxmlpp 
+  - libblas 
+  - libcblas 
+  - liblapack 
+  - pkg-config 
+  - coincbc 
+  - boost-cpp 
+  - sqlite 
+  - pcre 
+  - gettext 
+  - bzip2 
+  - xz 
+  - setuptools 
+  - pytest 
+  - pytables 
+  - pandas 
+  - jinja2 
+  - cython 
+  - websockets 
+  - pprintpp 
   - hdf5=1.12.2 
   - notebook 
   - nb_conda_kernels 
