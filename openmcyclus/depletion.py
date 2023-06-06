@@ -162,14 +162,17 @@ class Depletion(object):
             be relative to Cyclus input file location
         '''
         results = od.Results(self.path / "depletion_results.h5")
-        composition = results.export_to_materials(-1)
+        #composition = results.export_to_materials(-1, None, "./examples/materials.xml")
         root = ET.Element("recipes")
-        for material in composition:
+        for material_id in ['5','6','7']:
+            material = results[-1].get_material(material_id)
             recipe = ET.SubElement(root, "recipe")
             name = ET.SubElement(recipe, "name").text = material.name
             basis = ET.SubElement(recipe, "basis").text='atom'
             nuclides = ET.SubElement(recipe, "nuclide")
             for nuclide in material.nuclides:
+                if nuclide.percent == 0:
+                    continue
                 Z, A,  m = openmc.data.zam(nuclide.name)
                 nuc_id = ET.SubElement(nuclides, "id").text = str(Z*10000000 + A*10000 + m)
                 comp = ET.SubElement(nuclides, "comp").text = str(nuclide.percent)
