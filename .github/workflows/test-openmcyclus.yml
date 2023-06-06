@@ -21,7 +21,7 @@ jobs:
       
       - name: Update Environment
         run: |
-          mamba env update -n openmcyclus-env -f environment.yml
+          conda env update -n openmcyclus-env -f environment.yml
 
       - name: Install Dependencies
         run: |
