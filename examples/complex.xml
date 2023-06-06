@@ -52,9 +52,21 @@
 
     <facility>
       <config>
+        <Source>
+          <outcommod>mox</outcommod>
+          <outrecipe>mox</outrecipe>
+          <throughput>10</throughput>
+        </Source>
+      </config>
+      <name>TwoSource</name>
+    </facility>
+
+    <facility>
+      <config>
         <Sink>
           <in_commods>
             <val>spent_uox</val>
+            <val>spent_mox</val>
           </in_commods>
         </Sink>
       </config>
@@ -66,19 +78,35 @@
         <name>OneReactor</name>
         <lifetime>10</lifetime>
         <config>
-	      <DepleteReactor>
-            <fuel_incommods> <val>uox</val> </fuel_incommods>
-            <fuel_outcommods> <val>spent_uox</val> </fuel_outcommods>
+	  <DepleteReactor>
+            <fuel_incommods> 
+              <val>uox</val> 
+              <val>mox</val>
+            </fuel_incommods>
+            <fuel_prefs>
+              <val>1</val>
+              <val>2</val>
+            </fuel_prefs>
+            <fuel_outcommods> 
+              <val>spent_uox</val> 
+              <val>spent_mox</val>
+            </fuel_outcommods>
             <fuel_inrecipes> 
               <val>uox</val> 
+              <val>mox</val>
             </fuel_inrecipes>
-            <fuel_outrecipes> <val>spent_uox</val> </fuel_outrecipes>
+            <fuel_outrecipes> 
+              <val>spent_uox</val> 
+              <val>spent_mox</val>
+            </fuel_outrecipes>
             <assem_size>10</assem_size>
             <cycle_time>2</cycle_time>
             <refuel_time>1</refuel_time>
             <n_assem_core>3</n_assem_core>
             <n_assem_batch>1</n_assem_batch>
             <power_cap>100</power_cap>
+            <model_path>/home/abachmann/openmcyclus/tests/</model_path>
+            <chain_file>chain_endfb71_pwr.xml</chain_file>
           </DepleteReactor>
         </config>
     </facility>
@@ -107,6 +135,10 @@
             <entry>
               <number>1</number>
               <prototype>OneSource</prototype>
+            </entry>  
+            <entry>
+              <number>1</number>
+              <prototype>TwoSource</prototype>
             </entry>  
             <entry>
               <number>1</number>
@@ -144,5 +176,31 @@
       </nuclide>
     </recipe>
 
+
+    <recipe>
+      <name>mox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>94239</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>94241</id>
+        <comp>0.99289</comp>
+      </nuclide>
+    </recipe>
+
+    <recipe>
+      <name>spent_mox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>94239</id>
+        <comp>0.05</comp>
+      </nuclide>
+      <nuclide>
+        <id>94241</id>
+        <comp>0.95</comp>
+      </nuclide>
+    </recipe>
 
  </simulation>

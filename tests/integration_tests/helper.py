@@ -5,8 +5,6 @@ import subprocess
 import sys
 from hashlib import sha1
 import numpy as np
-#import tables
-from nose.tools import assert_equal
 
 
 CYCLUS_HAS_COIN = None
@@ -80,13 +78,12 @@ def check_cmd(args, cwd, holdsrtn):
     env = dict(os.environ)
     env['_'] = subprocess.check_output(['which', 'cyclus'], cwd=cwd).strip()
     with tempfile.NamedTemporaryFile() as f:
-        rtn = subprocess.call(args, shell=True, cwd=cwd, stdout=f, stderr=f, env=env)
-        if rtn != 0:
+        return_code = subprocess.call(args, shell=True, cwd=cwd, stdout=f, stderr=f, env=env)
+        if return_code != 0:
             f.seek(0)
             print("STDOUT + STDERR:\n\n" + f.read().decode())
-    holdsrtn[0] = rtn
-    assert_equal(rtn, 0)
-
+    holdsrtn[0] = return_code
+    assert return_code == 0
 
 def cyclus_has_coin():
     global CYCLUS_HAS_COIN

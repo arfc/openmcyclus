@@ -3,17 +3,14 @@ import uuid
 import sqlite3
 import platform
 
-#import tables
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from numpy.testing import assert_almost_equal
-#from cyclus.lib import Env
 import unittest
 
 import helper
 from helper import check_cmd, run_cyclus, table_exist, cyclus_has_coin
 
-#ALLOW_MILPS = Env().allow_milps
      
 class TestDepleteReactor(unittest.TestCase):
     '''
@@ -55,12 +52,32 @@ class TestDepleteReactor(unittest.TestCase):
         self.conn.close()
 
     def find_ids(self, spec, a, spec_col="Spec", id_col="AgentId"):
+        '''
+        find the rows in a table that match the value in a column to 
+        a specified value
+
+        Parameters:
+        -----------
+        spec: str
+            value to find in a column
+        a: table
+            database table to search
+        spec_col: str
+            Name of column to search
+        id_col: str
+            column name to search
+
+        Returns:
+        --------
+        array
+        '''
+
         if self.ext == '.h5':
             return helper.find_ids(spec, a[spec_col], a[id_col])
         else:
             return [x[id_col] for x in a if x[spec_col] == spec]
 
-    def to_ary(self, a, k):
+    def to_array(self, a, k):
         if self.ext == '.sqlite':
             return np.array([x[k] for x in a])
         else:
@@ -80,11 +97,10 @@ class TestSimple(TestDepleteReactor):
         super(TestSimple, self).setUp()
 
     def test_agent_entry(self):
-        pass  
         tbl = self.agent_entry
-        agent_ids = self.to_ary(self.agent_entry, "AgentId")
-        enter_time = self.to_ary(self.agent_entry, "EnterTime")
-        lifetimes = self.to_ary(self.agent_entry, "Lifetime")
+        agent_ids = self.to_array(self.agent_entry, "AgentId")
+        enter_time = self.to_array(self.agent_entry, "EnterTime")
+        lifetimes = self.to_array(self.agent_entry, "Lifetime")
         rx_id = self.find_ids(":openmcyclus.DepleteReactor:DepleteReactor", tbl)
         assert len(agent_ids) == 5
         assert len(rx_id) == 1
@@ -93,8 +109,8 @@ class TestSimple(TestDepleteReactor):
 
     def test_transactions(self):
         tbl = self.transactions
-        commodities = self.to_ary(tbl, "Commodity")
-        times = self.to_ary(tbl,"Time")
+        commodities = self.to_array(tbl, "Commodity")
+        times = self.to_array(tbl,"Time")
         unique, counts = np.unique(commodities, return_counts=True)
         count_dict = dict(zip(unique,counts))
         assert len(tbl) == 9
@@ -104,11 +120,11 @@ class TestSimple(TestDepleteReactor):
 
     def test_resources(self):
         tbl = self.resources
-        times = self.to_ary(tbl, "TimeCreated")
-        quantities = self.to_ary(tbl, "Quantity")
-        assert len(tbl) == 6
-        assert all(times == [0,0,0,2,5,8])
-        assert all(quantities == [10]*6)
+        times = self.to_array(tbl, "TimeCreated")
+        quantities = self.to_array(tbl, "Quantity")
+        assert len(tbl) == 9
+        assert all(times == [0,0,0,2,2,5,5,8,8])
+        assert all(quantities == [10]*9)
 
 class TestComplex(TestDepleteReactor):
     '''This class tests the results of a more 
@@ -124,33 +140,34 @@ class TestComplex(TestDepleteReactor):
         self.output_file = "complex_integration.sqlite"
         super(TestComplex, self).setUp()
 
-    def test_agent_entry(self):
-        pass  
+    def test_agent_entry(self): 
         tbl = self.agent_entry
-        agent_ids = self.to_ary(self.agent_entry, "AgentId")
-        enter_time = self.to_ary(self.agent_entry, "EnterTime")
-        lifetimes = self.to_ary(self.agent_entry, "Lifetime")
+        agent_ids = self.to_array(self.agent_entry, "AgentId")
+        enter_time = self.to_array(self.agent_entry, "EnterTime")
+        lifetimes = self.to_array(self.agent_entry, "Lifetime")
         rx_id = self.find_ids(":openmcyclus.DepleteReactor:DepleteReactor", tbl)
-        assert len(agent_ids) == 5
+        assert len(agent_ids) == 6
         assert len(rx_id) == 1
-        assert all(enter_time == [0, 0, 0, 0, 3])
-        assert all(lifetimes == [-1, -1, -1, -1, 10])
+        assert all(enter_time == [0, 0, 0, 0, 0, 3])
+        assert all(lifetimes == [-1, -1, -1, -1, -1, 10])
 
     def test_transactions(self):
         tbl = self.transactions
-        commodities = self.to_ary(tbl, "Commodity")
-        times = self.to_ary(tbl,"Time")
+        commodities = self.to_array(tbl, "Commodity")
+        times = self.to_array(tbl,"Time")
         unique, counts = np.unique(commodities, return_counts=True)
         count_dict = dict(zip(unique,counts))
-        assert len(tbl) == 9
-        assert count_dict['uox'] == 6
-        assert count_dict['spent_uox'] == 3
-        assert all(times == [3,3,3,5,5,8,8,11,11])
+        assert len(tbl) == 12
+        assert count_dict['uox'] == 2
+        assert count_dict['mox'] == 4
+        assert count_dict['spent_uox'] == 2
+        assert count_dict['spent_mox'] == 4
+        assert all(times == [3,3,3,5,5,8,8,11,11,13,13,13])
 
     def test_resources(self):
         tbl = self.resources
-        times = self.to_ary(tbl, "TimeCreated")
-        quantities = self.to_ary(tbl, "Quantity")
-        assert len(tbl) == 6
-        assert all(times == [3,3,3,5,8,11])
-        assert all(quantities == [10]*6)
+        times = self.to_array(tbl, "TimeCreated")
+        quantities = self.to_array(tbl, "Quantity")
+        assert len(tbl) == 11
+        assert all(times == [3,3,3,5,5,8,8,11,11,13,13])
+        assert all(quantities == [10]*11)
