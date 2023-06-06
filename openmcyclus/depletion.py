@@ -6,11 +6,12 @@ import pathlib
 import xml.etree.ElementTree as ET
 import math
 
+
 class Depletion(object):
-    def __init__(self, path:str, chain_file:str, 
-    timesteps:int, power:float, conversion_factor:float=3):
+    def __init__(self, path: str, chain_file: str,
+                 timesteps: int, power: float, conversion_factor: float = 3):
         '''
-        Class to hold objects related to calling 
+        Class to hold objects related to calling
         :class:`~openmc.deplete.IndependentOperator`
         to perform transport-independent depletion.
 
@@ -25,8 +26,8 @@ class Depletion(object):
             location as the other files for the OpenMC model
         timesteps: int
             number of time steps to perform depletion. It is assumed that
-            the number given is in units of months. This value is 
-            multiplied by 30 to give a timestep in days. 
+            the number given is in units of months. This value is
+            multiplied by 30 to give a timestep in days.
         power: float
             power output of the reactor, assumed in MWe.
         conversion_factor: float
@@ -59,19 +60,19 @@ class Depletion(object):
             model_kwargs["tallies"] = tallies_path
         model = openmc.model.model.Model.from_xml(**model_kwargs)
         return model
-    
+
     def update_materials(self, comp_list):
         '''
-        Read in the material compositions of the fuel assemblies present 
-        in the reactor to be transmuted. Then modify the composition of 
-        the pre-defined materials to match the compositions from 
-        Cyclus. 
+        Read in the material compositions of the fuel assemblies present
+        in the reactor to be transmuted. Then modify the composition of
+        the pre-defined materials to match the compositions from
+        Cyclus.
 
 
         Parameters:
         -----------
         comp_list: list of dicts
-            list of the fresh fuel compositions present in the core 
+            list of the fresh fuel compositions present in the core
             at the calling of the transmute function.
 
         Returns:
@@ -81,7 +82,7 @@ class Depletion(object):
 
         Outputs:
         --------
-        materials.xml: file 
+        materials.xml: file
             updated XML for OpenMC with new compositions
 
         '''
@@ -92,17 +93,17 @@ class Depletion(object):
         for child in openmc_root:
             if '_' in child.attrib['name']:
                 underscore_index = child.attrib['name'].index('_')
-                assembly_number = child.attrib['name'][underscore_index+1:]
+                assembly_number = child.attrib['name'][underscore_index + 1:]
                 material_ids.append(child.attrib['id'])
                 if child.attrib['name'][:underscore_index] == 'assembly':
                     for material in child.findall('nuclide'):
                         child.remove(material)
-                    new_comp = comp_list[int(assembly_number)-1]
+                    new_comp = comp_list[int(assembly_number) - 1]
                     for nuclide in new_comp:
-                        Z = math.floor(nuclide/10000000)
-                        A = math.floor((nuclide - Z*10000000)/10000)
-                        m = nuclide - Z*10000000 - A*10000
-                        nucname = openmc.data.gnd_name(Z,A,m)
+                        Z = math.floor(nuclide / 10000000)
+                        A = math.floor((nuclide - Z * 10000000) / 10000)
+                        m = nuclide - Z * 10000000 - A * 10000
+                        nucname = openmc.data.gnd_name(Z, A, m)
                         new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
@@ -145,8 +146,14 @@ class Depletion(object):
         ind_op = od.IndependentOperator(model.materials, micro_xs,
                                         str(self.path / self.chain_file))
         ind_op.output_dir = self.path
-        integrator = od.PredictorIntegrator(ind_op, np.ones(
-            self.timesteps*30), power=self.power*1000*self.conversion_factor, 
+        integrator = od.PredictorIntegrator(
+            ind_op,
+            np.ones(
+                self.timesteps *
+                30),
+            power=self.power *
+            1000 *
+            self.conversion_factor,
             timestep_units='d')
         integrator.integrate()
 
@@ -162,8 +169,8 @@ class Depletion(object):
         prototype: str
             name of prototype deployed
         recipe_list: list of strs
-            names of out recipe for the commodities going into the reactor. This 
-            name is applied to the updated recipes. 
+            names of out recipe for the commodities going into the reactor. This
+            name is applied to the updated recipes.
         material_id: list of strs
             material ids for the assembly materials in the OpenMC model
 
@@ -181,14 +188,18 @@ class Depletion(object):
             material = results[-1].get_material(material_id)
             recipe = ET.SubElement(root, "recipe")
             name = ET.SubElement(recipe, "name").text = recipe_list[index]
-            basis = ET.SubElement(recipe, "basis").text='atom'
+            basis = ET.SubElement(recipe, "basis").text = 'atom'
             nuclides = ET.SubElement(recipe, "nuclide")
             for nuclide in material.nuclides:
                 if nuclide.percent < 1e-15:
                     continue
-                Z, A,  m = openmc.data.zam(nuclide.name)
-                nuc_id = ET.SubElement(nuclides, "id").text = str(Z*10000000 + A*10000 + m)
-                comp = ET.SubElement(nuclides, "comp").text = str(nuclide.percent)
+                Z, A, m = openmc.data.zam(nuclide.name)
+                nuc_id = ET.SubElement(
+                    nuclides, "id").text = str(
+                    Z * 10000000 + A * 10000 + m)
+                comp = ET.SubElement(
+                    nuclides, "comp").text = str(
+                    nuclide.percent)
         ET.indent(root)
         tree = ET.ElementTree(root)
 
