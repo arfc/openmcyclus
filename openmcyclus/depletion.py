@@ -184,10 +184,14 @@ class Depletion(object):
         '''
         results = od.Results(self.path / "depletion_results.h5")
         root = ET.Element("recipes")
+        recorded_recipes = []
         for index, material_id in enumerate(material_ids):
+            if recipe_list[index] in recorded_recipes:
+                continue
             material = results[-1].get_material(material_id)
             recipe = ET.SubElement(root, "recipe")
             name = ET.SubElement(recipe, "name").text = recipe_list[index]
+            recorded_recipes.append(recipe_list[index])
             basis = ET.SubElement(recipe, "basis").text = 'atom'
             nuclides = ET.SubElement(recipe, "nuclide")
             for nuclide in material.nuclides:
