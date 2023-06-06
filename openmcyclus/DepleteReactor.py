@@ -554,7 +554,11 @@ class DepleteReactor(Facility):
         recipe_list = []
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())
-            recipe_list.append(self.get_recipe(assemblies[ii], 'out'))
+            spent_recipe = self.get_recipe(assemblies[ii], 'out')
+            if spent_recipe in recipe_list: 
+                continue
+            else:
+                recipe_list.append(self.get_recipe(assemblies[ii], 'out'))
         for ii in range(len(old)):
             print("Call OpenMC")
             material_ids = self.deplete.update_materials(comp_list)
