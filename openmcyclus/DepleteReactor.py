@@ -535,9 +535,11 @@ class DepleteReactor(Facility):
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
         comp_list = []
+        recipe_list = []
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())        
-
+            recipe_list.append(self.get_recipe(assemblies[ii], 'out'))
+        print(recipe_list)
         for ii in range(len(old)):
             print("Call OpenMC")  
             self.deplete.update_materials(comp_list)       
@@ -550,7 +552,7 @@ class DepleteReactor(Facility):
                 int(self.cycle_time)*30), power=int(self.power_cap)*1000*3, 
                 timestep_units='d')
             integrator.integrate()
-            self.deplete.create_recipe(self.prototype)
+            self.deplete.create_recipe(self.prototype, recipe_list)
             print("done creating recipes")
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
             print(old[ii].comp())
