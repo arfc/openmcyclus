@@ -23,7 +23,17 @@ jobs:
       
       - name: Update Environment
         run: |
+          conda isntall -y pytest
           mamba env update -n openmcyclus-env -f environment.yml
+
+      - name: Download Cyclus
+        uses: actions/checkout@v3
+        with:
+          repository: abachma2/cyclus
+          path: cyclus
+
+      - name: Install Cyclus
+        run: $GITHUB_WORKSPACE/build-cyclus.sh
 
       - name: Install OpenMC
         run: mamba install openmc
