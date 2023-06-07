@@ -24,7 +24,7 @@ jobs:
       - name: Update Environment
         run: |
           conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook
-          mamba env update -n openmcyclus-env -f environment.yml
+          conda list
 
       - name: Download Cyclus
         uses: actions/checkout@v3
