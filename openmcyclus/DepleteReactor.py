@@ -405,7 +405,7 @@ class DepleteReactor(Facility):
         all_mats = {}
         for commod_index, commod in enumerate(self.fuel_outcommods):
             reqs = requests[commod]
-            #print("time:", self.context.time, "reqs:", reqs)
+            print("time:", self.context.time, "reqs:", reqs)
             if len(reqs) == 0:
                 continue
             elif (got_mats == False):
@@ -414,20 +414,22 @@ class DepleteReactor(Facility):
                 tot_qty = 0
                 continue
             if commod in all_mats:
-                mats = all_mats[commod]
+                mats = [all_mats[commod]]
 
             else:
                 mats = []
-            #print(
-            #    "time:",
-            #    self.context.time,
-            #    "mats to trade matching request commod:",
-            #    mats)
+            print(
+                "time:",
+                self.context.time,
+                "mats to trade matching request commod:",
+                mats)
+            print(len(mats))
             if len(mats) == 0:
                 continue
             recipe_comp = self.context.get_recipe(
                 self.fuel_outrecipes[commod_index])
 
+            print(recipe_comp)
             for req in reqs:
                 tot_bid = 0
                 for jj in range(len(mats)):
@@ -650,6 +652,13 @@ class DepleteReactor(Facility):
             print("state_id before transmuting:", old[ii].state_id)
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
             old[ii].bump_state_id()
+            print("new state id:", old[ii].state_id)
+            resources_table = self.context.new_datum("Resources")
+            resources_table.add_val("ResourceId", old[ii].state_id, [1], int)
+            resources_table.record()
+            print(type(old[ii].state_id))
+            print(resources_table.title)
+            #self.context.add_val("ResourceId", old[ii].state_id)
             print("comp after transmuting:", old[ii].comp())
             print("obj_id after transmuting:", old[ii].obj_id)
             print("state_id after transmuting:", old[ii].state_id)
@@ -815,11 +824,11 @@ class DepleteReactor(Facility):
             name of recipe for the queried material
         '''
         ii = self.resource_indexes[material.obj_id]
-        print("resource index:", ii)
+        #print("resource index:", ii)
         if flow == 'in':
             return self.fuel_inrecipes[ii]
         elif flow == 'out':
-            print(self.fuel_outrecipes[ii])
+            #print(self.fuel_outrecipes[ii])
             return self.fuel_outrecipes[ii]
 
     def get_pref(self, material):
