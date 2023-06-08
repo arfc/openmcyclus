@@ -146,7 +146,7 @@ class DepleteReactor(Facility):
         print("time:", self.context.time, "tick")
         if self.retired():
             print("time:", self.context.time, "retired")
-        #    self.record("RETIRED", "")
+            self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
                 print("transmuting fuel for retirement")
                 if self.decom_transmute_all == 1:
@@ -183,6 +183,7 @@ class DepleteReactor(Facility):
                 math.ceil(
                     self.n_assem_batch))
             self.transmute(math.ceil(self.n_assem_batch))
+            self.record("CYCLE_END", "")
             print("core:", self.core.count, "spent:", self.spent_fuel.count)
 
         if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
@@ -237,7 +238,7 @@ class DepleteReactor(Facility):
             self.cycle_step = 0
 
         if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
-            #self.record("CYCLE_START", "")
+            self.record("CYCLE_START", "")
             print("Cycle start")
 
         if (self.cycle_step >= 0) and (self.cycle_step < self.cycle_time) and (
@@ -527,7 +528,7 @@ class DepleteReactor(Facility):
         print("time:", self.context.time, "accept", n_load, "assemblies")
         if n_load > 0:
             ss = str(n_load) + " assemblies"
-            # self.record("LOAD", ss)
+            self.record("LOAD", ss)
         for trade in responses:
             #print(trade.request.commodity, trade.request.preference, trade.amt)
             commodity = trade.request.commodity
@@ -575,11 +576,11 @@ class DepleteReactor(Facility):
         '''
         npop = min(self.n_assem_batch, self.core.count)
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
-            # self.record("DISCHARGE", "failed")
+            self.record("DISCHARGE", "failed")
             return False
 
         ss = str(npop) + " assemblies"
-        # self.record("DISCHARGE", ss)
+        self.record("DISCHARGE", ss)
         print("time:", self.context.time, "discharge", ss)
         #print(self.spent_fuel.count, self.core.count)
         self.spent_fuel.push_many(self.core.pop_n(npop))
@@ -614,7 +615,7 @@ class DepleteReactor(Facility):
         if n == 0:
             return
         ss = str(n) + " assemblies"
-        # self.record("LOAD", ss)
+        self.record("LOAD", ss)
 
         self.core.push_many(self.fresh_fuel.pop_n(n))
         return
@@ -643,25 +644,30 @@ class DepleteReactor(Facility):
         if self.core.count > len(old):
             self.core.push_many(self.core.pop_n(self.core.count - len(old)))
         ss = str(len(old)) + " assemblies"
-        # self.record("TRANSMUTE", ss)
+        self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
             print("call OpenMC")
-            print("comp before transmuting:", old[ii].comp())
-            print("obj_id before transmuting:", old[ii].obj_id)
-            print("state_id before transmuting:", old[ii].state_id)
+            parent_1 = old[ii].state_id
+            print("new recipe:", self.context.get_recipe(self.get_recipe(old[ii],'out')))
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
             old[ii].bump_state_id()
-            print("new state id:", old[ii].state_id)
+            print(old[ii].quantity, type(old[ii].quantity))
+            print(old[ii].units, type(old[ii].units))
+            print(old[ii].qual_id, type(old[ii].qual_id))
+            print(parent_1, type(parent_1))
             resources_table = self.context.new_datum("Resources")
-            resources_table.add_val("ResourceId", old[ii].state_id, [1], int)
+            resources_table.add_val("ResourceId", old[ii].state_id, None, 'int')
+            resources_table.add_val("ObjId", old[ii].obj_id, None, 'int')
+            resources_table.add_val("Type", old[ii].type, None, "std::string")
+            resources_table.add_val("TimeCreated", self.context.time, None, 'int')
+            #resources_table.add_val("Quantity", old[ii].quantity, None, 'float')
+            #resources_table.add_val("Units", old[ii].units, None, 'std::string')
+            #resources_table.add_val("QualId", old[ii].qual_id, None, 'int')
+            #resources_table.add_val("Parent1", parent_1, None, 'int')
+            #resources_table.add_val("Parent2", 0, None, 'int')
             resources_table.record()
-            print(type(old[ii].state_id))
-            print(resources_table.title)
-            #self.context.add_val("ResourceId", old[ii].state_id)
             print("comp after transmuting:", old[ii].comp())
-            print("obj_id after transmuting:", old[ii].obj_id)
-            print("state_id after transmuting:", old[ii].state_id)
         return
 
     def record(self, event, val):
@@ -676,18 +682,14 @@ class DepleteReactor(Facility):
         val: str
             value of event to be recorded
         '''
-        # creates tables with name ReactorEvents
-        #self.context.new_datum("ReactorEvents") 
-        #datum = lib.Datum()
-        #datum.add_val(event,val, [1], ts.Double)
-        #self.context.add_val("Value", val)
-        #self.context.record(self.context)
-
+        print("Recording to ReactorEvents")
         datum = self.context.new_datum("ReactorEvents")
-        #datum = di.new_datum("ReactorEvents")
-        # di = cpp_cyclusDbInit ??
-        datum.add_val(event, val)
+        datum.add_val("AgentId", self.id, None, 'int')
+        datum.add_val("Time", self.context.time, None, 'int')
+        #datum.add_val("Event", event, None, 'std::string')
+        datum.add_val("Value", val, None, 'std::string')
         datum.record()
+        print("done recording")
         return
 
     def index_res(self, material, incommod):
