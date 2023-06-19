@@ -622,10 +622,10 @@ class DepleteReactor(Facility):
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())
         material_ids = self.deplete.update_materials(comp_list)
-        model = self.deplete.read_model()
+        materials = self.deplete.read_materials()
         micro_xs = self.deplete.read_microxs()
         ind_op = od.IndependentOperator(
-            model.materials, micro_xs, str(
+            materials, micro_xs, str(
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
