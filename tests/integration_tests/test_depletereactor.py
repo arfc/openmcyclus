@@ -61,13 +61,14 @@ class TestDepleteReactor(unittest.TestCase):
         spec: str
             value to find in a column
         a: table
-            database table to searc
+            database table to search
         spec_col: str
             Name of column to search
         id_col: str
             column name to search
 
         Returns:
+        --------
         array
         '''
 
@@ -157,10 +158,10 @@ class TestComplex(TestDepleteReactor):
         unique, counts = np.unique(commodities, return_counts=True)
         count_dict = dict(zip(unique,counts))
         assert len(tbl) == 12
-        assert 'uox' not in unique
-        assert count_dict['mox'] == 6
-        assert 'spent_uox' not in unique
-        assert count_dict['spent_mox'] == 6
+        assert count_dict['uox'] == 2
+        assert count_dict['mox'] == 4
+        assert count_dict['spent_uox'] == 2
+        assert count_dict['spent_mox'] == 4
         assert all(times == [3,3,3,5,5,8,8,11,11,13,13,13])
 
     def test_resources(self):
