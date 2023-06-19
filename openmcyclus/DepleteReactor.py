@@ -613,42 +613,28 @@ class DepleteReactor(Facility):
         n_assem: int
             Number of assemblies to be transmuted
         '''
-        old = self.core.pop_n(min(n_assem, self.core.count))
-        for ii in range(len(old)):
-            self.core.push(old[ii])
-        ss = str(len(old)) + " assemblies"
-        # self.record("TRANSMUTE", ss)
-        print("time:", self.context.time, "transmute", ss)
-
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
+        ss = str(len(assemblies)) + " assemblies"
+        # self.record("TRANSMUTE", ss)
+        print("time:", self.context.time, "transmute", ss)
         comp_list = []
-        recipe_list = []
         for ii in range(len(assemblies)):
             comp_list.append(assemblies[ii].comp())
-            spent_recipe = self.get_recipe(assemblies[ii], 'out')
-            recipe_list.append(self.get_recipe(assemblies[ii], 'out'))
-        for ii in range(len(old)):
-            print("Call OpenMC")
-            material_ids = self.deplete.update_materials(comp_list)
-            model = self.deplete.read_model()
-            micro_xs = self.deplete.read_microxs()
-            ind_op = od.IndependentOperator(
-                model.materials, micro_xs, str(
-                    self.model_path + self.chain_file))
-            ind_op.output_dir = self.model_path
-            integrator = od.PredictorIntegrator(ind_op, np.ones(
-                int(self.cycle_time) * 30), power=int(self.power_cap) * 1000 * 3,
-                timestep_units='d')
-            integrator.integrate()
-            self.deplete.create_recipe(
-                self.prototype, recipe_list, material_ids)
-            print("done creating recipes")
-            old[ii].transmute(
-                self.context.get_recipe(
-                    self.get_recipe(
-                        old[ii], 'out')))
-            print(old[ii].comp())
+        material_ids = self.deplete.update_materials(comp_list)
+        model = self.deplete.read_model()
+        micro_xs = self.deplete.read_microxs()
+        ind_op = od.IndependentOperator(
+            model.materials, micro_xs, str(
+                self.model_path + self.chain_file))
+        ind_op.output_dir = self.model_path
+        integrator = od.PredictorIntegrator(ind_op, np.ones(
+            int(self.cycle_time) * 30), power=int(self.power_cap) * 1000 * 3,
+            timestep_units='d')
+        integrator.integrate()
+        spent_comps = self.deplete.get_spent_comps(material_ids)
+        for ii in range(len(assemblies)):
+            assemblies[ii].transmute(spent_comps[ii])
         return
 
     def record(self, event, val):

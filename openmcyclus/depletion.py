@@ -104,7 +104,7 @@ class Depletion(object):
                         A = math.floor((nuclide - Z * 10000000) / 10000)
                         m = nuclide - Z * 10000000 - A * 10000
                         nucname = openmc.data.gnd_name(Z, A, m)
-                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide])}" name="{nucname}" />"""
+                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide]*100)}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
         ET.indent(openmc_root)
@@ -159,54 +159,30 @@ class Depletion(object):
 
         return
 
-    def create_recipe(self, prototype, recipe_list, material_ids):
+    def get_spent_comps(self, material_ids):
         '''
-        Converts the depleted material compositions to an XML file readable
-        by cyclus.
+        Creates a list of each of the spent fuel compositions from the 
+        OpenMC depletion
 
         Parameters:
         -----------
-        prototype: str
-            name of prototype deployed
-        recipe_list: list of strs
-            names of out recipe for the commodities going into the reactor. This
-            name is applied to the updated recipes.
         material_id: list of strs
             material ids for the assembly materials in the OpenMC model
 
-        Outputs:
+        Returns:
         --------
-        {self.path}/{self.prototype}_fuel.xml : XML file
-            File containing the depleted material composition in the
-            required format for Cyclus. The path and prototype names are read
-            in from the class instantiation. Path will need to
-            be relative to Cyclus input file location
+        spent_comps: list of dicts
+            list of the compositions from the OpenMC model
         '''
         results = od.Results(self.path / "depletion_results.h5")
-        root = ET.Element("recipes")
-        recorded_recipes = []
+        spent_comps = []
         for index, material_id in enumerate(material_ids):
-            if recipe_list[index] in recorded_recipes:
-                continue
             material = results[-1].get_material(material_id)
-            recipe = ET.SubElement(root, "recipe")
-            name = ET.SubElement(recipe, "name").text = recipe_list[index]
-            recorded_recipes.append(recipe_list[index])
-            basis = ET.SubElement(recipe, "basis").text = 'atom'
-            nuclides = ET.SubElement(recipe, "nuclide")
+            comp = {}
             for nuclide in material.nuclides:
                 if nuclide.percent < 1e-15:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
-                nuc_id = ET.SubElement(
-                    nuclides, "id").text = str(
-                    Z * 10000000 + A * 10000 + m)
-                comp = ET.SubElement(
-                    nuclides, "comp").text = str(
-                    nuclide.percent)
-        ET.indent(root)
-        tree = ET.ElementTree(root)
-
-        file_name = str(self.path / str(prototype + "_fuel.xml"))
-        tree.write(file_name)
-        return
+                comp.update({Z*10000000+A*10000 + m :nuclide.percent/100})
+            spent_comps.append(comp)
+        return spent_comps
