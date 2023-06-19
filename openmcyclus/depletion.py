@@ -40,26 +40,18 @@ class Depletion(object):
         self.power = power
         self.conversion_factor = conversion_factor
 
-    def read_model(self):
+    def read_materials(self):
         '''
-        Read the .xml files in the defined path to create an OpenMC
-        model in the python API. The files are assumed to be named
-        geometry.xml, materials.xml, settings.xml, and (optionally)
-        tallies.xml
+        Read in the 
 
         Returns:
         ---------
-        model: openmc.model.model object
-            OpenMC model of reactor geometry.
+        materials: openmc.material object
+            Materials for OpenMC
         '''
-        model_kwargs = {"geometry": (self.path / "geometry.xml"),
-                        "materials": (self.path / "materials.xml"),
-                        "settings": (self.path / "settings.xml")}
-        tallies_path = self.path / "tallies.xml"
-        if tallies_path.exists():
-            model_kwargs["tallies"] = tallies_path
-        model = openmc.model.model.Model.from_xml(**model_kwargs)
-        return model
+        materials = openmc.Materials()
+        materials = materials.from_xml(str(self.path / "materials.xml"))
+        return materials
 
     def update_materials(self, comp_list):
         '''
@@ -128,37 +120,6 @@ class Depletion(object):
         microxs = od.MicroXS.from_csv(str(self.path / "micro_xs.csv"))
         return microxs
 
-    def run_depletion(self):
-        '''
-        Run the IndependentOperator class in OpenMC to perform
-        transport-independent depletion.
-
-        Parameters:
-        -----------
-
-        Outputs:
-        --------
-        depletion_results.h5: database
-            HDF5 data base with the results of the depletion simulation
-        '''
-        model = self.read_model()
-        micro_xs = self.read_microxs()
-        ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                        str(self.path / self.chain_file))
-        ind_op.output_dir = self.path
-        integrator = od.PredictorIntegrator(
-            ind_op,
-            np.ones(
-                self.timesteps *
-                30),
-            power=self.power *
-            1000 *
-            self.conversion_factor,
-            timestep_units='d')
-        integrator.integrate()
-
-        return
-
     def get_spent_comps(self, material_ids):
         '''
         Creates a list of each of the spent fuel compositions from the 
@@ -176,7 +137,7 @@ class Depletion(object):
         '''
         results = od.Results(self.path / "depletion_results.h5")
         spent_comps = []
-        for index, material_id in enumerate(material_ids):
+        for material_id in material_ids:
             material = results[-1].get_material(material_id)
             comp = {}
             for nuclide in material.nuclides:
