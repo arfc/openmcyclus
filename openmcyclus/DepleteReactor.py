@@ -120,9 +120,7 @@ class DepleteReactor(Facility):
 
     model_path = ts.String(
         doc="Path to files with the OpenMC model information",
-        tooltip="Path to files with OpenMC model",
-        default="/home/abachmann/openmcyclus/examples/"
-
+        tooltip="Path to files with OpenMC model"
     )
 
     chain_file = ts.String(
@@ -145,7 +143,7 @@ class DepleteReactor(Facility):
         self.power_name = "power"
         self.discharged = False
         self.resource_indexes = {}
-        self.deplete = Depletion(self.model_path, self.chain_file,
+        self.deplete = Depletion(self.chain_file,
                                  self.cycle_time, self.power_cap)
 
     def tick(self):
@@ -161,6 +159,7 @@ class DepleteReactor(Facility):
         then the fuel is discharged. If it's after a cycle ends, then
         fuel is loaded
         '''
+        print("time:", self.context.time, "begin tick")
         if self.retired():
             # print("time:", self.context.time, "retired")
             #    self.record("RETIRED", "")
@@ -618,12 +617,10 @@ class DepleteReactor(Facility):
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
-        comp_list = []
-        for ii in range(len(assemblies)):
-            comp_list.append(assemblies[ii].comp())
-        material_ids = self.deplete.update_materials(comp_list)
-        model = self.deplete.read_model()
-        micro_xs = self.deplete.read_microxs()
+        comp_list = [assembly.comp() for assembly in assemblies]
+        material_ids = self.deplete.update_materials(comp_list, self.model_path)
+        model = self.deplete.read_model(self.model_path)
+        micro_xs = self.deplete.read_microxs(self.model_path)
         ind_op = od.IndependentOperator(
             model.materials, micro_xs, str(
                 self.model_path + self.chain_file))
@@ -632,9 +629,9 @@ class DepleteReactor(Facility):
             int(self.cycle_time) * 30), power=int(self.power_cap) * 1000 * 3,
             timestep_units='d')
         integrator.integrate()
-        spent_comps = self.deplete.get_spent_comps(material_ids)
-        for ii in range(len(assemblies)):
-            assemblies[ii].transmute(spent_comps[ii])
+        spent_comps = self.deplete.get_spent_comps(material_ids, self.model_path)
+        for assembly, spent_comp in zip(assemblies, spent_comps):
+            assembly.transmute(spent_comp)
         return
 
     def record(self, event, val):

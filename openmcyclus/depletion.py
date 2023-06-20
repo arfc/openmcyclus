@@ -8,7 +8,7 @@ import math
 
 
 class Depletion(object):
-    def __init__(self, path: str, chain_file: str,
+    def __init__(self, chain_file: str,
                  timesteps: int, power: float, conversion_factor: float = 3):
         '''
         Class to hold objects related to calling
@@ -34,13 +34,12 @@ class Depletion(object):
             conversion factor to go from MWe to MWth. Default value of 3,
             representing a thermal efficiency of 1/3
         '''
-        self.path = pathlib.Path(path)
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
         self.conversion_factor = conversion_factor
 
-    def read_model(self):
+    def read_model(self, path):
         '''
         Read the .xml files in the defined path to create an OpenMC
         model in the python API. The files are assumed to be named
@@ -52,16 +51,13 @@ class Depletion(object):
         model: openmc.model.model object
             OpenMC model of reactor geometry.
         '''
-        model_kwargs = {"geometry": (self.path / "geometry.xml"),
-                        "materials": (self.path / "materials.xml"),
-                        "settings": (self.path / "settings.xml")}
-        tallies_path = self.path / "tallies.xml"
-        if tallies_path.exists():
-            model_kwargs["tallies"] = tallies_path
+        model_kwargs = {"geometry": path + "geometry.xml",
+                        "materials": path + "materials.xml",
+                        "settings": path + "settings.xml"}
         model = openmc.model.model.Model.from_xml(**model_kwargs)
         return model
 
-    def update_materials(self, comp_list):
+    def update_materials(self, comp_list, path):
         '''
         Read in the material compositions of the fuel assemblies present
         in the reactor to be transmuted. Then modify the composition of
@@ -86,7 +82,7 @@ class Depletion(object):
             updated XML for OpenMC with new compositions
 
         '''
-        openmc_materials = ET.parse(str(self.path / "materials.xml"))
+        openmc_materials = ET.parse(str(path + "materials.xml"))
         openmc_root = openmc_materials.getroot()
         material_ids = []
 
@@ -108,10 +104,10 @@ class Depletion(object):
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
         ET.indent(openmc_root)
-        openmc_materials.write(str(self.path / "materials.xml"))
+        openmc_materials.write(str(path + "materials.xml"))
         return material_ids
 
-    def read_microxs(self):
+    def read_microxs(self, path):
         '''
         Reads .csv file with microscopic cross sections. The
         csv file is assumed to be named "micro_xs.csv". This will need to
@@ -125,7 +121,7 @@ class Depletion(object):
         microxs: object
             microscopic cross section data
         '''
-        microxs = od.MicroXS.from_csv(str(self.path / "micro_xs.csv"))
+        microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
     def run_depletion(self):
@@ -159,7 +155,7 @@ class Depletion(object):
 
         return
 
-    def get_spent_comps(self, material_ids):
+    def get_spent_comps(self, material_ids, path):
         '''
         Creates a list of each of the spent fuel compositions from the 
         OpenMC depletion
@@ -174,7 +170,7 @@ class Depletion(object):
         spent_comps: list of dicts
             list of the compositions from the OpenMC model
         '''
-        results = od.Results(self.path / "depletion_results.h5")
+        results = od.Results(path + "depletion_results.h5")
         spent_comps = []
         for index, material_id in enumerate(material_ids):
             material = results[-1].get_material(material_id)
