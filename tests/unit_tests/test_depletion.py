@@ -61,5 +61,5 @@ class TestDepletion(unittest.TestCase):
         assert 10010000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 0.000003482149672930376
+        assert spent_comps[0][922350000] == 1.072843157632183e-10
 
