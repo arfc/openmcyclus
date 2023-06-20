@@ -15,11 +15,8 @@ class Depletion(object):
         :class:`~openmc.deplete.IndependentOperator`
         to perform transport-independent depletion.
 
-        Inputs:
-        ----------
-        path: str
-            path to directory containing for OpenMC model (geometry, materials,
-            and settings) and the results (depletion_results.h5)
+        Parameters:
+        -----------
         chain_file: str
             name of file with depletion chain data. Just the file name is
             required, it is assumed that the file is in the same
@@ -46,6 +43,11 @@ class Depletion(object):
         geometry.xml, materials.xml, settings.xml, and (optionally)
         tallies.xml
 
+        Parameters:
+        -----------
+        path: str
+            path of directory holding the files for/from OpenMC
+
         Returns:
         ---------
         model: openmc.model.model object
@@ -70,6 +72,8 @@ class Depletion(object):
         comp_list: list of dicts
             list of the fresh fuel compositions present in the core
             at the calling of the transmute function.
+        path: str
+            path of directory holding the files for/from OpenMC
 
         Returns:
         --------
@@ -115,6 +119,8 @@ class Depletion(object):
 
         Parameters:
         -----------
+        path: str
+            path of directory holding the files for/from OpenMC        
 
         Returns:
         --------
@@ -124,24 +130,26 @@ class Depletion(object):
         microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
-    def run_depletion(self):
+    def run_depletion(self, path):
         '''
         Run the IndependentOperator class in OpenMC to perform
         transport-independent depletion.
 
         Parameters:
-        -----------
+        -----------        
+        path: str
+            path of directory holding the files for/from OpenMC
 
         Outputs:
         --------
         depletion_results.h5: database
             HDF5 data base with the results of the depletion simulation
         '''
-        model = self.read_model()
-        micro_xs = self.read_microxs()
+        model = self.read_model(path)
+        micro_xs = self.read_microxs(path)
         ind_op = od.IndependentOperator(model.materials, micro_xs,
-                                        str(self.path / self.chain_file))
-        ind_op.output_dir = self.path
+                                        str(path + self.chain_file))
+        ind_op.output_dir = path
         integrator = od.PredictorIntegrator(
             ind_op,
             np.ones(
@@ -164,6 +172,8 @@ class Depletion(object):
         -----------
         material_id: list of strs
             material ids for the assembly materials in the OpenMC model
+        path: str
+            path of directory holding the files for/from OpenMC
 
         Returns:
         --------
