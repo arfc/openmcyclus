@@ -583,7 +583,22 @@ class DepleteReactor(Facility):
         #self.record("DISCHARGE", ss)
         print("time:", self.context.time, "discharge", ss)
         #print(self.spent_fuel.count, self.core.count)
-        self.spent_fuel.push_many(self.core.pop_n(npop))
+        discharge_assemblies = self.core.pop_n(npop)
+        for ii in range(len(discharge_assemblies)):
+            parent_1 = discharge_assemblies[ii].state_id
+            discharge_assemblies[ii].bump_state_id()
+            resources_table = self.context.new_datum("Resources")
+            resources_table.add_val("ResourceId", discharge_assemblies[ii].state_id, None, 'int')
+            resources_table.add_val("ObjId", discharge_assemblies[ii].obj_id, None, 'int')
+            resources_table.add_val("Type", discharge_assemblies[ii].type, None, "std::string")
+            resources_table.add_val("TimeCreated", self.context.time, None, 'int')
+            resources_table.add_val("Quantity", discharge_assemblies[ii].quantity, None, 'double')
+            resources_table.add_val("Units", discharge_assemblies[ii].units, None, 'std::string')
+            resources_table.add_val("QualId", discharge_assemblies[ii].qual_id, None, 'int')
+            resources_table.add_val("Parent1", parent_1, None, 'int')
+            resources_table.add_val("Parent2", 0, None, 'int')
+            resources_table.record()
+        self.spent_fuel.push_many(discharge_assemblies)
         #print(self.spent_fuel.count, self.core.count)
         #print(self.spent_fuel.peek().comp())
         
@@ -648,20 +663,7 @@ class DepleteReactor(Facility):
         print("time:", self.context.time, "transmute", ss)
         for ii in range(len(old)):
             print("call OpenMC")
-            parent_1 = old[ii].state_id
             old[ii].transmute(self.context.get_recipe(self.get_recipe(old[ii],'out')))
-            old[ii].bump_state_id()
-            resources_table = self.context.new_datum("Resources")
-            resources_table.add_val("ResourceId", old[ii].state_id, None, 'int')
-            resources_table.add_val("ObjId", old[ii].obj_id, None, 'int')
-            resources_table.add_val("Type", old[ii].type, None, "std::string")
-            resources_table.add_val("TimeCreated", self.context.time, None, 'int')
-            resources_table.add_val("Quantity", old[ii].quantity, None, 'double')
-            resources_table.add_val("Units", old[ii].units, None, 'std::string')
-            resources_table.add_val("QualId", old[ii].qual_id, None, 'int')
-            resources_table.add_val("Parent1", parent_1, None, 'int')
-            resources_table.add_val("Parent2", 0, None, 'int')
-            resources_table.record()
             print("comp after transmuting:", old[ii].comp())
         return
 
