@@ -15,24 +15,24 @@ jobs:
           miniforge-version: latest
           activate-environment: openmcyclus-env
           environment-file: environment.yml
-          auto-activate-base: false
+          use-mamba: true
 
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
-          conda install -y python=3.10
+          conda install -y python=3.10 pytest
       
       - name: Update Environment
         run: |
+          mamba env update -n openmcyclus-env -f environment.yml
           conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook
-          conda list
 
-      - name: Download Cyclus
-        uses: actions/checkout@v3
-        with:
-          repository: abachma2/cyclus
-          ref: python-api
-          path: cyclus
+#      - name: Download Cyclus
+#        uses: actions/checkout@v3
+#        with:
+#          repository: abachma2/cyclus
+#          ref: python-api
+#          path: cyclus
 
 #      - name: Install Cyclus
 #        run: |
