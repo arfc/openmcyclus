@@ -50,7 +50,7 @@ jobs:
 
       - name: Build OpenMC from source
         run: |
-          bash $GITHUB_ENV/build-openmc.sh
+          $GITHUB_WORKSPACE/build-openmc.sh
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
