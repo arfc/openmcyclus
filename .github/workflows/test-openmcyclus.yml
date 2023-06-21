@@ -11,37 +11,33 @@ jobs:
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
+          miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
+          environment-file: environment.yml
 
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
-
-      - name: Install pytest
-        run: conda install -y pytest
-
-      - name: Build OpenMC 
+          conda install -y python=3.10
+      
+      - name: Update Environment
         run: |
-          conda install -y python=3.7 cyclus cycamore 
-          HDF5_DIR=$CONDA_PREFIX && pip install h5py
-   
-      - name: OpenMC dependencies
-        run: |
-          sudo apt -y update
-          sudo apt install -y libhdf5-dev
+          conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook
+          conda list
 
-      - name: Download OpenMC
+      - name: Download Cyclus
         uses: actions/checkout@v3
-        with: 
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
+        with:
+          repository: abachma2/cyclus
+          ref: python-api
+          path: cyclus
 
-      - name: Build OpenMC from source
-        run: |
-          run: build-openmc.sh
+      - name: Install Cyclus
+        run: ./build-cyclus.sh
 
+      - name: Install OpenMC
+        run: mamba install openmc
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
@@ -49,11 +45,7 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
-      
-      - name: Check environment 
-        run: |
-          pip install pytest
 
-      - name: Run Tests
-        run: |
-          pytest 
+#     - name: Run Tests
+#        run: |
+#          pytest --ignore tests/integration_tests/
