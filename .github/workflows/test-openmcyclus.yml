@@ -46,10 +46,10 @@ jobs:
       - name: Install OpenMC cross section library
         run: $GITHUB_WORKSPACE/openmc-xs.bash
 
-      - name: OpenMC dependencies
-        run: |
-          sudo apt -y update
-          sudo apt install -y libhdf5-dev
+#      - name: OpenMC dependencies
+#        run: |
+#          sudo apt -y update
+#          sudo apt install -y libhdf5-dev
 
       - name: Download OpenMC
         uses: actions/checkout@v3
