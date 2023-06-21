@@ -1,8 +1,8 @@
 numpy
 pytest
 openssh 
-gxx_linux-64=12.2 
-gcc_linux-64=12.2 
+gxx_linux-64==12.2 
+gcc_linux-64==12.2 
 cmake 
 make 
 docker-pycreds 
@@ -30,5 +30,5 @@ jinja2
 cython 
 websockets 
 pprintpp 
-hdf5=1.12.2 
+hdf5==1.12.2 
 notebook
