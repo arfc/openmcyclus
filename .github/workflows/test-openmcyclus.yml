@@ -34,7 +34,10 @@ jobs:
           path: cyclus
 
       - name: Install Cyclus
-        run: ./build-cyclus.sh
+        run: |
+          cd cyclus
+          python install.py
+          cd ../
 
       - name: Install OpenMC
         run: mamba install openmc
