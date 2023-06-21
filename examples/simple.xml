@@ -65,6 +65,8 @@
             <n_assem_core>3</n_assem_core>
             <n_assem_batch>1</n_assem_batch>
             <power_cap>100</power_cap>
+            <model_path>/home/abachmann/openmcyclus/tests/</model_path>
+            <chain_file>chain_endfb71_pwr.xml</chain_file>
           </DepleteReactor>
         </config>
     </facility>
