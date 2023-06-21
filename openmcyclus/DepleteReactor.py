@@ -626,7 +626,7 @@ class DepleteReactor(Facility):
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
-            int(self.cycle_time)) * 30, power=int(self.power_cap) * 1000 * 3,
+            int(self.cycle_time)) * 30, power=int(self.power_cap) * 1e6 * 3,
             timestep_units='d')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(material_ids, self.model_path)

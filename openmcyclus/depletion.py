@@ -156,7 +156,7 @@ class Depletion(object):
                 self.timesteps *
                 30),
             power=self.power *
-            1000 *
+            1e6*
             self.conversion_factor,
             timestep_units='d')
         integrator.integrate()
