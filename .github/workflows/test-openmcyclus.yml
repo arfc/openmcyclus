@@ -34,11 +34,11 @@ jobs:
           ref: python-api
           path: cyclus
 
-      - name: Install Cyclus
-        run: |
-          cd cyclus
-          python install.py
-          cd ../
+#      - name: Install Cyclus
+#        run: |
+#          cd cyclus
+#          python install.py
+#          cd ../
 
       - name: Install OpenMC
         run: mamba install openmc
@@ -50,6 +50,6 @@ jobs:
         run: |
           pip install .
 
-#     - name: Run Tests
-#        run: |
-#          pytest --ignore tests/integration_tests/
+      - name: Run Tests
+        run: |
+          pytest tests/unit_tests/test_depletion.py
