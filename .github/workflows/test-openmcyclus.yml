@@ -41,6 +41,11 @@ jobs:
 #          python install.py
 #          cd ../
 
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
       - name: Download OpenMC
         uses: actions/checkout@v3
         with: 
