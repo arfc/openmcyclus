@@ -100,9 +100,9 @@ class Depletion(object):
                         child.remove(material)
                     new_comp = comp_list[int(assembly_number) - 1]
                     for nuclide in new_comp:
-                        Z = math.floor(nuclide / 10000000)
-                        A = math.floor((nuclide - Z * 10000000) / 10000)
-                        m = nuclide - Z * 10000000 - A * 10000
+                        Z = math.floor(nuclide / int(1e7))
+                        A = math.floor((nuclide - Z * int(1e7)) / int(1e4))
+                        m = nuclide - Z * int(1e7) - A * int(1e4)
                         nucname = openmc.data.gnd_name(Z, A, m)
                         new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide]*100)}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
@@ -189,6 +189,6 @@ class Depletion(object):
                 if nuclide.percent < 1e-15:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
-                comp.update({Z*10000000+A*10000 + m :nuclide.percent/100})
+                comp.update({Z*int(1e7)+A*int(1e4) + m :nuclide.percent/100})
             spent_comps.append(comp)
         return spent_comps
