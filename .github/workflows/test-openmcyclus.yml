@@ -16,6 +16,7 @@ jobs:
           activate-environment: openmcyclus-env
           environment-file: environment.yml
           use-mamba: true
+          auto-activate-base: false
 
       - name: Conda config
         run: |
