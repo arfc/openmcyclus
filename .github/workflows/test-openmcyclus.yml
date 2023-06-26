@@ -28,7 +28,7 @@ jobs:
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
-          python -m pip install -r requirements.txt
+#          python -m pip install -r requirements.txt
 
 #      - name: Download Cyclus
 #        uses: actions/checkout@v3
