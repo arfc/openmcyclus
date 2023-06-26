@@ -7,8 +7,7 @@ jobs:
     defaults: 
       run:
         shell: bash -l {0}
-#    container:
-#      image: cyclus/cycamore
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
@@ -28,39 +27,35 @@ jobs:
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
-#          python -m pip install -r requirements.txt
 
-#      - name: Download Cyclus
-#        uses: actions/checkout@v3
-#        with:
-#          repository: abachma2/cyclus
-#          ref: python-api
-#          path: cyclus
+      - name: Download Cyclus
+        uses: actions/checkout@v3
+        with:
+          repository: abachma2/cyclus
+          ref: python-api
+          path: cyclus
 
-#      - name: Install Cyclus
-#        run: |
-#          cd cyclus
-#          python install.py
-#          cd ../
+      - name: Download Cycamore
+        uses: actions/checkout@v3
+        with:
+            repository: abachma2/cycamore
+            ref: 2023-04-maintenance
+            path: cycamroe
+
+      - name: Install Cyclus
+        run: |
+          cd cyclus
+          python install.py
+          cd ../
+
+      - name: Install Cycamore
+        run: |
+            cd cycamore
+            python install.py
+            cd ../
 
       - name: Install OpenMC cross section library
         run: $GITHUB_WORKSPACE/openmc-xs.bash
-
-#      - name: OpenMC dependencies
-#        run: |
-#          sudo apt -y update
-#          sudo apt install -y libhdf5-dev
-
-#      - name: Download OpenMC
-#        uses: actions/checkout@v3
-#        with: 
-#          repository: openmc-dev/openmc
-#          path: openmc
-#          submodules: recursive
-
-#      - name: Build OpenMC from source
-#        run: |
-#          $GITHUB_WORKSPACE/build-openmc.sh
 
       - name: Install OpenMC from Mamba
         run: mamba install openmc
@@ -78,4 +73,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest 
+          pytest tests/integration_tests/test_depletereactor.py
