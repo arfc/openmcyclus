@@ -4,6 +4,11 @@ on: [push, pull_request]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    container:
+      image: cyclus/cycamore
+    defaults: 
+      run:
+        shell: bash -l {0}
 
     steps:
       - uses: actions/checkout@v3
@@ -22,34 +27,8 @@ jobs:
       
       - name: Update Environment
         run: |
-          conda install python=3.10
+          pip install pytest
           mamba env update -n openmcyclus-env -f environment.yml
-
-      - name: Download Cyclus
-        uses: actions/checkout@v3
-        with:
-          repository: abachma2/cyclus
-          ref: python-api
-          path: cyclus
-
-      - name: Download Cycamore
-        uses: actions/checkout@v3
-        with:
-            repository: abachma2/cycamore
-            ref: 2023-04-maintenance
-            path: cycamroe
-
-      - name: Install Cyclus
-        run: |
-          cd cyclus
-          python install.py
-          cd ../
-
-      - name: Install Cycamore
-        run: |
-            cd cycamore
-            python install.py
-            cd ../
 
       - name: Install OpenMC cross section library
         run: $GITHUB_WORKSPACE/openmc-xs.bash
@@ -64,9 +43,9 @@ jobs:
         run: |
           pip install .
 
-      - name: Check environment
-        run: |
-          pip install pytest
+#      - name: Check environment
+#        run: |
+#          pip install pytest
 
       - name: Run Tests
         run: |
