@@ -26,6 +26,7 @@ jobs:
       
       - name: Update Environment
         run: |
+          conda install python=3.10
           mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Download Cyclus
