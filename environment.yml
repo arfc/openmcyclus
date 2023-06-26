@@ -6,7 +6,6 @@ dependencies:
   - openssh 
   - pytest
   - gxx_linux-64==12.2 
-  - pip
   - gcc_linux-64==12.2 
   - cmake 
   - make 
@@ -29,7 +28,6 @@ dependencies:
   - bzip2 
   - xz 
   - setuptools 
-  - pytest 
   - pytables 
   - pandas 
   - jinja2 
