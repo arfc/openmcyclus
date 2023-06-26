@@ -7,8 +7,8 @@ jobs:
     defaults: 
       run:
         shell: bash -l {0}
-    container:
-      image: cyclus/cycamore
+#    container:
+#      image: cyclus/cycamore
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
@@ -21,9 +21,6 @@ jobs:
           use-mamba: true
           auto-activate-base: false
 
-      - name: Install Sudo
-        run: apt update && apt install sudo
-
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
@@ -31,7 +28,7 @@ jobs:
       - name: Update Environment
         run: |
           mamba env update -n openmcyclus-env -f environment.yml
-#          python -m pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
 #      - name: Download Cyclus
 #        uses: actions/checkout@v3
@@ -54,16 +51,19 @@ jobs:
 #          sudo apt -y update
 #          sudo apt install -y libhdf5-dev
 
-      - name: Download OpenMC
-        uses: actions/checkout@v3
-        with: 
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
+#      - name: Download OpenMC
+#        uses: actions/checkout@v3
+#        with: 
+#          repository: openmc-dev/openmc
+#          path: openmc
+#          submodules: recursive
 
-      - name: Build OpenMC from source
-        run: |
-          $GITHUB_WORKSPACE/build-openmc.sh
+#      - name: Build OpenMC from source
+#        run: |
+#          $GITHUB_WORKSPACE/build-openmc.sh
+
+      - name: Install OpenMC from Mamba
+        run: mamba install openmc
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
