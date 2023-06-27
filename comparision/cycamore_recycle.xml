@@ -257,35 +257,43 @@
 
     <recipe>
     <name>fresh_uox</name>
-    <basis>mass</basis>
+    <basis>atom</basis>
     <nuclide>
       <id>92235</id>
-      <comp>0.05</comp>
+      <comp>0.03</comp>
     </nuclide>
     <nuclide>
       <id>92238</id>
-      <comp>0.95</comp>
+      <comp>0.97</comp>
+    </nuclide>
+    <nuclide>
+      <id>O16</id>
+      <comp>2</comp>
     </nuclide>
   </recipe>
 
     <recipe>
     <name>fresh_mox</name>
-    <basis>mass</basis>
+    <basis>atom</basis>
     <nuclide>
       <id>92235</id>
-      <comp>0.0067545</comp>
+      <comp>0.0291</comp>
     </nuclide>
     <nuclide>
       <id>92238</id>
-      <comp>0.943245</comp>
+      <comp>0.941</comp>
     </nuclide>
     <nuclide>
       <id>94239</id>
-      <comp>0.025</comp>
+      <comp>0.0281</comp>
     </nuclide>
     <nuclide>
-      <id>94241</id>
-      <comp>0.025</comp>
+      <id>94240</id>
+      <comp>0.00179</comp>
+    </nuclide>
+    <nuclide>
+      <id>O16</id>
+      <comp>1</comp>
     </nuclide>
   </recipe>
 
