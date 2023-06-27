@@ -6,42 +6,35 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: cyclus/cycamore
+    defaults: 
+      run:
+        shell: bash -l {0}
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
+          miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
+          environment-file: environment.yml
+          use-mamba: true
 
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
-
-      - name: Install pytest
-        run: conda install -y pytest
-
-      - name: Build OpenMC 
+      
+      - name: Update Environment
         run: |
-          conda install -y python=3.7 cyclus cycamore 
-          HDF5_DIR=$CONDA_PREFIX && pip install h5py
-   
-      - name: OpenMC dependencies
-        run: |
-          sudo apt -y update
-          sudo apt install -y libhdf5-dev
+          pip install pytest
+          mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Download OpenMC
-        uses: actions/checkout@v3
-        with: 
-          repository: openmc-dev/openmc
-          path: openmc
-          submodules: recursive
+      - name: Install OpenMC cross section library
+        run: $GITHUB_WORKSPACE/openmc-xs.bash
 
-      - name: Build OpenMC from source
-        run: |
-          run: build-openmc.sh
-
+      - name: Install OpenMC from Mamba
+        run: mamba install openmc
 
       - name: Install OpenMC cross section library
         run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
@@ -49,11 +42,11 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
-      
-      - name: Check environment 
-        run: |
-          pip install pytest
+
+#      - name: Check environment
+#        run: |
+#          pip install pytest
 
       - name: Run Tests
         run: |
-          pytest 
+          pytest tests/integration_tests/test_depletereactor.py

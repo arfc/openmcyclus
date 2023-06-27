@@ -22,7 +22,7 @@ git clone https://github.com/abachma2/cyclus.git
 
 cd cyclus
 
-git checkout 2022-05-maintenance
+git checkout python-api
 
 python install.py
 
@@ -53,12 +53,10 @@ directory. To run tests: ``pytest`` from the main directory.
 
 ## Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 
-files and the 
-required microscopic cross sections (``.csv`` file) for the model. The 
-cross 
-section data must be saved as a ``.csv`` file. These files must 
-all be in the same location. Information about 
-these can be found on the [OpenMC docpages](https://docs.openmc.org). 
+files and the required microscopic cross sections (``.csv`` file) for the model. 
+The cross section data must be saved as a ``.csv`` file. These files must 
+all be in the same location. Information about these can be found on the 
+[OpenMC docpages](https://docs.openmc.org). 
 
 This archetype is then called during a Cyclus simulation by calling 
 the ``DepleteReactor`` archetype from the ``openmcyclus.DepleteReactor`` 
@@ -96,15 +94,26 @@ library. The input structure is:
       <n_assem_core>int</n_assem_core>
       <n_assem_batch>int</n_assem_batch>
       <power_cap>double</power_cap>
+      <model_path>string</model_path>
+      <chain_file>string</chain_file>
     </DepleteReactor>
 
-The `fuel_prefs`, `fuel_inrecipes`, and `fuel_outrecipes` state variables are optional.
-But if included, `fuel_prefs` and `fuel_inrecipes` must be equal in length to 
+`fuel_prefs` and `fuel_inrecipes` must be equal in length to 
 `fuel_incommods` and `fuel_outrecipes` must be equal in length to `fuel_outcommods`. 
+
+The fresh fuel recipes (`fuel_increipes`) are to be defined in the main input file but 
+the spent fuel recipes (`fuel_outrecipes`) are to be defined in a separate xml file 
+name `prototype_fuel.xml`, in which `prototype` is the name given to the prototype 
+in the main input file. The spent fuel recipes should be named the same as the 
+fresh fuel recipes, with `spent_` prepended (e.g. `spent_uox` if the inrecipe is 
+named `uox`).  
+
+The `model_path` variable must be an absolute path. The archetype assumes that 
+the OpenMC materials are in the file called `materials.xml`, located in the `model_path`
+directory, and that the cross section data is in a file called `micro_xs.csv`, 
+also located in the `model_path` directory. 
 
 
 ### Outputs
-The compositions for the spent fuel are saved to an ``.xml`` file named 
-``prototype_fuel.xml`` in which ``prototype`` is the prototype name in 
-the Cyclus simulation. The results of the simulation wil be written to `cyclus.sqlite`
+The results of the simulation wil be written to `cyclus.sqlite`
 or the file name provided when Cyclus was called. 

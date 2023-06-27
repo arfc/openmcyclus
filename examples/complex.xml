@@ -1,4 +1,4 @@
-<simulation>
+<simulation xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <control>
     <duration>20</duration>
@@ -105,7 +105,7 @@
             <n_assem_core>3</n_assem_core>
             <n_assem_batch>1</n_assem_batch>
             <power_cap>100</power_cap>
-            <model_path>/home/abachmann/openmcyclus/tests/</model_path>
+            <model_path>./examples/</model_path>
             <chain_file>chain_endfb71_pwr.xml</chain_file>
           </DepleteReactor>
         </config>
@@ -164,20 +164,6 @@
     </recipe>
 
     <recipe>
-      <name>spent_uox</name>
-      <basis>mass</basis>
-      <nuclide>
-        <id>92235</id>
-        <comp>0.05</comp>
-      </nuclide>
-      <nuclide>
-        <id>92238</id>
-        <comp>0.95</comp>
-      </nuclide>
-    </recipe>
-
-
-    <recipe>
       <name>mox</name>
       <basis>mass</basis>
       <nuclide>
@@ -190,17 +176,6 @@
       </nuclide>
     </recipe>
 
-    <recipe>
-      <name>spent_mox</name>
-      <basis>mass</basis>
-      <nuclide>
-        <id>94239</id>
-        <comp>0.05</comp>
-      </nuclide>
-      <nuclide>
-        <id>94241</id>
-        <comp>0.95</comp>
-      </nuclide>
-    </recipe>
+  <xi:include href="examples/OneReactor_fuel.xml#xpointer(/recipes/child::*)"/>
 
  </simulation>

@@ -13,31 +13,30 @@ class TestDepletion(unittest.TestCase):
         '''
         Set up the instantiation of the Deplete class
         '''
-        self.deplete = Depletion(
-            "tests/", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
+        self.deplete = Depletion("chain_endfb71_pwr.xml", 10, 100)
 
     def test_read_model(self):
         '''
         Test for when the files are found
         '''
-        model = self.deplete.read_model()
+        model = self.deplete.read_model("examples/")
         assert isinstance(model, openmc.model.model.Model)
 
     def test_read_microxs(self):
-        microxs = self.deplete.read_microxs()
+        microxs = self.deplete.read_microxs("examples/")
         assert isinstance(microxs, pd.DataFrame)
         assert microxs.index.name == 'nuclide'
         assert microxs.columns.values.tolist() == [
             '(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
 
     def test_run_depletion(self):
-        self.deplete.run_depletion()
-        assert (self.deplete.path / "depletion_results.h5").exists()
+        self.deplete.run_depletion("examples/")
+        assert ("examples/depletion_results.h5").exists()
 
     def test_create_recipe(self):
-        self.deplete.run_depletion()  # make sure database is present
+        self.deplete.run_depletion("examples/")  # make sure database is present
         self.deplete.create_recipe()
-        (self.deplete.path / "depletion_results.h5").unlink()
+        ("examples/depletion_results.h5").unlink()
         output_recipe = "tests/Reactor_fuel.xml"
         tree = ET.parse(output_recipe)
         root = tree.getroot()
