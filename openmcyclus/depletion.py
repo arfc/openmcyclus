@@ -103,7 +103,7 @@ class Depletion(object):
                         Z = math.floor(nuclide / int(1e7))
                         A = math.floor((nuclide - Z * int(1e7)) / int(1e4))
                         m = nuclide - Z * int(1e7) - A * int(1e4)
-                        nucname = openmc.data.gnd_name(Z, A, m)
+                        nucname = openmc.data.gnds_name(Z, A, m)
                         new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide]*100)}" name="{nucname}" />"""
                         new_nuclide_xml = ET.fromstring(new_nuclide)
                         child.insert(1, new_nuclide_xml)
