@@ -168,6 +168,6 @@ class TestComplex(TestDepleteReactor):
         tbl = self.resources
         times = self.to_array(tbl, "TimeCreated")
         quantities = self.to_array(tbl, "Quantity")
-        assert len(tbl) == 11
-        assert all(times == [3,3,3,5,5,8,8,11,11,13,13])
-        assert all(quantities == [10]*11)
+        assert len(tbl) == 12
+        assert all(times == [3,3,3,5,5,8,8,11,11,13,13,13])
+        assert all(quantities == [10]*12)
