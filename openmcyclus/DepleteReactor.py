@@ -660,11 +660,9 @@ class DepleteReactor(Facility):
         n_assem: int
             Number of assemblies to be transmuted
         '''
-        old = self.core.pop_n(min(n_assem, self.core.count))
-        self.core.push_many(old)
-        if self.core.count > len(old):
-            self.core.push_many(self.core.pop_n(self.core.count - len(old)))
-        ss = str(len(old)) + " assemblies"
+        assemblies = self.core.pop_n(self.core.count)
+        self.core.push_many(assemblies)
+        ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         print("time:", self.context.time, "transmute", ss)
         comp_list = [assembly.comp() for assembly in assemblies]
