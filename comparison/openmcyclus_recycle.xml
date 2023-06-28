@@ -91,6 +91,7 @@
 
   <facility>
     <name>Reactor</name>
+    <lifetime>60</lifetime>
     <config>
       <DepleteReactor>
         <fuel_incommods>
@@ -132,7 +133,6 @@
       <feed_commods>
         <val>spent_uox</val>
       </feed_commods>
-      <feed_recipe>spent_uox</feed_recipe>
       <feedbuf_size>1e100</feedbuf_size>
       <leftover_commod>sep_waste</leftover_commod>
       <streams>
@@ -238,12 +238,6 @@
             <val>1</val>
             <val>1</val>
           </n_build>
-          <lifetimes>
-            <val>60</val>
-            <val>60</val>
-            <val>60</val>
-            <val>60</val>
-          </lifetimes>
         </DeployInst>          
       </config>
     </institution>
