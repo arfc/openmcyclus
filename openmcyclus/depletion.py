@@ -1,8 +1,6 @@
 import numpy as np
 import openmc
 import openmc.deplete as od
-from xml.dom import minidom
-import pathlib
 import xml.etree.ElementTree as ET
 import math
 
