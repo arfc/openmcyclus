@@ -156,6 +156,7 @@ class DepleteReactor(Facility):
         if self.retired():
             #self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
+                print("transmuting fuel for retirement")
                 self.transmute()
 
             while self.core.count > 0:
@@ -164,13 +165,14 @@ class DepleteReactor(Facility):
             while (
                     self.fresh_fuel.count > 0) and (
                     self.spent_fuel.space >= self.assem_size):
+                print("moving fuel from core to spent")
                 self.spent_fuel.push(self.fresh_fuel.pop())
                 
             if self.check_decommission_condition():
                 self.decommission()
 
         if self.cycle_step == self.cycle_time:
-            self.transmute(math.ceil(self.n_assem_batch))
+            self.transmute()
             #self.record("CYCLE_END", "")
 
         if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
@@ -205,6 +207,7 @@ class DepleteReactor(Facility):
         '''
         print("time:", self.context.time, "begin tock")
         if self.retired():
+            print("agent", self.id, "is retired")
             return
 
         if (
@@ -432,17 +435,24 @@ class DepleteReactor(Facility):
             key is the Material request being matched. The value is the
             Material in the spent fuel inventory
         '''
-        print("time:", self.context.time, "get material trades")
+        print("agent:", self.id,"time:", self.context.time, "get material trades")
+        print("core:", self.core.count, "spent:", self.spent_fuel.count)
         responses = {}
         mats = self.pop_spent()
-
+        print("mats:", mats)
+        #print(trades)
         for ii in range(len(trades)):
+            print(ii)
             commodity = trades[ii].request.commodity
+            print(commodity, mats[commodity])
+            if mats[commodity] == []:
+                continue
             mat = mats[commodity].pop(-1)
+            print(mat)
             responses[trades[ii]] = mat
             self.resource_indexes.pop(mat.obj_id)
         self.push_spent(mats)
-
+        print("finished get_material_trades")
         return responses
 
     def accept_material_trades(self, responses):  # phase 5.2
@@ -593,7 +603,8 @@ class DepleteReactor(Facility):
 
         Parameters:
         -----------
-        
+        n_assem: int
+            Number of assemblies to be transmuted
         '''
         print("time:", self.context.time, "transmute")
         assemblies = self.core.pop_n(self.core.count)
@@ -680,7 +691,7 @@ class DepleteReactor(Facility):
             Keys are the commodity names (str) and the values are
             lists of Material objects from the spent fuel inventory
         '''
-        print("time:", self.context.time, "pop spent")
+        print("agent:", self.id,"time:", self.context.time, "pop spent")
         mats = self.spent_fuel.pop_n(self.spent_fuel.count)
         mapped = {}
         for commod in self.fuel_outcommods:
@@ -720,7 +731,7 @@ class DepleteReactor(Facility):
             Values are the Materials with the given commodity names.
 
         '''
-        print("time:", self.context.time, "peek spent")
+        print("agent:", self.id,"time:", self.context.time, "peek spent")
         mapped = {}
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
