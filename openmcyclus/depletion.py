@@ -34,28 +34,24 @@ class Depletion(object):
         self.power = power
         self.conversion_factor = conversion_factor
 
-    def read_model(self, path):
+    def read_materials(self, path):
         '''
-        Read the .xml files in the defined path to create an OpenMC
-        model in the python API. The files are assumed to be named
-        geometry.xml, materials.xml, settings.xml, and (optionally)
-        tallies.xml
+        Read in the materials file for OpenMC
 
         Parameters:
         -----------
         path: str
-            path of directory holding the files for/from OpenMC
+            path to the materials.xml file
 
         Returns:
         ---------
-        model: openmc.model.model object
-            OpenMC model of reactor geometry.
+        materials: openmc.material object
+            Materials for OpenMC
         '''
-        model_kwargs = {"geometry": path + "geometry.xml",
-                        "materials": path + "materials.xml",
-                        "settings": path + "settings.xml"}
-        model = openmc.model.model.Model.from_xml(**model_kwargs)
-        return model
+        materials = openmc.Materials()
+        materials = materials.from_xml(str(path + "/materials.xml"))
+        return materials
+
 
     def update_materials(self, comp_list, path):
         '''

@@ -618,23 +618,19 @@ class DepleteReactor(Facility):
         # self.record("TRANSMUTE", ss)
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids = self.deplete.update_materials(comp_list, self.model_path)
-        print(material_ids)
-        model = self.deplete.read_model(self.model_path)
-        print(model)
+        materials = self.deplete.read_materials(self.model_path)
         micro_xs = self.deplete.read_microxs(self.model_path)
-        print(micro_xs)
         ind_op = od.IndependentOperator(
-            model.materials, micro_xs, str(
+            materials, micro_xs, str(
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
-        print(ind_op.output_dir)
         integrator = od.PredictorIntegrator(ind_op, np.ones(
             int(self.cycle_time)) * 30, power=int(self.power_cap) * 1e6,
             timestep_units='d')
         integrator.integrate()
 
         spent_comps = self.deplete.get_spent_comps(material_ids, self.model_path)
-        print(spent_comps)
+        print("after transmute comps:", spent_comps)
         #for ii in assemblies:
         #    assemblies[ii].transmute(spent_comps[ii])
         #for assembly, spent_comp in zip(assemblies, spent_comps):
