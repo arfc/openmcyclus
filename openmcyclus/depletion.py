@@ -53,7 +53,7 @@ class Depletion(object):
         return materials
 
 
-    def update_materials(self, comp_list, path):
+    def update_materials(self, comp_list, materials):
         '''
         Read in the material compositions of the fuel assemblies present
         in the reactor to be transmuted. Then modify the composition of
@@ -80,30 +80,20 @@ class Depletion(object):
             updated XML for OpenMC with new compositions
 
         '''
-        openmc_materials = ET.parse(str(path + "materials.xml"))
-        openmc_root = openmc_materials.getroot()
         material_ids = []
+        for index, material in enumerate(materials):
+            if 'assembly_' in material.name:
+                material_ids.append(material.id)
+                material.nuclides.clear()
+                for nuclide, percent in comp_list[index].items():
+                    Z = math.floor(nuclide / int(1e7))
+                    A = math.floor((nuclide - Z * int(1e7)) / int(1e4))
+                    m = nuclide - Z * int(1e7) - A * int(1e4)
+                    nucname = openmc.data.gnds_name(Z, A, m)
+                    material.add_nuclide(nucname, percent, percent_type='wo')
+        mats = materials
 
-        for child in openmc_root:
-            if '_' in child.attrib['name']:
-                underscore_index = child.attrib['name'].index('_')
-                assembly_number = child.attrib['name'][underscore_index + 1:]
-                material_ids.append(child.attrib['id'])
-                if child.attrib['name'][:underscore_index] == 'assembly':
-                    for material in child.findall('nuclide'):
-                        child.remove(material)
-                    new_comp = comp_list[int(assembly_number) - 1]
-                    for nuclide in new_comp:
-                        Z = math.floor(nuclide / int(1e7))
-                        A = math.floor((nuclide - Z * int(1e7)) / int(1e4))
-                        m = nuclide - Z * int(1e7) - A * int(1e4)
-                        nucname = openmc.data.gnds_name(Z, A, m)
-                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide]*100)}" name="{nucname}" />"""
-                        new_nuclide_xml = ET.fromstring(new_nuclide)
-                        child.insert(1, new_nuclide_xml)
-        ET.indent(openmc_root)
-        openmc_materials.write(str(path + "materials.xml"))
-        return material_ids
+        return material_ids, mats
 
     def read_microxs(self, path):
         '''
@@ -174,15 +164,22 @@ class Depletion(object):
         spent_comps: list of dicts
             list of the compositions from the OpenMC model
         '''
+        print("getting spent comps")
         results = od.Results(path + "depletion_results.h5")
+        print(results)
         spent_comps = []
+        print(spent_comps, material_ids)
         for index, material_id in enumerate(material_ids):
-            material = results[-1].get_material(material_id)
+            print("material_id:", type(material_id))
+            print(results[-1])
+            spent_comp = results[-1].get_material(str(material_id))
+            print(spent_comp)
             comp = {}
-            for nuclide in material.nuclides:
+            for nuclide in spent_comp.nuclides:
                 if nuclide.percent < 1e-15:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
                 comp.update({Z*int(1e7)+A*int(1e4) + m :nuclide.percent/100})
+            print(comp)
             spent_comps.append(comp)
         return spent_comps
