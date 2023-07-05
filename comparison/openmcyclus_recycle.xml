@@ -133,6 +133,7 @@
       <feed_commods>
         <val>spent_uox</val>
       </feed_commods>
+      <feed_recipe>spent_uox</feed_recipe>
       <feedbuf_size>1e100</feedbuf_size>
       <leftover_commod>sep_waste</leftover_commod>
       <streams>

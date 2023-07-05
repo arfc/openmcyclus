@@ -538,17 +538,21 @@ class DepleteReactor(Facility):
         #self.record("DISCHARGE", ss)
         print("discharge", ss)
         discharge_assemblies = self.core.pop_n(npop)
-        for ii in range(len(discharge_assemblies)):
-            parent_1 = discharge_assemblies[ii].state_id
-            discharge_assemblies[ii].bump_state_id()
+        for assembly in discharge_assemblies:
+            # record new recipe
+            recipe_name = self.get_recipe(assembly, 'out')
+            print(recipe_name, assembly.comp())
+            #self.context.add_recipe('spent_fuel', assembly.comp(), 'mass')
+            parent_1 = assembly.state_id
+            assembly.bump_state_id()
             resources_table = self.context.new_datum("Resources")
-            resources_table.add_val("ResourceId", discharge_assemblies[ii].state_id, None, 'int')
-            resources_table.add_val("ObjId", discharge_assemblies[ii].obj_id, None, 'int')
-            resources_table.add_val("Type", discharge_assemblies[ii].type, None, "std::string")
+            resources_table.add_val("ResourceId", assembly.state_id, None, 'int')
+            resources_table.add_val("ObjId", assembly.obj_id, None, 'int')
+            resources_table.add_val("Type", assembly.type, None, "std::string")
             resources_table.add_val("TimeCreated", self.context.time, None, 'int')
-            resources_table.add_val("Quantity", discharge_assemblies[ii].quantity, None, 'double')
-            resources_table.add_val("Units", discharge_assemblies[ii].units, None, 'std::string')
-            resources_table.add_val("QualId", discharge_assemblies[ii].qual_id, None, 'int')
+            resources_table.add_val("Quantity", assembly.quantity, None, 'double')
+            resources_table.add_val("Units", assembly.units, None, 'std::string')
+            resources_table.add_val("QualId", assembly.qual_id, None, 'int')
             resources_table.add_val("Parent1", parent_1, None, 'int')
             resources_table.add_val("Parent2", 0, None, 'int')
             resources_table.record()
@@ -609,23 +613,33 @@ class DepleteReactor(Facility):
         print("time:", self.context.time, "transmute")
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
+        print("fresh comp:",assemblies[0].comp())
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids = self.deplete.update_materials(comp_list, self.model_path)
+        print(material_ids)
         model = self.deplete.read_model(self.model_path)
+        print(model)
         micro_xs = self.deplete.read_microxs(self.model_path)
+        print(micro_xs)
         ind_op = od.IndependentOperator(
             model.materials, micro_xs, str(
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
+        print(ind_op.output_dir)
         integrator = od.PredictorIntegrator(ind_op, np.ones(
             int(self.cycle_time)) * 30, power=int(self.power_cap) * 1e6,
             timestep_units='d')
         integrator.integrate()
+
         spent_comps = self.deplete.get_spent_comps(material_ids, self.model_path)
-        for assembly, spent_comp in zip(assemblies, spent_comps):
-            assembly.transmute(spent_comp)
+        print(spent_comps)
+        #for ii in assemblies:
+        #    assemblies[ii].transmute(spent_comps[ii])
+        #for assembly, spent_comp in zip(assemblies, spent_comps):
+        #    print("spent_comps:", spent_comp)
+        #    assembly.transmute(spent_comp)
         return
 
     def record(self, event, val):
