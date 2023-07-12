@@ -164,22 +164,15 @@ class Depletion(object):
         spent_comps: list of dicts
             list of the compositions from the OpenMC model
         '''
-        print("getting spent comps")
         results = od.Results(path + "depletion_results.h5")
-        print(results)
         spent_comps = []
-        print(spent_comps, material_ids)
         for index, material_id in enumerate(material_ids):
-            print("material_id:", type(material_id))
-            print(results[-1])
             spent_comp = results[-1].get_material(str(material_id))
-            print(spent_comp)
             comp = {}
             for nuclide in spent_comp.nuclides:
                 if nuclide.percent < 1e-15:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
                 comp.update({Z*int(1e7)+A*int(1e4) + m :nuclide.percent/100})
-            print(comp)
             spent_comps.append(comp)
         return spent_comps
