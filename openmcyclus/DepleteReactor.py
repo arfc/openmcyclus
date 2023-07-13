@@ -57,7 +57,7 @@ class DepleteReactor(Facility):
         default=0
     )
 
-    cycle_time = ts.Double(
+    cycle_time = ts.Int(
         doc="Amount of time between requests for new fuel",
         tooltip="Amount of time between requests for new fuel",
         uilabel="Cycle Time",
@@ -111,6 +111,12 @@ class DepleteReactor(Facility):
         default=0
     )
 
+    power_name = ts.String(
+        default = "power", 
+        uilabel = "Power Commodity Name", 
+        doc = "The name of the 'power' commodity used in conjunction with a deployment curve.",
+    )
+
     model_path = ts.String(
         doc="Path to files with the OpenMC model information",
         tooltip="Path to files with OpenMC model"
@@ -119,6 +125,20 @@ class DepleteReactor(Facility):
     chain_file = ts.String(
         doc="File with OpenMC decay chain information",
         tooltip="Absolute path to decay chain file"
+    )
+
+    latitude = ts.Double(
+        default = 0.0, 
+        uilabel = "Geographical latitude in degrees as a double", 
+        doc = "Latitude of the agent's geographical position. The value should " \
+           "be expressed in degrees as a double." 
+    )
+
+    longitude = ts.Double(
+        default = 0.0, 
+        uilabel = "Geographical longitude in degrees as a double", 
+        doc = "Longitude of the agent's geographical position. The value should " \
+           "be expressed in degrees as a double." 
     )
 
     fresh_fuel = ts.ResBufMaterialInv()
@@ -244,6 +264,7 @@ class DepleteReactor(Facility):
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
             self.fuel_prefs = [1] * len(self.fuel_incommods)
+        self.record_position()
 
     def check_decommission_condition(self):
         '''
@@ -460,7 +481,7 @@ class DepleteReactor(Facility):
             self.resource_indexes.pop(mat.obj_id)
         self.push_spent(mats)
         print("finished get_material_trades")
-       # return responses
+        return responses
 
     def accept_material_trades(self, responses):  # phase 5.2
         '''
@@ -568,19 +589,19 @@ class DepleteReactor(Facility):
             #    comp_table.add_val("NucId", nuclide, None, "int")
             #    comp_table.add_val("MassFrac", comp[nuclide], None, "double")
             #    comp_table.record() 
-            parent_1 = assembly.state_id
-            assembly.bump_state_id()
-            resources_table = self.context.new_datum("Resources")
-            resources_table.add_val("ResourceId", assembly.state_id, None, 'int')
-            resources_table.add_val("ObjId", assembly.obj_id, None, 'int')
-            resources_table.add_val("Type", assembly.type, None, "std::string")
-            resources_table.add_val("TimeCreated", self.context.time, None, 'int')
-            resources_table.add_val("Quantity", assembly.quantity, None, 'double')
-            resources_table.add_val("Units", assembly.units, None, 'std::string')
-            resources_table.add_val("QualId", assembly.qual_id, None, 'int')
-            resources_table.add_val("Parent1", parent_1, None, 'int')
-            resources_table.add_val("Parent2", 0, None, 'int')
-            resources_table.record()
+            #parent_1 = assembly.state_id
+            #assembly.bump_state_id()
+            #resources_table = self.context.new_datum("Resources")
+            #resources_table.add_val("ResourceId", assembly.state_id, None, 'int')
+            #resources_table.add_val("ObjId", assembly.obj_id, None, 'int')
+            #resources_table.add_val("Type", assembly.type, None, "std::string")
+            #resources_table.add_val("TimeCreated", self.context.time, None, 'int')
+            #resources_table.add_val("Quantity", assembly.quantity, None, 'double')
+            #resources_table.add_val("Units", assembly.units, None, 'std::string')
+            #resources_table.add_val("QualId", assembly.qual_id, None, 'int')
+            #resources_table.add_val("Parent1", parent_1, None, 'int')
+            #resources_table.add_val("Parent2", 0, None, 'int')
+            #resources_table.record()
         self.spent_fuel.push_many(discharge_assemblies)
         
         for ii in range(len(self.fuel_outcommods)):
@@ -669,14 +690,20 @@ class DepleteReactor(Facility):
         self.core.push_many(old)
         print("time:", self.context.time, "transmute", len(old))
         if self.core.count > len(old):
-            print("need to rotate core")
             self.core.push_many(self.core.pop_n(self.core.count - len(old)))
         for assembly in old:
+            print("before transmute:", self.get_recipe(assembly, 'in'),
+                  assembly.quantity, assembly.comp(), assembly.state_id)
             recipe = self.get_recipe(assembly, 'out')
-            print("transmuting recipe:", recipe)
-            comp = self.context.get_recipe(recipe)
-            print("transmuting comp:", comp)
             assembly.transmute(self.context.get_recipe(recipe))
+            #new_assembly = ts.Material.create(self, assembly.quantity,
+            #                                 self.context.get_recipe(recipe))
+            #print(new_assembly)
+            #self.core.push(new_assembly)
+            #print("after transmute:", new_assembly.quantity, new_assembly.comp())
+            print("after transmute:", assembly.quantity, assembly.comp(), 
+                  assembly.state_id)
+        
         return
 
     def record(self, event, val):
@@ -858,3 +885,15 @@ class DepleteReactor(Facility):
         '''
         ii = self.resource_indexes[material.obj_id]
         return self.fuel_prefs[ii]
+
+    def record_position(self):
+        '''
+        '''
+        specification = self.spec
+        position_table = self.context.new_datum("AgentPosition")
+        position_table.add_val("Spec", self.spec, None, "std::string")
+        position_table.add_val("Prototype", self.prototype, None, "std::string")
+        position_table.add_val("AgentId", self.id, None, "int")
+        position_table.add_val("Latitude", self.latitude, None, "double")
+        position_table.add_val("Longitude", self.longitude, None, "double")
+        
