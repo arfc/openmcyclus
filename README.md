@@ -10,11 +10,9 @@ Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with 
 You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org).
 and their required dependencies. It is recommended to install each of these from source. 
 
-Directions to install Cyclus and OpenMC dependencies:
+Directions to install Cyclus and OpenMC[^1] :
 ```
 conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
-
-
 
 HDF5_DIR=$CONDA_PREFIX \
 pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
@@ -43,10 +41,7 @@ cd ../
 
 pip install .
 ```
-
-Install Cyclus from [this source](https://github.com/abachma2/cyclus/tree/python-api) and Cycamore (recommended but not required) from 
-[this source](https://github.com/abachma2/cycamore/tree/2023-04-maintenance). 
-Then follow the directions [here](https://docs.openmc.org/en/stable/quickinstall.html) to install OpenMC from source on Linux/Mac.
+If desired, Cycamore can be installed from [here](https://github.com/abachma2/cycamore/tree/2023-04-maintenance). 
 
 ### Install OpenMCyclus
 Clone the repository:
@@ -123,3 +118,7 @@ there is one.
 ### Outputs
 The results of the simulation wil be written to `cyclus.sqlite`
 or the file name provided when Cyclus was called. 
+
+[^1]: Directions on OpenMC install from source taken from:
+https://docs.openmc.org/en/stable/quickinstall.html, consult this
+page for the most up to date instructions. 
