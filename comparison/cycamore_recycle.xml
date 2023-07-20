@@ -91,6 +91,7 @@
 
   <facility>
     <name>Reactor</name>
+    <lifetime>60</lifetime>
     <config>
       <Reactor>
         <fuel_incommods>
@@ -118,7 +119,7 @@
         <n_assem_core>3</n_assem_core>
         <cycle_time>12</cycle_time>
         <refuel_time>1</refuel_time>
-        <power_cap>195.775e-6</power_cap>
+        <power_cap>195.006e-6</power_cap>
         <decom_transmute_all>0</decom_transmute_all>
       </Reactor>
     </config>
@@ -237,12 +238,6 @@
             <val>1</val>
             <val>1</val>
           </n_build>
-          <lifetimes>
-            <val>60</val>
-            <val>60</val>
-            <val>60</val>
-            <val>60</val>
-          </lifetimes>
         </DeployInst>          
       </config>
     </institution>

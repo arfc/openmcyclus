@@ -11,7 +11,7 @@
       <lib>cycamore</lib>
       <name>Enrichment</name>
     </spec>
-    <spec>
+   <spec>
       <lib>openmcyclus.DepleteReactor</lib>
       <name>DepleteReactor</name>
     </spec>
@@ -119,13 +119,13 @@
         <n_assem_core>3</n_assem_core>
         <cycle_time>12</cycle_time>
         <refuel_time>1</refuel_time>
-        <power_cap>195.775e-6</power_cap>
+        <power_cap>195.006e-6</power_cap>
         <model_path>./</model_path>
         <chain_file>chain_endfb71_pwr.xml</chain_file>
       </DepleteReactor>
     </config>
   </facility>
-
+  
   <facility>
   <name>Separations</name>
   <config>
@@ -301,35 +301,6 @@
 
   <recipe>
     <name>spent_uox</name>
-    <basis>atom</basis>
-    <nuclide>
-      <id>92235</id>
-      <comp>0.020</comp>
-    </nuclide>
-    <nuclide>
-      <id>92238</id>
-      <comp>0.9</comp>
-    </nuclide>
-    <nuclide>
-      <id>94239</id>
-      <comp>0.014</comp>
-    </nuclide>
-    <nuclide>
-      <id>94240</id>
-      <comp>0.0009</comp>
-    </nuclide>
-    <nuclide>
-      <id>55137</id>
-      <comp>0.0651</comp>
-    </nuclide>
-    <nuclide>
-      <id>O16</id>
-      <comp>1</comp>
-    </nuclide>
-  </recipe>
-
-  <recipe>
-    <name>openmc_uox</name>
     <basis>atom</basis>    
     <nuclide>  <id>471070000</id> <comp>2.3363370459656455e-12</comp>  </nuclide>
     <nuclide>  <id>471090000</id> <comp>6.538356614946171e-06</comp>  </nuclide>
