@@ -120,7 +120,7 @@
         <cycle_time>12</cycle_time>
         <refuel_time>1</refuel_time>
         <power_cap>195.006e-6</power_cap>
-        <decom_transmute_all>0</decom_transmute_all>
+        <decom_transmute_all>1</decom_transmute_all>
       </Reactor>
     </config>
   </facility>
