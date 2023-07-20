@@ -66,8 +66,8 @@ class Depletion(object):
         comp_list: list of dicts
             list of the fresh fuel compositions present in the core
             at the calling of the transmute function.
-        path: str
-            path of directory holding the files for/from OpenMC
+        materials: openmc.Materials
+            materials object to e depleted
 
         Returns:
         --------
@@ -114,10 +114,12 @@ class Depletion(object):
         microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
-    def run_depletion(self, path):
+    def run_depletion(self, path, comps):
         '''
         Run the IndependentOperator class in OpenMC to perform
-        transport-independent depletion.
+        transport-independent depletion. This method is only 
+        used in the test suite, and not in the OpenMCyclus 
+        archetype
 
         Parameters:
         -----------        
@@ -129,19 +131,17 @@ class Depletion(object):
         depletion_results.h5: database
             HDF5 data base with the results of the depletion simulation
         '''
-        model = self.read_model(path)
+        materials = self.read_materials(path)
+        mat_ids, mats = self.update_materials(comps, materials)
         micro_xs = self.read_microxs(path)
-        ind_op = od.IndependentOperator(model.materials, micro_xs,
+        ind_op = od.IndependentOperator(materials, micro_xs,
                                         str(path + self.chain_file))
         ind_op.output_dir = path
         integrator = od.PredictorIntegrator(
             ind_op,
-            np.ones(
-                self.timesteps *
-                30),
+            np.ones(self.timesteps)*30,
             power=self.power *
-            1e6*
-            self.conversion_factor,
+            1e6,
             timestep_units='d')
         integrator.integrate()
 
