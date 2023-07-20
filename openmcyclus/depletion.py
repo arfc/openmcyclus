@@ -167,12 +167,18 @@ class Depletion(object):
         results = od.Results(path + "depletion_results.h5")
         spent_comps = []
         for index, material_id in enumerate(material_ids):
+            total_weight = 0
             spent_comp = results[-1].get_material(str(material_id))
+            for nuclide in spent_comp.nuclides:
+                if nuclide.percent < 1e-10:
+                    continue
+                total_weight += nuclide.percent*openmc.data.atomic_mass(nuclide.name)
             comp = {}
             for nuclide in spent_comp.nuclides:
-                if nuclide.percent < 1e-15:
+                if nuclide.percent < 1e-10:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
-                comp.update({Z*int(1e7)+A*int(1e4) + m :nuclide.percent/100})
+                weight_frac = (nuclide.percent*openmc.data.atomic_mass(nuclide.name))/total_weight
+                comp.update({Z*int(1e7)+A*int(1e4) + m :weight_frac})
             spent_comps.append(comp)
         return spent_comps
