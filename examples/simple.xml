@@ -112,7 +112,7 @@
       </nuclide>
     </recipe>
 
-        <recipe>
+    <recipe>
       <name>spent_uox</name>
       <basis>mass</basis>
       <nuclide>

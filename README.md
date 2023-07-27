@@ -105,7 +105,9 @@ library. The input structure is:
 
 The `model_path` variable is the location of the files for OpenMC (can be 
 relative or absolute path): one-group cross sections, materials, and depletion 
-chain file. The archetype assumes that 
+chain file. If using a relative path, it must be relative to the directory you are 
+running the |Cyclus| input file from, not the location of the file that defines the 
+prototype. The archetype assumes that 
 the OpenMC materials are in the file called `materials.xml` and that the cross 
 section data is in a file called `micro_xs.csv`. The `chain_file` variable 
 is the depletion chain file, and the user inputs the name of this file. 
