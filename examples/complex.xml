@@ -176,6 +176,31 @@
       </nuclide>
     </recipe>
 
-  <xi:include href="examples/OneReactor_fuel.xml#xpointer(/recipes/child::*)"/>
+        <recipe>
+      <name>spent_uox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>92235</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>92238</id>
+        <comp>0.99289</comp>
+      </nuclide>
+    </recipe>
+
+    <recipe>
+      <name>spent_mox</name>
+      <basis>mass</basis>
+      <nuclide>
+        <id>94239</id>
+        <comp>0.00711</comp>
+      </nuclide>
+      <nuclide>
+        <id>94241</id>
+        <comp>0.99289</comp>
+      </nuclide>
+    </recipe>
+
 
  </simulation>
