@@ -12,7 +12,7 @@ and their required dependencies. It is recommended to install each of these from
 
 Directions to install Cyclus and OpenMC[^1] :
 ```
-conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
+conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger python=3.10 glibmm glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
 
 HDF5_DIR=$CONDA_PREFIX \
 pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
