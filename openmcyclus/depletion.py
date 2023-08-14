@@ -171,7 +171,7 @@ class Depletion(object):
 
             comp = {}
             for nuclide in spent_comp.nuclides:
-                if nuclide.percent < 1e-10:
+                if nuclide.percent < 1e-5:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
                 mass = results.get_mass(str(material_id),nuclide.name)[-1][-1]
