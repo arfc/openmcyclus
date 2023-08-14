@@ -618,18 +618,17 @@ class DepleteReactor(Facility):
         fuel_outrecipes
         '''
         print("time step:", self.context.time)
-        n_batch = math.ceil(self.n_assem_core / self.n_assem_batch)
 
         start = time.time()
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
-        #for assembly in assemblies:
         if self.check_existing_recipes(assemblies) == True:
+            print("reusing comps")
             for assembly in assemblies:
                 index = np.where(self.fresh_comps == assembly.comp())
-                assembly.transmute(self.spent_comps[index])
+                assembly.transmute(self.spent_comps[index[0][0]])
             return
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids, materials = self.deplete.update_materials(
@@ -640,7 +639,7 @@ class DepleteReactor(Facility):
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
             int(self.cycle_time)) * 30, power=self.power_cap * 1e6,
-            timestep_units='d', solver ='cram16')
+            timestep_units='d')
         deplete_start = time.time()
         integrator.integrate()
         print(time.time() - deplete_start)
@@ -651,7 +650,6 @@ class DepleteReactor(Facility):
             self.spent_comps = np.append(self.spent_comps, spent_comp)
             assembly.transmute(spent_comp)
         print(time.time() - start)
-        print(self.fresh_comps)
         return
     
     def check_existing_recipes(self, assemblies):
@@ -664,7 +662,6 @@ class DepleteReactor(Facility):
                 recipes_exist.append(True)
             else:
                 recipes_exist.append(False)
-        print(recipes_exist)
         if all(recipes_exist) == True:
             return True
         else:
