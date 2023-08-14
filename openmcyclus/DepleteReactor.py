@@ -178,6 +178,9 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.n_assem_spent * self.assem_size
         self.materials = openmc.Materials()
         self.micro_xs = od.MicroXS()
+        self.fresh_comps = np.array([])
+        self.spent_comps = np.array([])
+        
 
     def tick(self):
         '''
@@ -615,11 +618,19 @@ class DepleteReactor(Facility):
         fuel_outrecipes
         '''
         print("time step:", self.context.time)
+        n_batch = math.ceil(self.n_assem_core / self.n_assem_batch)
+
         start = time.time()
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
+        #for assembly in assemblies:
+        if self.check_existing_recipes(assemblies) == True:
+            for assembly in assemblies:
+                index = np.where(self.fresh_comps == assembly.comp())
+                assembly.transmute(self.spent_comps[index])
+            return
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids, materials = self.deplete.update_materials(
             comp_list, self.materials)
@@ -635,10 +646,29 @@ class DepleteReactor(Facility):
         print(time.time() - deplete_start)
         spent_comps = self.deplete.get_spent_comps(
             material_ids, self.model_path)
-        for assembly, spent_comp in zip(assemblies, spent_comps):
+        for assembly, spent_comp in zip(assemblies, spent_comps): 
+            self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
+            self.spent_comps = np.append(self.spent_comps, spent_comp)
             assembly.transmute(spent_comp)
         print(time.time() - start)
+        print(self.fresh_comps)
         return
+    
+    def check_existing_recipes(self, assemblies):
+        '''
+        
+        '''
+        recipes_exist = []
+        for assembly in assemblies:
+            if assembly.comp() in self.fresh_comps:
+                recipes_exist.append(True)
+            else:
+                recipes_exist.append(False)
+        print(recipes_exist)
+        if all(recipes_exist) == True:
+            return True
+        else:
+            return False
 
     def record(self, event, val):
         '''
