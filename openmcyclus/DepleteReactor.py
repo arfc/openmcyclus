@@ -3,6 +3,8 @@ from cyclus import lib
 import cyclus.typesystem as ts
 import math
 import numpy as np
+import openmc
+import time
 from openmcyclus.depletion import Depletion
 
 import openmc.deplete as od
@@ -174,6 +176,8 @@ class DepleteReactor(Facility):
         self.fresh_fuel.capacity = self.n_assem_fresh * self.assem_size
         self.core.capacity = self.n_assem_core * self.assem_size
         self.spent_fuel.capacity = self.n_assem_spent * self.assem_size
+        self.materials = openmc.Materials()
+        self.micro_xs = od.MicroXS()
 
     def tick(self):
         '''
@@ -271,6 +275,9 @@ class DepleteReactor(Facility):
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
             self.fuel_prefs = [1] * len(self.fuel_incommods)
+        self.materials = self.materials.from_xml(str(self.model_path + "materials.xml"))
+        self.micro_xs = od.MicroXS.from_csv(str(self.model_path + "micro_xs.csv"))
+
         self.record_position()
 
     def check_decommission_condition(self):
@@ -607,28 +614,30 @@ class DepleteReactor(Facility):
         by changing the recipe of the material to that of the
         fuel_outrecipes
         '''
+        print("time step:", self.context.time)
+        start = time.time()
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         comp_list = [assembly.comp() for assembly in assemblies]
-        materials = self.deplete.read_materials(self.model_path)
         material_ids, materials = self.deplete.update_materials(
-            comp_list, materials)
-        micro_xs = self.deplete.read_microxs(self.model_path)
+            comp_list, self.materials)
         ind_op = od.IndependentOperator(
-            materials, micro_xs, str(
+            materials, self.micro_xs, str(
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
             int(self.cycle_time)) * 30, power=self.power_cap * 1e6,
-            timestep_units='d')
+            timestep_units='d', solver ='cram16')
+        deplete_start = time.time()
         integrator.integrate()
+        print(time.time() - deplete_start)
         spent_comps = self.deplete.get_spent_comps(
             material_ids, self.model_path)
         for assembly, spent_comp in zip(assemblies, spent_comps):
             assembly.transmute(spent_comp)
-
+        print(time.time() - start)
         return
 
     def record(self, event, val):
