@@ -4,7 +4,6 @@ import cyclus.typesystem as ts
 import math
 import numpy as np
 import openmc
-import time
 from openmcyclus.depletion import Depletion
 
 import openmc.deplete as od
@@ -149,7 +148,7 @@ class DepleteReactor(Facility):
         "be expressed in degrees as a double."
     )
 
-    res_indexes = ts.MapIntInt(
+    resource_indexes = ts.MapIntInt(
         default={},
         doc="This should NEVER be set manually",
         internal=True
@@ -213,7 +212,6 @@ class DepleteReactor(Facility):
 
         if self.cycle_step == self.cycle_time:
             self.transmute()
-            # self.record("CYCLE_END", "")
 
         if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
             self.discharged = self.discharge()
@@ -254,9 +252,6 @@ class DepleteReactor(Facility):
                 self.discharged):
             self.discharged = False
             self.cycle_step = 0
-
-        # if (self.cycle_step == 0) and (self.core.count == self.n_assem_core):
-            # self.record("CYCLE_START", "")
 
         if (self.cycle_step >= 0) and (self.cycle_step < self.cycle_time) and (
                 self.core.count == self.n_assem_core):
@@ -482,7 +477,7 @@ class DepleteReactor(Facility):
                 continue
             mat = mats[commodity].pop(-1)
             responses[trades[ii]] = mat
-            self.res_indexes.pop(mat.obj_id)
+            self.resource_indexes.pop(mat.obj_id)
         self.push_spent(mats)
         return responses
 
@@ -514,7 +509,6 @@ class DepleteReactor(Facility):
         n_load = len(responses)
         if n_load > 0:
             ss = str(n_load) + " assemblies"
-            # self.record("LOAD", ss)
         for trade in responses:
             commodity = trade.request.commodity
             material = trade.request.target
@@ -558,11 +552,9 @@ class DepleteReactor(Facility):
         '''
         npop = min(self.n_assem_batch, self.core.count)
         if (self.n_assem_spent - self.spent_fuel.count) < npop:
-            # self.record("DISCHARGE", "failed")
             return False
 
         ss = str(npop) + " assemblies"
-        # self.record("DISCHARGE", ss)
         discharge_assemblies = self.core.pop_n(npop)
         for assembly in discharge_assemblies:
             recipe_name = self.get_recipe(assembly, 'out')
@@ -598,7 +590,6 @@ class DepleteReactor(Facility):
         if n == 0:
             return
         ss = str(n) + " assemblies"
-        # self.record("LOAD", ss)
 
         self.core.push_many(self.fresh_fuel.pop_n(n))
         return
@@ -606,7 +597,7 @@ class DepleteReactor(Facility):
     def transmute(self):
         '''
         Get the material composition of assemblies in
-        the core pass those compositions to OpenMC, along
+        the core and pass those compositions to OpenMC, along
         with the cross section data, material definitions,
         decay chain file name, power level, and depletion time
         to OpenMC. The depletion time steps are 30 days each,
@@ -617,15 +608,11 @@ class DepleteReactor(Facility):
         by changing the recipe of the material to that of the
         fuel_outrecipes
         '''
-        print("time step:", self.context.time)
-
-        start = time.time()
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
         ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         if self.check_existing_recipes(assemblies) == True:
-            print("reusing comps")
             for assembly in assemblies:
                 index = np.where(self.fresh_comps == assembly.comp())
                 assembly.transmute(self.spent_comps[index[0][0]])
@@ -640,21 +627,35 @@ class DepleteReactor(Facility):
         integrator = od.PredictorIntegrator(ind_op, np.ones(
             int(self.cycle_time)) * 30, power=self.power_cap * 1e6,
             timestep_units='d')
-        deplete_start = time.time()
         integrator.integrate()
-        print(time.time() - deplete_start)
         spent_comps = self.deplete.get_spent_comps(
             material_ids, self.model_path)
         for assembly, spent_comp in zip(assemblies, spent_comps): 
             self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
             self.spent_comps = np.append(self.spent_comps, spent_comp)
             assembly.transmute(spent_comp)
-        print(time.time() - start)
         return
     
     def check_existing_recipes(self, assemblies):
         '''
+        Compare the compositions of assemblies to the arrays 
+        of previously seen beginning of cycle compositions. 
+        If all of the compositions have been seen before 
+        (are in the self.fresh_comps array) then return 
+        True. This function is designed to speed up 
+        the simulation to prevent needlessly repeating 
+        depletion runs. 
+
+        Parameters:
+        -----------
+        assemblies: list of dicts
+            compositions of assemblies at beginning of cycle
         
+        Returns:
+        --------
+        Boolean
+            True if all compositions are in self.fresh_comps, 
+            False otherwise.         
         '''
         recipes_exist = []
         for assembly in assemblies:
@@ -682,9 +683,6 @@ class DepleteReactor(Facility):
         datum = self.context.new_datum("ReactorEvents")
         datum.add_val("AgentId", self.id, None, 'int')
         datum.add_val("Time", self.context.time, None, 'int')
-        # datum.add_val("Event", event, None, 'std::string')
-        # datum.add_val("Value", val, None, 'std::string')
-        # datum.record()
         return
 
     def index_res(self, material, incommod):
@@ -706,7 +704,7 @@ class DepleteReactor(Facility):
         try:
             for ii in range(len(self.fuel_incommods)):
                 if self.fuel_incommods[ii] == incommod:
-                    self.res_indexes[material.obj_id] = ii
+                    self.resource_indexes[material.obj_id] = ii
                     return
         except BaseException:
             raise ValueError(
@@ -770,7 +768,6 @@ class DepleteReactor(Facility):
             Values are the Materials with the given commodity names.
 
         '''
-        # print("agent:", self.id,"time:", self.context.time, "peek spent")
         mapped = {}
         if self.spent_fuel.count > 0:
             mats = self.spent_fuel.pop_n(self.spent_fuel.count)
@@ -798,7 +795,7 @@ class DepleteReactor(Facility):
         string
             name of commodity for the queried material
         '''
-        ii = self.res_indexes[material.obj_id]
+        ii = self.resource_indexes[material.obj_id]
         if flow == 'in':
             return self.fuel_incommods[ii]
         elif flow == 'out':
@@ -822,7 +819,7 @@ class DepleteReactor(Facility):
         string
             name of recipe for the queried material
         '''
-        ii = self.res_indexes[material.obj_id]
+        ii = self.resource_indexes[material.obj_id]
         if flow == 'in':
             return self.fuel_inrecipes[ii]
         elif flow == 'out':
@@ -843,7 +840,7 @@ class DepleteReactor(Facility):
         string
             preference for the queried material
         '''
-        ii = self.res_indexes[material.obj_id]
+        ii = self.resource_indexes[material.obj_id]
         return self.fuel_prefs[ii]
 
     def record_position(self):

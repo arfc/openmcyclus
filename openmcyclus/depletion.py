@@ -45,7 +45,7 @@ class Depletion(object):
 
         Returns:
         ---------
-        materials: openmc.material object
+        materials: openmc.Material object
             Materials for OpenMC
         '''
         materials = openmc.Materials()
@@ -67,7 +67,7 @@ class Depletion(object):
             list of the fresh fuel compositions present in the core
             at the calling of the transmute function.
         materials: openmc.Materials
-            materials object to e depleted
+            materials object to be depleted
 
         Returns:
         --------
