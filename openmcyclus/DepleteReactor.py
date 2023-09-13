@@ -195,7 +195,6 @@ class DepleteReactor(Facility):
         fuel is loaded
         '''
         if self.retired():
-            # self.record("RETIRED", "")
             if self.context.time == self.exit_time + 1:
                 self.transmute()
 
