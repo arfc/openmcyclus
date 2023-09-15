@@ -2,7 +2,7 @@
 from distutils.core import setup
 
 
-VERSION = '1.0.0'
+VERSION = '0.1.0'
 setup_kwargs = {
     "version": VERSION,
     "description": 'Cyclus Archetypes Coupled with OpenMC',
