@@ -26,9 +26,7 @@ jobs:
       
       - name: Install mamba from conda
         run: |
-          conda config --add channels conda-forge
-          conda update -n base --all
-          conda install -n base mamba
+          conda install -c conda-forge mamba
 
       - name: Update Environment
         run: |
