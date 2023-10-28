@@ -19,6 +19,11 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
       
+      - name: Install numpy
+        run: |
+          sudo apt install python3-pip
+          pip3 install numpy
+
       - name: Update Environment
         run: |
           pip install pytest
