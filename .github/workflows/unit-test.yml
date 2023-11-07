@@ -47,6 +47,10 @@ jobs:
       - name: Install OpenMCyclus
         run: |
           pip install .
+      
+      - name: Checking the environment
+        run: conda list
+        
       - name: Run Tests
         run: |
          pytest tests/unit_tests/test_depletion.py
