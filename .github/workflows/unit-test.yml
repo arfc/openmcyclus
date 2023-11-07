@@ -24,11 +24,11 @@ jobs:
           sudo apt install python3-pip
           pip3 install numpy
       
-      - name: Install mamba from conda
-        run: |
-          conda config --add channels conda-forge
-          conda update -n base --all
-          conda install -n base mamba
+#      - name: Install mamba from conda
+#       run: |
+#          conda config --add channels conda-forge
+#         conda update -n base --all
+#          conda install -n base mamba
 
       - name: Update Environment
         run: |
@@ -50,7 +50,7 @@ jobs:
       
       - name: Checking the environment
         run: conda list
-        
+      
       - name: Run Tests
         run: |
          pytest tests/unit_tests/test_depletion.py
