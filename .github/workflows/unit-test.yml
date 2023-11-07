@@ -49,8 +49,10 @@ jobs:
           pip install .
       
       - name: Checking the environment
-        run: conda list
+        run: conda info
       
       - name: Run Tests
         run: |
+         conda info
          pytest tests/unit_tests/test_depletion.py
+        
