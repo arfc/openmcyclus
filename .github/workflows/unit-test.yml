@@ -26,9 +26,9 @@ jobs:
 #          conda install -n base mamba
       - name: Activate Environment
         run:
-          conda init openmcyclus-env
-          conda activate openmcyclus-env
-          
+          conda init
+          conda activate 
+
       - name: Update Environment
         run: |
           pip install pytest
