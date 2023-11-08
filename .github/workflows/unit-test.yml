@@ -36,16 +36,23 @@ jobs:
           mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMC cross section library
-        run: $GITHUB_WORKSPACE/openmc-xs.bash
+        run:
+          conda info 
+          $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMC from Mamba
-        run: mamba install openmc
+        run:
+          conda info 
+          mamba install openmc
 
       - name: Install OpenMC cross section library
-        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
+        run:
+          conda info 
+          echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: |
+          conda info
           pip install .
       
       - name: Checking the environment
