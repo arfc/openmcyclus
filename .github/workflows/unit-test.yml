@@ -47,7 +47,6 @@ jobs:
 
       - name: Install OpenMC cross section library
         run:
-          conda info 
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
