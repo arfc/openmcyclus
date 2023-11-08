@@ -15,19 +15,10 @@ jobs:
           activate-environment: openmcyclus-env
           environment-file: environment.yml
           use-mamba: true
+
       - name: Conda config
         run: |
-          conda config --env --set pip_interop_enabled True 
-      
-#      - name: Install mamba from conda
-#       run: |
-#          conda config --add channels conda-forge
-#         conda update -n base --all
-#          conda install -n base mamba
-      - name: Activate Environment
-        run:
-          conda init
-          conda activate 
+          conda config --env --set pip_interop_enabled True
 
       - name: Update Environment
         run: |
