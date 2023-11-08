@@ -19,30 +19,32 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
       
-      - name: Install numpy
-        run: |
-          sudo apt install python3-pip
-          pip3 install numpy
-      
 #      - name: Install mamba from conda
 #       run: |
 #          conda config --add channels conda-forge
 #         conda update -n base --all
 #          conda install -n base mamba
-
+      - name: Activate Environment
+        run:
+          conda init openmcyclus-env
+          conda activate openmcyclus-env
+          
       - name: Update Environment
         run: |
           pip install pytest
           mamba env update -n openmcyclus-env -f environment.yml
 
+      - name: Install numpy
+        run: |
+          sudo apt install python3-pip
+          pip3 install numpy
+
       - name: Install OpenMC cross section library
         run:
-          conda info 
           $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMC from Mamba
         run:
-          conda info 
           mamba install openmc
 
       - name: Install OpenMC cross section library
@@ -51,7 +53,6 @@ jobs:
 
       - name: Install OpenMCyclus
         run: |
-          conda info
           pip install .
       
       - name: Checking the environment
