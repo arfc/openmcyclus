@@ -29,22 +29,28 @@ jobs:
         run: |
           sudo apt install python3-pip
           pip3 install numpy
+          mamba env update -n openmcyclus-env -f environment.yml
+          conda info
 
       - name: Install OpenMC cross section library
         run:
           $GITHUB_WORKSPACE/openmc-xs.bash
+          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMC from Mamba
         run:
           mamba install openmc
+          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMC cross section library
         run:
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
+          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMCyclus
         run: |
           pip install .
+          mamba env update -n openmcyclus-env -f environment.yml
       
       - name: Checking the environment
         run: conda info
