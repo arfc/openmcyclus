@@ -27,6 +27,7 @@ jobs:
 
       - name: Install numpy
         run: |
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           sudo apt install python3-pip
           pip3 install numpy
@@ -34,31 +35,37 @@ jobs:
 
       - name: Install OpenMC cross section library
         run:
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMC from Mamba
         run:
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           mamba install openmc
 
       - name: Install OpenMC cross section library
         run:
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: |
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           pip install .
       
       - name: Checking the environment
         run: 
+          conda init openmcyclus-env
           conda activate openmcyclus-env
           conda info
       
       - name: Run Tests
         run: |
+         conda init openmcyclus-env
          conda activate openmcyclus-env
          conda info
          pytest tests/unit_tests/test_depletion.py
