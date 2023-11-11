@@ -22,41 +22,44 @@ jobs:
 
       - name: Update Environment
         run: |
+          conda activate openmcyclus-env
           pip install pytest
-          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install numpy
         run: |
+          conda activate openmcyclus-env
           sudo apt install python3-pip
           pip3 install numpy
-          mamba env update -n openmcyclus-env -f environment.yml
           conda info
 
       - name: Install OpenMC cross section library
         run:
+          conda activate openmcyclus-env
           $GITHUB_WORKSPACE/openmc-xs.bash
-          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMC from Mamba
         run:
+          conda activate openmcyclus-env
           mamba install openmc
-          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMC cross section library
         run:
+          conda activate openmcyclus-env
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
-          mamba env update -n openmcyclus-env -f environment.yml
 
       - name: Install OpenMCyclus
         run: |
+          conda activate openmcyclus-env
           pip install .
-          mamba env update -n openmcyclus-env -f environment.yml
       
       - name: Checking the environment
-        run: conda info
+        run: 
+          conda activate openmcyclus-env
+          conda info
       
       - name: Run Tests
         run: |
+         conda activate openmcyclus-env
          conda info
          pytest tests/unit_tests/test_depletion.py
         
