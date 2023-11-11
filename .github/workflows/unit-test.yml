@@ -4,6 +4,9 @@ on: [push]
 jobs:
   build-and-unit-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - uses: actions/checkout@v3
@@ -27,39 +30,31 @@ jobs:
 
       - name: Install numpy
         run: |
-          activate-environment: openmcyclus-env
           sudo apt install python3-pip
           pip3 install numpy
           conda info
 
       - name: Install OpenMC cross section library
-        run: |
-          activate-environment: openmcyclus-env
+        run: 
           $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMC from Mamba
-        run: |
-          activate-environment: openmcyclus-env
+        run:
           mamba install openmc
 
       - name: Install OpenMC cross section library
-        run: |
-          activate-environment: openmcyclus-env
+        run: 
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
-        run: |
-          activate-environment: openmcyclus-env
+        run: 
           pip install .
       
       - name: Checking the environment
-        run: |
-          activate-environment: openmcyclus-env
+        run:
           conda info
       
       - name: Run Tests
-        run: |
-         activate-environment: openmcyclus-env
-         conda info
+        run:
          pytest tests/unit_tests/test_depletion.py
         
