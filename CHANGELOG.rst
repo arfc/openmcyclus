@@ -7,7 +7,7 @@ Since last release:
 
 **Added:**
 
-* Added CHANGELOG.rst
+* Added `CHANGELOG.rst` and `CONTRIBUTING.rst`
 
 **Changed:**
 
