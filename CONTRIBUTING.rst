@@ -32,7 +32,7 @@ The general steps for contributing to OpenMCyclus are:
 4. Make sure all of the tests pass. You can run the tests locally, or they will 
    run in the CI (via GitHub Actions) when you push changes
 5. When you're finished with your changes and the tests pass, update the 
-   `CHANGELOG <CHANGELOG.rst>` with the changes you've made. 
+   `CHANGELOG <CHANGELOG.rst>`_ with the changes you've made. 
 6. Issue a pull request into the ARFC repository `main` branch.
 
 Reviewing pull requests
@@ -54,6 +54,7 @@ pytest is used for all tests. Tests should be run from the upper-most
 directory of this repository using:
 
   .. code-block:: bash
+    
     $ pytest tests/
 
 Releases:
