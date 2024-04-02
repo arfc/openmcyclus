@@ -1,25 +1,20 @@
 import numpy as np
 import openmc
 import openmc.deplete as od
-from xml.dom import minidom
-import pathlib
 import xml.etree.ElementTree as ET
 import math
 
 
 class Depletion(object):
-    def __init__(self, path: str, chain_file: str,
+    def __init__(self, chain_file: str,
                  timesteps: int, power: float, conversion_factor: float = 3):
         '''
         Class to hold objects related to calling
         :class:`~openmc.deplete.IndependentOperator`
         to perform transport-independent depletion.
 
-        Inputs:
-        ----------
-        path: str
-            path to directory containing for OpenMC model (geometry, materials,
-            and settings) and the results (depletion_results.h5)
+        Parameters:
+        -----------
         chain_file: str
             name of file with depletion chain data. Just the file name is
             required, it is assumed that the file is in the same
@@ -34,26 +29,31 @@ class Depletion(object):
             conversion factor to go from MWe to MWth. Default value of 3,
             representing a thermal efficiency of 1/3
         '''
-        self.path = pathlib.Path(path)
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
         self.conversion_factor = conversion_factor
 
-    def read_materials(self):
+    def read_materials(self, path):
         '''
-        Read in the 
+        Read in the materials file for OpenMC
+
+        Parameters:
+        -----------
+        path: str
+            path to the materials.xml file
 
         Returns:
         ---------
-        materials: openmc.material object
+        materials: openmc.Material object
             Materials for OpenMC
         '''
         materials = openmc.Materials()
-        materials = materials.from_xml(str(self.path / "materials.xml"))
+        materials = materials.from_xml(str(path + "/materials.xml"))
         return materials
 
-    def update_materials(self, comp_list):
+
+    def update_materials(self, comp_list, materials):
         '''
         Read in the material compositions of the fuel assemblies present
         in the reactor to be transmuted. Then modify the composition of
@@ -66,6 +66,8 @@ class Depletion(object):
         comp_list: list of dicts
             list of the fresh fuel compositions present in the core
             at the calling of the transmute function.
+        materials: openmc.Materials
+            materials object to be depleted
 
         Returns:
         --------
@@ -78,32 +80,22 @@ class Depletion(object):
             updated XML for OpenMC with new compositions
 
         '''
-        openmc_materials = ET.parse(str(self.path / "materials.xml"))
-        openmc_root = openmc_materials.getroot()
         material_ids = []
+        for index, material in enumerate(materials):
+            if 'assembly_' in material.name:
+                material_ids.append(material.id)
+                material.nuclides.clear()
+                for nuclide, percent in comp_list[index].items():
+                    Z = math.floor(nuclide / int(1e7))
+                    A = math.floor((nuclide - Z * int(1e7)) / int(1e4))
+                    m = nuclide - Z * int(1e7) - A * int(1e4)
+                    nucname = openmc.data.gnds_name(Z, A, m)
+                    material.add_nuclide(nucname, percent, percent_type='wo')
+        mats = materials
 
-        for child in openmc_root:
-            if '_' in child.attrib['name']:
-                underscore_index = child.attrib['name'].index('_')
-                assembly_number = child.attrib['name'][underscore_index + 1:]
-                material_ids.append(child.attrib['id'])
-                if child.attrib['name'][:underscore_index] == 'assembly':
-                    for material in child.findall('nuclide'):
-                        child.remove(material)
-                    new_comp = comp_list[int(assembly_number) - 1]
-                    for nuclide in new_comp:
-                        Z = math.floor(nuclide / 10000000)
-                        A = math.floor((nuclide - Z * 10000000) / 10000)
-                        m = nuclide - Z * 10000000 - A * 10000
-                        nucname = openmc.data.gnd_name(Z, A, m)
-                        new_nuclide = f"""<nuclide wo="{str(new_comp[nuclide]*100)}" name="{nucname}" />"""
-                        new_nuclide_xml = ET.fromstring(new_nuclide)
-                        child.insert(1, new_nuclide_xml)
-        ET.indent(openmc_root)
-        openmc_materials.write(str(self.path / "materials.xml"))
-        return material_ids
+        return material_ids, mats
 
-    def read_microxs(self):
+    def read_microxs(self, path):
         '''
         Reads .csv file with microscopic cross sections. The
         csv file is assumed to be named "micro_xs.csv". This will need to
@@ -111,16 +103,51 @@ class Depletion(object):
 
         Parameters:
         -----------
+        path: str
+            path of directory holding the files for/from OpenMC        
 
         Returns:
         --------
         microxs: object
             microscopic cross section data
         '''
-        microxs = od.MicroXS.from_csv(str(self.path / "micro_xs.csv"))
+        microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
-    def get_spent_comps(self, material_ids):
+    def run_depletion(self, path, comps):
+        '''
+        Run the IndependentOperator class in OpenMC to perform
+        transport-independent depletion. This method is only 
+        used in the test suite, and not in the OpenMCyclus 
+        archetype
+
+        Parameters:
+        -----------        
+        path: str
+            path of directory holding the files for/from OpenMC
+
+        Outputs:
+        --------
+        depletion_results.h5: database
+            HDF5 data base with the results of the depletion simulation
+        '''
+        materials = self.read_materials(path)
+        mat_ids, mats = self.update_materials(comps, materials)
+        micro_xs = self.read_microxs(path)
+        ind_op = od.IndependentOperator(materials, micro_xs,
+                                        str(path + self.chain_file))
+        ind_op.output_dir = path
+        integrator = od.PredictorIntegrator(
+            ind_op,
+            np.ones(self.timesteps)*30,
+            power=self.power *
+            1e6,
+            timestep_units='d')
+        integrator.integrate()
+
+        return
+
+    def get_spent_comps(self, material_ids, path):
         '''
         Creates a list of each of the spent fuel compositions from the 
         OpenMC depletion
@@ -129,21 +156,25 @@ class Depletion(object):
         -----------
         material_id: list of strs
             material ids for the assembly materials in the OpenMC model
+        path: str
+            path of directory holding the files for/from OpenMC
 
         Returns:
         --------
         spent_comps: list of dicts
             list of the compositions from the OpenMC model
         '''
-        results = od.Results(self.path / "depletion_results.h5")
+        results = od.Results(path + "depletion_results.h5")
         spent_comps = []
-        for material_id in material_ids:
-            material = results[-1].get_material(material_id)
+        for index, material_id in enumerate(material_ids):
+            spent_comp = results[-1].get_material(str(material_id))
+
             comp = {}
-            for nuclide in material.nuclides:
-                if nuclide.percent < 1e-15:
+            for nuclide in spent_comp.nuclides:
+                if nuclide.percent < 1e-5:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
-                comp.update({Z*10000000+A*10000 + m :nuclide.percent/100})
+                mass = results.get_material(str(material_id),nuclide.name)[-1][-1]
+                comp.update({Z*int(1e7)+A*int(1e4) + m :mass})
             spent_comps.append(comp)
         return spent_comps

@@ -1,14 +1,12 @@
-name: test-openmcyclus
-on: [push, pull_request]
+name: unit-tests
+on: [push]
 
 jobs:
-  build-and-test:
+  build-and-unit-test:
     runs-on: ubuntu-latest
-    container:
-      image: cyclus/cycamore
-    defaults: 
+    defaults:
       run:
-        shell: bash -l {0}
+        shell: bash -el {0}
 
     steps:
       - uses: actions/checkout@v3
@@ -24,29 +22,39 @@ jobs:
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
-      
+
       - name: Update Environment
         run: |
           pip install pytest
           mamba env update -n openmcyclus-env -f environment.yml
 
+      - name: Install numpy
+        run: |
+          sudo apt install python3-pip
+          pip3 install numpy
+          conda info
+
       - name: Install OpenMC cross section library
-        run: $GITHUB_WORKSPACE/openmc-xs.bash
+        run: 
+          $GITHUB_WORKSPACE/openmc-xs.bash
 
       - name: Install OpenMC from Mamba
-        run: mamba install openmc
+        run:
+          mamba install openmc
 
       - name: Install OpenMC cross section library
-        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
+        run: 
+          echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
-        run: |
+        run: 
           pip install .
-
-#      - name: Check environment
-#        run: |
-#          pip install pytest
-
-#      - name: Run Tests
-#        run: |
-#          pytest tests/integration_tests/test_depletereactor.py
+      
+      - name: Checking the environment
+        run:
+          conda info
+      
+      - name: Run Tests
+        run:
+         pytest tests/unit_tests/test_depletion.py
+        

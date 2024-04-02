@@ -1,0 +1,1340 @@
+<simulation>
+  <control>
+    <decay>lazy</decay>
+    <duration>200</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear> 
+  </control>
+
+  <archetypes>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Enrichment</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Reactor</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Sink</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Source</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Mixer</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Separations</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>DeployInst</name>
+    </spec>
+    <spec>
+      <lib>agents</lib>
+      <name>NullRegion</name>
+    </spec>
+  </archetypes>
+
+  <facility>
+    <name>Repository</name>
+    <config>
+      <Sink>
+        <in_commods>
+          <val>sep_waste</val>
+          <val>spent_mox</val>
+          <val>tails</val>
+        </in_commods>
+        <!-- Yucca Mountain Repository -->
+        <latitude>36.8286</latitude>
+        <longitude>-116.4364</longitude>
+      </Sink>
+    </config>
+  </facility>
+
+  <facility>
+    <name>Mine</name>
+    <config>
+      <Source>
+        <outcommod>nat_u</outcommod>
+        <outrecipe>nat_u</outrecipe>
+        <throughput>1e6</throughput>
+        <!-- Cameco Smith Ranch-Highland Mine -->
+        <latitude>43.053736</latitude>
+        <longitude>-105.685089</longitude>
+      </Source>
+    </config>
+  </facility>
+
+  <facility>
+    <name>Enrichment</name>
+    <config>
+      <Enrichment>
+        <feed_commod>nat_u</feed_commod>
+        <feed_recipe>nat_u</feed_recipe>
+        <product_commod>uox</product_commod>
+        <tails_commod>tails</tails_commod>
+        <tails_assay>0.002</tails_assay>
+        <max_enrich>0.05</max_enrich>
+        <!-- Portsmouth Gaseous Diffusion Plant (OH) -->
+        <latitude>39.008333</latitude>
+        <longitude>-83</longitude>
+        <max_feed_inventory>5e6</max_feed_inventory>
+      </Enrichment>
+    </config>
+  </facility>
+
+  <facility>
+    <name>Reactor</name>
+    <lifetime>60</lifetime>
+    <config>
+      <Reactor>
+        <fuel_incommods>
+          <val>uox</val>
+          <val>mox</val>
+        </fuel_incommods>
+        <fuel_inrecipes>
+          <val>fresh_uox</val>
+          <val>fresh_mox</val>
+        </fuel_inrecipes>
+        <fuel_prefs>
+          <val>1</val>
+          <val>2</val>
+        </fuel_prefs>
+        <fuel_outcommods>
+          <val>spent_uox</val>
+          <val>spent_mox</val>
+        </fuel_outcommods>
+        <fuel_outrecipes>
+          <val>spent_uox</val>
+          <val>spent_mox</val>
+        </fuel_outrecipes>
+        <assem_size>0.00602</assem_size>
+        <n_assem_batch>1</n_assem_batch>
+        <n_assem_core>3</n_assem_core>
+        <cycle_time>12</cycle_time>
+        <refuel_time>1</refuel_time>
+        <power_cap>195.006e-6</power_cap>
+        <decom_transmute_all>1</decom_transmute_all>
+      </Reactor>
+    </config>
+  </facility>
+
+  <facility>
+  <name>Separations</name>
+  <config>
+    <Separations>
+      <feed_commods>
+        <val>spent_uox</val>
+      </feed_commods>
+      <feed_recipe>spent_uox</feed_recipe>
+      <feedbuf_size>1e100</feedbuf_size>
+      <leftover_commod>sep_waste</leftover_commod>
+      <streams>
+        <item>
+          <commod>separated_pu</commod>
+          <info>
+            <buf_size>1e100</buf_size>
+            <efficiencies>
+              <item>
+                <comp>94000</comp>
+                <eff>0.99</eff>
+              </item>
+            </efficiencies>
+          </info>
+        </item>
+      </streams>
+    </Separations>
+  </config>
+  </facility>
+
+  <facility>
+  <name>FuelFab</name>
+  <config>
+    <Mixer>
+      <in_streams>
+        <stream>
+          <info>
+            <mixing_ratio>0.05</mixing_ratio>
+            <buf_size>1e100</buf_size>
+          </info>
+          <commodities>
+            <item>
+              <commodity>separated_pu</commodity>
+              <pref>1.0</pref>
+            </item>
+          </commodities>
+        </stream>
+        <stream>
+          <info>
+            <mixing_ratio>0.95</mixing_ratio>
+            <buf_size>1e100</buf_size>
+          </info>
+          <commodities>
+            <item>
+              <commodity>nat_u</commodity>
+              <pref>1.0</pref>
+            </item>
+          </commodities>
+        </stream>
+      </in_streams>
+      <out_commod>mox</out_commod>
+    </Mixer>
+  </config>
+</facility>
+
+  <region>
+    <name>United States</name>
+    <config>
+      <NullRegion/>
+    </config>
+    
+    <institution>
+      <name>FuelCycle</name>
+      <initialfacilitylist>
+      <entry>
+          <prototype>Repository</prototype>
+          <number>1</number>
+        </entry>
+        <entry>
+          <prototype>Mine</prototype>
+          <number>2</number>
+        </entry>
+        <entry>
+          <prototype>Enrichment</prototype>
+          <number>1</number>
+        </entry>
+        <entry>
+          <prototype>FuelFab</prototype>
+          <number>1</number>
+        </entry>
+        <entry>
+          <prototype>Separations</prototype>
+          <number>1</number>
+        </entry>
+      </initialfacilitylist>
+      <config>
+        <DeployInst>
+          <prototypes>
+            <val>Reactor</val>
+            <val>Reactor</val>
+            <val>Reactor</val>
+            <val>Reactor</val>
+          </prototypes>
+          <build_times>
+            <val>1</val>
+            <val>50</val>
+            <val>100</val>
+            <val>150</val>
+          </build_times>
+          <n_build>
+            <val>2</val>
+            <val>1</val>
+            <val>1</val>
+            <val>1</val>
+          </n_build>
+        </DeployInst>          
+      </config>
+    </institution>
+  </region>
+
+  <recipe>
+    <name>nat_u</name>
+    <basis>mass</basis>
+    <nuclide>
+      <id>92235</id>
+      <comp>0.00711</comp>
+    </nuclide>
+    <nuclide>
+      <id>92238</id>
+      <comp>0.99289</comp>
+    </nuclide>
+  </recipe>
+
+    <recipe>
+    <name>fresh_uox</name>
+    <basis>atom</basis>
+    <nuclide>
+      <id>92235</id>
+      <comp>0.03</comp>
+    </nuclide>
+    <nuclide>
+      <id>92238</id>
+      <comp>0.97</comp>
+    </nuclide>
+    <nuclide>
+      <id>O16</id>
+      <comp>2</comp>
+    </nuclide>
+  </recipe>
+
+    <recipe>
+    <name>fresh_mox</name>
+    <basis>atom</basis>
+    <nuclide>
+      <id>92235</id>
+      <comp>0.0291</comp>
+    </nuclide>
+    <nuclide>
+      <id>92238</id>
+      <comp>0.941</comp>
+    </nuclide>
+    <nuclide>
+      <id>94239</id>
+      <comp>0.0281</comp>
+    </nuclide>
+    <nuclide>
+      <id>94240</id>
+      <comp>0.00179</comp>
+    </nuclide>
+    <nuclide>
+      <id>O16</id>
+      <comp>1</comp>
+    </nuclide>
+  </recipe>
+
+  <recipe>
+    <name>spent_uox</name>
+    <basis>atom</basis>
+    <nuclide>  <id>471070000</id> <comp>2.3363670459656455e-12</comp>  </nuclide>
+    <nuclide>  <id>471090000</id> <comp>6.538356614946171e-06</comp>  </nuclide>
+    <nuclide>  <id>471100001</id> <comp>1.2812731748596007e-07</comp>  </nuclide>
+    <nuclide>  <id>471110000</id> <comp>3.9476099470305056e-08</comp>  </nuclide>
+    <nuclide>  <id>471120000</id> <comp>2.921875996488886e-10</comp>  </nuclide>
+    <nuclide>  <id>471130000</id> <comp>2.1831898777518432e-10</comp>  </nuclide>
+    <nuclide>  <id>471140000</id> <comp>5.0401496927412314e-14</comp>  </nuclide>
+    <nuclide>  <id>471150000</id> <comp>8.757620187137802e-12</comp>  </nuclide>
+    <nuclide>  <id>471160000</id> <comp>1.7208460822693511e-12</comp>  </nuclide>
+    <nuclide>  <id>471170000</id> <comp>3.9661815636316736e-13</comp>  </nuclide>
+    <nuclide>  <id>471180001</id> <comp>3.45804975421739e-15</comp>  </nuclide>
+    <nuclide>  <id>952400000</id> <comp>2.9523000341704037e-14</comp>  </nuclide>
+    <nuclide>  <id>952410000</id> <comp>5.367500649806762e-07</comp>  </nuclide>
+    <nuclide>  <id>952420000</id> <comp>3.634742666774765e-09</comp>  </nuclide>
+    <nuclide>  <id>952420001</id> <comp>6.108615057325543e-09</comp>  </nuclide>
+    <nuclide>  <id>952430000</id> <comp>8.208561464157365e-06</comp>  </nuclide>
+    <nuclide>  <id>952440000</id> <comp>9.464359871019903e-10</comp>  </nuclide>
+    <nuclide>  <id>952440001</id> <comp>6.159752815902366e-10</comp>  </nuclide>
+    <nuclide>  <id>330740000</id> <comp>3.19970943817254e-15</comp>  </nuclide>
+    <nuclide>  <id>330750000</id> <comp>1.2128569876071626e-08</comp>  </nuclide>
+    <nuclide>  <id>561320000</id> <comp>9.859976028969314e-12</comp>  </nuclide>
+    <nuclide>  <id>561330000</id> <comp>1.4900122278925817e-11</comp>  </nuclide>
+    <nuclide>  <id>561340000</id> <comp>3.8650234973067685e-06</comp>  </nuclide>
+    <nuclide>  <id>561350000</id> <comp>3.972332014546684e-08</comp>  </nuclide>
+    <nuclide>  <id>561360000</id> <comp>1.146514775937949e-06</comp>  </nuclide>
+    <nuclide>  <id>561370000</id> <comp>2.5258151250343706e-06</comp>  </nuclide>
+    <nuclide>  <id>561380000</id> <comp>7.692311300084265e-05</comp>  </nuclide>
+    <nuclide>  <id>561390000</id> <comp>5.330011815480869e-09</comp>  </nuclide>
+    <nuclide>  <id>561400000</id> <comp>1.1228174588282041e-06</comp>  </nuclide>
+    <nuclide>  <id>972490000</id> <comp>1.2905046832345187e-12</comp>  </nuclide>
+    <nuclide>  <id>972500000</id> <comp>3.655881784866693e-15</comp>  </nuclide>
+    <nuclide>  <id>350790000</id> <comp>2.4148109172284265e-10</comp>  </nuclide>
+    <nuclide>  <id>350800000</id> <comp>1.4734239369154303e-15</comp>  </nuclide>
+    <nuclide>  <id>350810000</id> <comp>1.986091343916787e-06</comp>  </nuclide>
+    <nuclide>  <id>60120000</id> <comp>2.420267778419121e-13</comp>  </nuclide>
+    <nuclide>  <id>60130000</id> <comp>5.915315850621022e-06</comp>  </nuclide>
+    <nuclide>  <id>481080000</id> <comp>4.4956924953388535e-11</comp>  </nuclide>
+    <nuclide>  <id>481090000</id> <comp>1.1075831842957568e-11</comp>  </nuclide>
+    <nuclide>  <id>481100000</id> <comp>5.30383938261e-06</comp>  </nuclide>
+    <nuclide>  <id>481110000</id> <comp>2.2879617524261932e-06</comp>  </nuclide>
+    <nuclide>  <id>481120000</id> <comp>1.0599459966655341e-06</comp>  </nuclide>
+    <nuclide>  <id>481130000</id> <comp>4.998722111202982e-09</comp>  </nuclide>
+    <nuclide>  <id>481140000</id> <comp>1.132079534311582e-06</comp>  </nuclide>
+    <nuclide>  <id>481150001</id> <comp>1.7349644192922786e-09</comp>  </nuclide>
+    <nuclide>  <id>481160000</id> <comp>3.675450730086873e-07</comp>  </nuclide>
+    <nuclide>  <id>581380000</id> <comp>1.7041995840800175e-13</comp>  </nuclide>
+    <nuclide>  <id>581390000</id> <comp>1.674800189832408e-10</comp>  </nuclide>
+    <nuclide>  <id>581400000</id> <comp>7.02444408181453e-05</comp>  </nuclide>
+    <nuclide>  <id>581410000</id> <comp>2.6707604136834287e-06</comp>  </nuclide>
+    <nuclide>  <id>581420000</id> <comp>6.387725033480723e-05</comp>  </nuclide>
+    <nuclide>  <id>581430000</id> <comp>1.0070128120727652e-07</comp>  </nuclide>
+    <nuclide>  <id>581440000</id> <comp>1.830315770451423e-05</comp>  </nuclide>
+    <nuclide>  <id>982490000</id> <comp>1.073475844144768e-13</comp>  </nuclide>
+    <nuclide>  <id>982500000</id> <comp>4.866106743731946e-13</comp>  </nuclide>
+    <nuclide>  <id>982510000</id> <comp>1.875772448592157e-13</comp>  </nuclide>
+    <nuclide>  <id>982520000</id> <comp>3.265074508018147e-13</comp>  </nuclide>
+    <nuclide>  <id>962410000</id> <comp>2.6691263451995677e-13</comp>  </nuclide>
+    <nuclide>  <id>962420000</id> <comp>5.660487918331757e-07</comp>  </nuclide>
+    <nuclide>  <id>962430000</id> <comp>1.98553107726737e-08</comp>  </nuclide>
+    <nuclide>  <id>962440000</id> <comp>4.969366574257304e-06</comp>  </nuclide>
+    <nuclide>  <id>962450000</id> <comp>2.4318730383384883e-07</comp>  </nuclide>
+    <nuclide>  <id>962460000</id> <comp>6.62012947927019e-08</comp>  </nuclide>
+    <nuclide>  <id>962470000</id> <comp>9.980994965300745e-10</comp>  </nuclide>
+    <nuclide>  <id>962480000</id> <comp>1.0217086672014144e-10</comp>  </nuclide>
+    <nuclide>  <id>962490000</id> <comp>2.228181814574016e-15</comp>  </nuclide>
+    <nuclide>  <id>551330000</id> <comp>6.198580890278128e-05</comp>  </nuclide>
+    <nuclide>  <id>551340000</id> <comp>1.1379298132337067e-05</comp>  </nuclide>
+    <nuclide>  <id>551350000</id> <comp>1.373508176182289e-05</comp>  </nuclide>
+    <nuclide>  <id>551360000</id> <comp>3.967418216975867e-08</comp>  </nuclide>
+    <nuclide>  <id>551370000</id> <comp>7.347794591236292e-05</comp>  </nuclide>
+    <nuclide>  <id>290650000</id> <comp>1.7885040551735016e-14</comp>  </nuclide>
+    <nuclide>  <id>661580000</id> <comp>1.8823632486033733e-15</comp>  </nuclide>
+    <nuclide>  <id>661590000</id> <comp>8.22433573966462e-14</comp>  </nuclide>
+    <nuclide>  <id>661600000</id> <comp>1.4131955428128514e-08</comp>  </nuclide>
+    <nuclide>  <id>661610000</id> <comp>1.9644550519705416e-08</comp>  </nuclide>
+    <nuclide>  <id>661620000</id> <comp>1.8168318084999448e-08</comp>  </nuclide>
+    <nuclide>  <id>661630000</id> <comp>1.6900536920013e-08</comp>  </nuclide>
+    <nuclide>  <id>661640000</id> <comp>2.7892416943249263e-09</comp>  </nuclide>
+    <nuclide>  <id>681640000</id> <comp>6.752750732104412e-14</comp>  </nuclide>
+    <nuclide>  <id>681660000</id> <comp>2.7143811834979878e-09</comp>  </nuclide>
+    <nuclide>  <id>681670000</id> <comp>9.423909505929209e-11</comp>  </nuclide>
+    <nuclide>  <id>681680000</id> <comp>3.227276085723493e-10</comp>  </nuclide>
+    <nuclide>  <id>681690000</id> <comp>1.0248562118799158e-12</comp>  </nuclide>
+    <nuclide>  <id>681700000</id> <comp>1.2539549336968796e-11</comp>  </nuclide>
+    <nuclide>  <id>631510000</id> <comp>1.057824632693753e-10</comp>  </nuclide>
+    <nuclide>  <id>631520000</id> <comp>1.0179261906673269e-10</comp>  </nuclide>
+    <nuclide>  <id>631530000</id> <comp>6.312944846279684e-06</comp>  </nuclide>
+    <nuclide>  <id>631540000</id> <comp>1.4703591903929211e-06</comp>  </nuclide>
+    <nuclide>  <id>631550000</id> <comp>5.002038845829829e-07</comp>  </nuclide>
+    <nuclide>  <id>631560000</id> <comp>5.014876705008888e-07</comp>  </nuclide>
+    <nuclide>  <id>631570000</id> <comp>2.0709269772279658e-09</comp>  </nuclide>
+    <nuclide>  <id>310690000</id> <comp>6.725791244349584e-11</comp>  </nuclide>
+    <nuclide>  <id>310710000</id> <comp>3.0768018851199264e-10</comp>  </nuclide>
+    <nuclide>  <id>641520000</id> <comp>9.604189527524322e-13</comp>  </nuclide>
+    <nuclide>  <id>641530000</id> <comp>9.595022388423334e-14</comp>  </nuclide>
+    <nuclide>  <id>641540000</id> <comp>1.158999614411465e-07</comp>  </nuclide>
+    <nuclide>  <id>641550000</id> <comp>1.132494588733289e-09</comp>  </nuclide>
+    <nuclide>  <id>641560000</id> <comp>8.74835507895813e-06</comp>  </nuclide>
+    <nuclide>  <id>641570000</id> <comp>3.3865918510776655e-09</comp>  </nuclide>
+    <nuclide>  <id>641580000</id> <comp>1.6833519436235205e-06</comp>  </nuclide>
+    <nuclide>  <id>641590000</id> <comp>4.896447559248559e-10</comp>  </nuclide>
+    <nuclide>  <id>641600000</id> <comp>7.44202410895073e-08</comp>  </nuclide>
+    <nuclide>  <id>320700000</id> <comp>9.064242794850477e-13</comp>  </nuclide>
+    <nuclide>  <id>320720000</id> <comp>7.784314433321226e-10</comp>  </nuclide>
+    <nuclide>  <id>320730000</id> <comp>1.8530620380708938e-09</comp>  </nuclide>
+    <nuclide>  <id>320740000</id> <comp>5.2184453207124235e-09</comp>  </nuclide>
+    <nuclide>  <id>320750000</id> <comp>9.407019746649851e-13</comp>  </nuclide>
+    <nuclide>  <id>320760000</id> <comp>3.1971672666131914e-08</comp>  </nuclide>
+    <nuclide>  <id>10010000</id> <comp>2.0501319877179858e-08</comp>  </nuclide>
+    <nuclide>  <id>10020000</id> <comp>1.6737826695893647e-11</comp>  </nuclide>
+    <nuclide>  <id>20040000</id> <comp>6.948674050304386e-06</comp>  </nuclide>
+    <nuclide>  <id>671650000</id> <comp>9.54080851597547e-09</comp>  </nuclide>
+    <nuclide>  <id>671660001</id> <comp>1.1989504245765529e-11</comp>  </nuclide>
+    <nuclide>  <id>531270000</id> <comp>2.8143457840472614e-06</comp>  </nuclide>
+    <nuclide>  <id>531280000</id> <comp>1.7213427831921742e-11</comp>  </nuclide>
+    <nuclide>  <id>531290000</id> <comp>9.599766403070116e-06</comp>  </nuclide>
+    <nuclide>  <id>531300000</id> <comp>1.4085896666534665e-09</comp>  </nuclide>
+    <nuclide>  <id>531310000</id> <comp>4.4965541402757765e-07</comp>  </nuclide>
+    <nuclide>  <id>531320000</id> <comp>7.740768699738216e-09</comp>  </nuclide>
+    <nuclide>  <id>531320001</id> <comp>8.179192142670575e-11</comp>  </nuclide>
+    <nuclide>  <id>531330000</id> <comp>9.425176011971404e-08</comp>  </nuclide>
+    <nuclide>  <id>531340000</id> <comp>4.350560620254355e-09</comp>  </nuclide>
+    <nuclide>  <id>531350000</id> <comp>2.8717232322010884e-08</comp>  </nuclide>
+    <nuclide>  <id>491130000</id> <comp>4.0394140924231836e-10</comp>  </nuclide>
+    <nuclide>  <id>491150000</id> <comp>8.009383905101873e-08</comp>  </nuclide>
+    <nuclide>  <id>360800000</id> <comp>3.704250210133709e-11</comp>  </nuclide>
+    <nuclide>  <id>360810000</id> <comp>2.9337070495197404e-12</comp>  </nuclide>
+    <nuclide>  <id>360820000</id> <comp>8.508712967225312e-08</comp>  </nuclide>
+    <nuclide>  <id>360830000</id> <comp>2.59920265456338e-06</comp>  </nuclide>
+    <nuclide>  <id>360840000</id> <comp>1.0792785519553247e-05</comp>  </nuclide>
+    <nuclide>  <id>360850000</id> <comp>2.1831491024170277e-06</comp>  </nuclide>
+    <nuclide>  <id>360860000</id> <comp>1.599580952602066e-05</comp>  </nuclide>
+    <nuclide>  <id>571380000</id> <comp>9.410630525697824e-10</comp>  </nuclide>
+    <nuclide>  <id>571390000</id> <comp>7.023660885195525e-05</comp>  </nuclide>
+    <nuclide>  <id>571400000</id> <comp>1.5938840858252398e-07</comp>  </nuclide>
+    <nuclide>  <id>421000000</id> <comp>7.73926829800997e-05</comp>  </nuclide>
+    <nuclide>  <id>420930000</id> <comp>6.6599090661485404e-15</comp>  </nuclide>
+    <nuclide>  <id>420940000</id> <comp>9.653989209158593e-10</comp>  </nuclide>
+    <nuclide>  <id>420950000</id> <comp>5.281052951958894e-05</comp>  </nuclide>
+    <nuclide>  <id>420960000</id> <comp>5.271798423844712e-06</comp>  </nuclide>
+    <nuclide>  <id>420970000</id> <comp>6.631224217502e-05</comp>  </nuclide>
+    <nuclide>  <id>420980000</id> <comp>6.920183336007271e-05</comp>  </nuclide>
+    <nuclide>  <id>420990000</id> <comp>2.699725115876866e-07</comp>  </nuclide>
+    <nuclide>  <id>70140000</id> <comp>1.166619644814133e-14</comp>  </nuclide>
+    <nuclide>  <id>70150000</id> <comp>8.382976837594916e-13</comp>  </nuclide>
+    <nuclide>  <id>410930000</id> <comp>4.858990526899423e-12</comp>  </nuclide>
+    <nuclide>  <id>410940000</id> <comp>1.4052774757775935e-10</comp>  </nuclide>
+    <nuclide>  <id>410950000</id> <comp>2.6992756328496815e-06</comp>  </nuclide>
+    <nuclide>  <id>601420000</id> <comp>2.37798112230257e-06</comp>  </nuclide>
+    <nuclide>  <id>601430000</id> <comp>2.645444021880887e-05</comp>  </nuclide>
+    <nuclide>  <id>601440000</id> <comp>7.047217174619498e-05</comp>  </nuclide>
+    <nuclide>  <id>601450000</id> <comp>3.3760380603858795e-05</comp>  </nuclide>
+    <nuclide>  <id>601460000</id> <comp>4.1977047797132505e-05</comp>  </nuclide>
+    <nuclide>  <id>601470000</id> <comp>3.632275442424962e-07</comp>  </nuclide>
+    <nuclide>  <id>601480000</id> <comp>2.1065491849893044e-05</comp>  </nuclide>
+    <nuclide>  <id>601490000</id> <comp>1.5672873955048212e-09</comp>  </nuclide>
+    <nuclide>  <id>601500000</id> <comp>1.0277595974492914e-05</comp>  </nuclide>
+    <nuclide>  <id>932350000</id> <comp>2.2083325159816342e-13</comp>  </nuclide>
+    <nuclide>  <id>932360000</id> <comp>2.693786498443287e-11</comp>  </nuclide>
+    <nuclide>  <id>932370000</id> <comp>1.3905728420490848e-05</comp>  </nuclide>
+    <nuclide>  <id>932380000</id> <comp>8.535192512486164e-08</comp>  </nuclide>
+    <nuclide>  <id>932390000</id> <comp>3.3200307994115915e-06</comp>  </nuclide>
+    <nuclide>  <id>80160000</id> <comp>0.044610632987974325</comp>  </nuclide>
+    <nuclide>  <id>80170000</id> <comp>9.616956018596885e-08</comp>  </nuclide>
+    <nuclide>  <id>80180000</id> <comp>1.0390700386461366e-12</comp>  </nuclide>
+    <nuclide>  <id>912310000</id> <comp>1.5267314782947842e-13</comp>  </nuclide>
+    <nuclide>  <id>912330000</id> <comp>4.731071748698722e-13</comp>  </nuclide>
+    <nuclide>  <id>822080000</id> <comp>1.0398831264233383e-15</comp>  </nuclide>
+    <nuclide>  <id>461020000</id> <comp>2.964237221183805e-11</comp>  </nuclide>
+    <nuclide>  <id>461030000</id> <comp>7.87667651843033e-12</comp>  </nuclide>
+    <nuclide>  <id>461040000</id> <comp>2.8961019372466602e-05</comp>  </nuclide>
+    <nuclide>  <id>461050000</id> <comp>3.2366689065927244e-05</comp>  </nuclide>
+    <nuclide>  <id>461060000</id> <comp>2.4382981998122617e-05</comp>  </nuclide>
+    <nuclide>  <id>461070000</id> <comp>2.1974892504693428e-05</comp>  </nuclide>
+    <nuclide>  <id>461080000</id> <comp>1.4716567865740904e-05</comp>  </nuclide>
+    <nuclide>  <id>461090000</id> <comp>1.8216231489059625e-08</comp>  </nuclide>
+    <nuclide>  <id>461100000</id> <comp>4.86339841310422e-06</comp>  </nuclide>
+    <nuclide>  <id>611450000</id> <comp>1.9995207481281024e-12</comp>  </nuclide>
+    <nuclide>  <id>611460000</id> <comp>2.922492008206288e-10</comp>  </nuclide>
+    <nuclide>  <id>611470000</id> <comp>6.029717315715319e-06</comp>  </nuclide>
+    <nuclide>  <id>611480000</id> <comp>7.630100348236532e-08</comp>  </nuclide>
+    <nuclide>  <id>611480001</id> <comp>6.487093821140293e-08</comp>  </nuclide>
+    <nuclide>  <id>611490000</id> <comp>7.669039222164888e-08</comp>  </nuclide>
+    <nuclide>  <id>611500000</id> <comp>1.2669505481366555e-10</comp>  </nuclide>
+    <nuclide>  <id>611510000</id> <comp>1.4610934726004242e-08</comp>  </nuclide>
+    <nuclide>  <id>591410000</id> <comp>5.984578377077218e-05</comp>  </nuclide>
+    <nuclide>  <id>591420000</id> <comp>6.360007639542605e-09</comp>  </nuclide>
+    <nuclide>  <id>591430000</id> <comp>9.842612778731576e-07</comp>  </nuclide>
+    <nuclide>  <id>942360000</id> <comp>7.011697573813749e-14</comp>  </nuclide>
+    <nuclide>  <id>942370000</id> <comp>1.7425303957304316e-12</comp>  </nuclide>
+    <nuclide>  <id>942380000</id> <comp>7.38071022265351e-06</comp>  </nuclide>
+    <nuclide>  <id>942390000</id> <comp>9.687605002382098e-05</comp>  </nuclide>
+    <nuclide>  <id>942400000</id> <comp>2.698646486061363e-05</comp>  </nuclide>
+    <nuclide>  <id>942410000</id> <comp>3.138237343504655e-05</comp>  </nuclide>
+    <nuclide>  <id>942420000</id> <comp>3.028380613083139e-05</comp>  </nuclide>
+    <nuclide>  <id>942430000</id> <comp>1.3543389103449695e-08</comp>  </nuclide>
+    <nuclide>  <id>942440000</id> <comp>5.399934517724066e-09</comp>  </nuclide>
+    <nuclide>  <id>942450000</id> <comp>2.525354109993338e-13</comp>  </nuclide>
+    <nuclide>  <id>370850000</id> <comp>8.42496054056258e-06</comp>  </nuclide>
+    <nuclide>  <id>370860000</id> <comp>3.4256301015743922e-09</comp>  </nuclide>
+    <nuclide>  <id>370870000</id> <comp>2.0786844217127835e-05</comp>  </nuclide>
+    <nuclide>  <id>451030000</id> <comp>2.819532023644316e-05</comp>  </nuclide>
+    <nuclide>  <id>451040000</id> <comp>4.240088172408968e-11</comp>  </nuclide>
+    <nuclide>  <id>451050000</id> <comp>9.96988299497584e-08</comp>  </nuclide>
+    <nuclide>  <id>441000000</id> <comp>1.3459494704653425e-05</comp>  </nuclide>
+    <nuclide>  <id>441010000</id> <comp>6.322018758601047e-05</comp>  </nuclide>
+    <nuclide>  <id>441020000</id> <comp>6.876124262222422e-05</comp>  </nuclide>
+    <nuclide>  <id>441030000</id> <comp>4.083143024318066e-06</comp>  </nuclide>
+    <nuclide>  <id>441040000</id> <comp>5.068733331095114e-05</comp>  </nuclide>
+    <nuclide>  <id>441050000</id> <comp>1.5512248914993266e-08</comp>  </nuclide>
+    <nuclide>  <id>441060000</id> <comp>1.660383246183767e-05</comp>  </nuclide>
+    <nuclide>  <id>440980000</id> <comp>7.62637754193103e-14</comp>  </nuclide>
+    <nuclide>  <id>440990000</id> <comp>2.4837615201490715e-09</comp>  </nuclide>
+    <nuclide>  <id>511210000</id> <comp>2.5213792160989756e-07</comp>  </nuclide>
+    <nuclide>  <id>511220000</id> <comp>2.526271624284408e-10</comp>  </nuclide>
+    <nuclide>  <id>511230000</id> <comp>3.2079145182519196e-07</comp>  </nuclide>
+    <nuclide>  <id>511240000</id> <comp>3.5544539159739973e-09</comp>  </nuclide>
+    <nuclide>  <id>511250000</id> <comp>5.589505200494025e-07</comp>  </nuclide>
+    <nuclide>  <id>511260000</id> <comp>1.2228109817226651e-09</comp>  </nuclide>
+    <nuclide>  <id>340740000</id> <comp>1.6266284940058325e-14</comp>  </nuclide>
+    <nuclide>  <id>340750000</id> <comp>2.5408367353921947e-15</comp>  </nuclide>
+    <nuclide>  <id>340760000</id> <comp>5.648073597335568e-10</comp>  </nuclide>
+    <nuclide>  <id>340770000</id> <comp>7.099281074175175e-08</comp>  </nuclide>
+    <nuclide>  <id>340780000</id> <comp>2.3045831884975266e-07</comp>  </nuclide>
+    <nuclide>  <id>340790000</id> <comp>4.0970791322822036e-07</comp>  </nuclide>
+    <nuclide>  <id>340800000</id> <comp>1.2611468883715594e-06</comp>  </nuclide>
+    <nuclide>  <id>340810000</id> <comp>3.0202856456975255e-11</comp>  </nuclide>
+    <nuclide>  <id>340820000</id> <comp>3.124838191066222e-06</comp>  </nuclide>
+    <nuclide>  <id>621450000</id> <comp>3.056534847486357e-14</comp>  </nuclide>
+    <nuclide>  <id>621460000</id> <comp>1.210204728370015e-10</comp>  </nuclide>
+    <nuclide>  <id>621470000</id> <comp>2.563650296104541e-06</comp>  </nuclide>
+    <nuclide>  <id>621480000</id> <comp>9.482660883829077e-06</comp>  </nuclide>
+    <nuclide>  <id>621490000</id> <comp>5.411685226844146e-08</comp>  </nuclide>
+    <nuclide>  <id>621500000</id> <comp>1.5986199792797977e-05</comp>  </nuclide>
+    <nuclide>  <id>621510000</id> <comp>2.880882365714235e-07</comp>  </nuclide>
+    <nuclide>  <id>621520000</id> <comp>5.044884079564624e-06</comp>  </nuclide>
+    <nuclide>  <id>621530000</id> <comp>8.039804437959541e-08</comp>  </nuclide>
+    <nuclide>  <id>621540000</id> <comp>2.4577533725143894e-06</comp>  </nuclide>
+    <nuclide>  <id>501140000</id> <comp>4.929795736786497e-11</comp>  </nuclide>
+    <nuclide>  <id>501150000</id> <comp>1.4320071801609498e-08</comp>  </nuclide>
+    <nuclide>  <id>501160000</id> <comp>2.498589818026237e-07</comp>  </nuclide>
+    <nuclide>  <id>501170000</id> <comp>3.2823083693795583e-07</comp>  </nuclide>
+    <nuclide>  <id>501180000</id> <comp>2.750874075505773e-07</comp>  </nuclide>
+    <nuclide>  <id>501190000</id> <comp>2.70880977337436e-07</comp>  </nuclide>
+    <nuclide>  <id>501200000</id> <comp>2.714381699993984e-07</comp>  </nuclide>
+    <nuclide>  <id>501210001</id> <comp>2.463199531619235e-08</comp>  </nuclide>
+    <nuclide>  <id>501220000</id> <comp>3.51254854560539e-07</comp>  </nuclide>
+    <nuclide>  <id>501230000</id> <comp>1.3712888365222102e-08</comp>  </nuclide>
+    <nuclide>  <id>501240000</id> <comp>5.75754311403179e-07</comp>  </nuclide>
+    <nuclide>  <id>501250000</id> <comp>6.178711511677725e-09</comp>  </nuclide>
+    <nuclide>  <id>501260000</id> <comp>1.3479968490196922e-06</comp>  </nuclide>
+    <nuclide>  <id>380840000</id> <comp>1.0073390382145827e-12</comp>  </nuclide>
+    <nuclide>  <id>380850000</id> <comp>2.38639490072407e-14</comp>  </nuclide>
+    <nuclide>  <id>380860000</id> <comp>6.060156627038581e-08</comp>  </nuclide>
+    <nuclide>  <id>380870000</id> <comp>4.118524457043979e-10</comp>  </nuclide>
+    <nuclide>  <id>380880000</id> <comp>2.782041999160297e-05</comp>  </nuclide>
+    <nuclide>  <id>380890000</id> <comp>1.6237059168507202e-06</comp>  </nuclide>
+    <nuclide>  <id>380900000</id> <comp>4.331271497443386e-05</comp>  </nuclide>
+    <nuclide>  <id>651580000</id> <comp>3.982668787268102e-12</comp>  </nuclide>
+    <nuclide>  <id>651590000</id> <comp>1.756673164941165e-07</comp>  </nuclide>
+    <nuclide>  <id>651600000</id> <comp>6.6061356687764895e-09</comp>  </nuclide>
+    <nuclide>  <id>651610000</id> <comp>1.0071070345304137e-09</comp>  </nuclide>
+    <nuclide>  <id>430980000</id> <comp>6.111005755892563e-10</comp>  </nuclide>
+    <nuclide>  <id>430990000</id> <comp>5.980645103796101e-05</comp>  </nuclide>
+    <nuclide>  <id>521210000</id> <comp>8.019147351981992e-15</comp>  </nuclide>
+    <nuclide>  <id>521220000</id> <comp>2.476185243786043e-08</comp>  </nuclide>
+    <nuclide>  <id>521230000</id> <comp>2.1499253459045517e-10</comp>  </nuclide>
+    <nuclide>  <id>521240000</id> <comp>1.5906853646778464e-08</comp>  </nuclide>
+    <nuclide>  <id>521250000</id> <comp>1.9162723651403315e-07</comp>  </nuclide>
+    <nuclide>  <id>521260000</id> <comp>5.546995943446879e-08</comp>  </nuclide>
+    <nuclide>  <id>521270001</id> <comp>2.5206492403441196e-08</comp>  </nuclide>
+    <nuclide>  <id>521280000</id> <comp>6.3113163281534646e-06</comp>  </nuclide>
+    <nuclide>  <id>521290001</id> <comp>6.592241234426043e-08</comp>  </nuclide>
+    <nuclide>  <id>521300000</id> <comp>2.4677228932599658e-05</comp>  </nuclide>
+    <nuclide>  <id>521310000</id> <comp>8.211383108447997e-10</comp>  </nuclide>
+    <nuclide>  <id>521310001</id> <comp>1.6361045974785985e-08</comp>  </nuclide>
+    <nuclide>  <id>521320000</id> <comp>2.4977755722927804e-07</comp>  </nuclide>
+    <nuclide>  <id>902280000</id> <comp>2.4043631134327118e-15</comp>  </nuclide>
+    <nuclide>  <id>902290000</id> <comp>1.1779194837649782e-15</comp>  </nuclide>
+    <nuclide>  <id>902300000</id> <comp>1.2103036369083514e-13</comp>  </nuclide>
+    <nuclide>  <id>902320000</id> <comp>5.353458124142033e-12</comp>  </nuclide>
+    <nuclide>  <id>902340000</id> <comp>3.068810775525829e-13</comp>  </nuclide>
+    <nuclide>  <id>691690000</id> <comp>1.6684675445082893e-11</comp>  </nuclide>
+    <nuclide>  <id>691700000</id> <comp>5.253732254962177e-12</comp>  </nuclide>
+    <nuclide>  <id>691710000</id> <comp>5.718322471692323e-12</comp>  </nuclide>
+    <nuclide>  <id>922320000</id> <comp>3.294780675357149e-13</comp>  </nuclide>
+    <nuclide>  <id>922330000</id> <comp>5.912380914114187e-12</comp>  </nuclide>
+    <nuclide>  <id>922340000</id> <comp>5.151495024128671e-08</comp>  </nuclide>
+    <nuclide>  <id>922350000</id> <comp>2.2792120590564774e-05</comp>  </nuclide>
+    <nuclide>  <id>922360000</id> <comp>8.470457815626255e-05</comp>  </nuclide>
+    <nuclide>  <id>922370000</id> <comp>3.8638423518422994e-07</comp>  </nuclide>
+    <nuclide>  <id>922380000</id> <comp>0.02078061512860166</comp>  </nuclide>
+    <nuclide>  <id>922390000</id> <comp>2.3062991910655167e-08</comp>  </nuclide>
+    <nuclide>  <id>922400000</id> <comp>2.0448677657687563e-11</comp>  </nuclide>
+    <nuclide>  <id>541260000</id> <comp>1.1293305967891494e-11</comp>  </nuclide>
+    <nuclide>  <id>541270000</id> <comp>2.275906624096496e-13</comp>  </nuclide>
+    <nuclide>  <id>541280000</id> <comp>2.583378058963113e-07</comp>  </nuclide>
+    <nuclide>  <id>541290000</id> <comp>3.033805091384669e-09</comp>  </nuclide>
+    <nuclide>  <id>541300000</id> <comp>8.715362027686256e-07</comp>  </nuclide>
+    <nuclide>  <id>541310000</id> <comp>2.0528698939348893e-05</comp>  </nuclide>
+    <nuclide>  <id>541320000</id> <comp>7.536480604860688e-05</comp>  </nuclide>
+    <nuclide>  <id>541330000</id> <comp>5.740246789177245e-07</comp>  </nuclide>
+    <nuclide>  <id>541340000</id> <comp>9.341187192050047e-05</comp>  </nuclide>
+    <nuclide>  <id>541350000</id> <comp>4.075073770576763e-09</comp>  </nuclide>
+    <nuclide>  <id>541360000</id> <comp>0.0001537084835298281</comp>  </nuclide>
+    <nuclide>  <id>390890000</id> <comp>3.524697874068368e-05</comp>  </nuclide>
+    <nuclide>  <id>390900000</id> <comp>1.2143369315551528e-08</comp>  </nuclide>
+    <nuclide>  <id>390910000</id> <comp>2.642266862867275e-06</comp>  </nuclide>
+    <nuclide>  <id>701700000</id> <comp>9.46168022149533e-12</comp>  </nuclide>
+    <nuclide>  <id>701710000</id> <comp>2.2500863460366874e-12</comp>  </nuclide>
+    <nuclide>  <id>701720000</id> <comp>8.965443103978414e-12</comp>  </nuclide>
+    <nuclide>  <id>300660000</id> <comp>4.476929253386705e-12</comp>  </nuclide>
+    <nuclide>  <id>300670000</id> <comp>2.0676448337288567e-11</comp>  </nuclide>
+    <nuclide>  <id>300680000</id> <comp>3.5439693538717155e-11</comp>  </nuclide>
+    <nuclide>  <id>300690000</id> <comp>4.8609204732516555e-15</comp>  </nuclide>
+    <nuclide>  <id>300700000</id> <comp>1.6223442293271803e-10</comp>  </nuclide>
+    <nuclide>  <id>400900000</id> <comp>1.9466229096776493e-06</comp>  </nuclide>
+    <nuclide>  <id>400910000</id> <comp>4.502737990766123e-05</comp>  </nuclide>
+    <nuclide>  <id>400920000</id> <comp>5.265961138360109e-05</comp>  </nuclide>
+    <nuclide>  <id>400930000</id> <comp>5.813511169135037e-05</comp>  </nuclide>
+    <nuclide>  <id>400940000</id> <comp>6.305554299095598e-05</comp>  </nuclide>
+    <nuclide>  <id>400950000</id> <comp>4.917948450147801e-06</comp>  </nuclide>
+    <nuclide>  <id>400960000</id> <comp>6.634376863930852e-05</comp>  </nuclide>
+  </recipe>
+
+  <recipe>
+    <name>spent_mox</name>
+    <basis>atom</basis>
+<nuclide>  <id>10010000</id> <comp>1.8770776671948985e-10</comp>  </nuclide>
+<nuclide>  <id>20040000</id> <comp>9.25971362362798e-08</comp>  </nuclide>
+<nuclide>  <id>60120000</id> <comp>2.2524927949491653e-15</comp>  </nuclide>
+<nuclide>  <id>60130000</id> <comp>9.173263529542912e-08</comp>  </nuclide>
+<nuclide>  <id>70160000</id> <comp>3.380705933986699e-17</comp>  </nuclide>
+<nuclide>  <id>80160000</id> <comp>0.000447769281791141</comp>  </nuclide>
+<nuclide>  <id>80170000</id> <comp>1.074047009425417e-09</comp>  </nuclide>
+<nuclide>  <id>280660000</id> <comp>2.6752242057325917e-16</comp>  </nuclide>
+<nuclide>  <id>290650000</id> <comp>2.570072254662584e-16</comp>  </nuclide>
+<nuclide>  <id>290670000</id> <comp>1.503473678103865e-15</comp>  </nuclide>
+<nuclide>  <id>300660000</id> <comp>6.216129441963165e-14</comp>  </nuclide>
+<nuclide>  <id>300670000</id> <comp>2.9235770762626664e-13</comp>  </nuclide>
+<nuclide>  <id>300680000</id> <comp>4.773460208998419e-13</comp>  </nuclide>
+<nuclide>  <id>300690000</id> <comp>6.358479863076534e-17</comp>  </nuclide>
+<nuclide>  <id>300700000</id> <comp>2.2518705089654593e-12</comp>  </nuclide>
+<nuclide>  <id>300710001</id> <comp>1.2662462669345198e-16</comp>  </nuclide>
+<nuclide>  <id>300720000</id> <comp>3.219635641660089e-14</comp>  </nuclide>
+<nuclide>  <id>300730000</id> <comp>1.007539963186457e-17</comp>  </nuclide>
+<nuclide>  <id>300740000</id> <comp>8.699868117061834e-17</comp>  </nuclide>
+<nuclide>  <id>300750000</id> <comp>1.5005191638973926e-17</comp>  </nuclide>
+<nuclide>  <id>300760000</id> <comp>1.2353256641403957e-17</comp>  </nuclide>
+<nuclide>  <id>310690000</id> <comp>9.45338577524359e-13</comp>  </nuclide>
+<nuclide>  <id>310710000</id> <comp>3.857008829795373e-12</comp>  </nuclide>
+<nuclide>  <id>310720000</id> <comp>9.934694469177373e-15</comp>  </nuclide>
+<nuclide>  <id>310730000</id> <comp>8.047687233134734e-15</comp>  </nuclide>
+<nuclide>  <id>310740000</id> <comp>5.194460685485127e-16</comp>  </nuclide>
+<nuclide>  <id>310750000</id> <comp>2.9778538952609974e-16</comp>  </nuclide>
+<nuclide>  <id>310760000</id> <comp>1.5509693787934867e-16</comp>  </nuclide>
+<nuclide>  <id>310770000</id> <comp>1.3161389609524247e-16</comp>  </nuclide>
+<nuclide>  <id>310780000</id> <comp>8.391420262386663e-17</comp>  </nuclide>
+<nuclide>  <id>310790000</id> <comp>6.061317728945212e-17</comp>  </nuclide>
+<nuclide>  <id>310800000</id> <comp>2.382226266926572e-17</comp>  </nuclide>
+<nuclide>  <id>310810000</id> <comp>1.1671208825016846e-17</comp>  </nuclide>
+<nuclide>  <id>320700000</id> <comp>6.207588666871201e-16</comp>  </nuclide>
+<nuclide>  <id>320720000</id> <comp>1.1523521913543234e-11</comp>  </nuclide>
+<nuclide>  <id>320730000</id> <comp>2.7707708234795898e-11</comp>  </nuclide>
+<nuclide>  <id>320740000</id> <comp>6.901533314382024e-11</comp>  </nuclide>
+<nuclide>  <id>320750000</id> <comp>1.2165187834410343e-14</comp>  </nuclide>
+<nuclide>  <id>320760000</id> <comp>3.7786101140152735e-10</comp>  </nuclide>
+<nuclide>  <id>320770000</id> <comp>5.512928759702578e-13</comp>  </nuclide>
+<nuclide>  <id>320770001</id> <comp>2.74504679831038e-17</comp>  </nuclide>
+<nuclide>  <id>320780000</id> <comp>1.9026995260389109e-13</comp>  </nuclide>
+<nuclide>  <id>320790000</id> <comp>9.130543341462706e-16</comp>  </nuclide>
+<nuclide>  <id>320790001</id> <comp>1.0810241354079222e-15</comp>  </nuclide>
+<nuclide>  <id>320800000</id> <comp>4.077151208766305e-15</comp>  </nuclide>
+<nuclide>  <id>320810000</id> <comp>1.1207930383054468e-15</comp>  </nuclide>
+<nuclide>  <id>320810001</id> <comp>3.023061471911717e-17</comp>  </nuclide>
+<nuclide>  <id>320820000</id> <comp>5.8757976858365e-16</comp>  </nuclide>
+<nuclide>  <id>320830000</id> <comp>1.1742464158772895e-16</comp>  </nuclide>
+<nuclide>  <id>320840000</id> <comp>3.6024415594421734e-17</comp>  </nuclide>
+<nuclide>  <id>320860000</id> <comp>2.397578813738554e-17</comp>  </nuclide>
+<nuclide>  <id>330740000</id> <comp>1.430276129602835e-17</comp>  </nuclide>
+<nuclide>  <id>330750000</id> <comp>1.610600200627374e-10</comp>  </nuclide>
+<nuclide>  <id>330760000</id> <comp>7.277743293086417e-16</comp>  </nuclide>
+<nuclide>  <id>330770000</id> <comp>1.9762611822871047e-12</comp>  </nuclide>
+<nuclide>  <id>330780000</id> <comp>2.038545819908503e-13</comp>  </nuclide>
+<nuclide>  <id>330790000</id> <comp>4.6998304925362346e-14</comp>  </nuclide>
+<nuclide>  <id>330800000</id> <comp>2.862688377059313e-15</comp>  </nuclide>
+<nuclide>  <id>330810000</id> <comp>1.0701179579000356e-14</comp>  </nuclide>
+<nuclide>  <id>330820000</id> <comp>5.137487129256479e-15</comp>  </nuclide>
+<nuclide>  <id>330820001</id> <comp>1.3535500300833308e-15</comp>  </nuclide>
+<nuclide>  <id>330830000</id> <comp>5.493293752483194e-15</comp>  </nuclide>
+<nuclide>  <id>330840000</id> <comp>1.2787297242001314e-15</comp>  </nuclide>
+<nuclide>  <id>330850000</id> <comp>3.9539545429006414e-16</comp>  </nuclide>
+<nuclide>  <id>330860000</id> <comp>3.0139655023320386e-16</comp>  </nuclide>
+<nuclide>  <id>330870000</id> <comp>2.0571458231637968e-17</comp>  </nuclide>
+<nuclide>  <id>340740000</id> <comp>1.7932823940596675e-16</comp>  </nuclide>
+<nuclide>  <id>340760000</id> <comp>4.496570926878092e-13</comp>  </nuclide>
+<nuclide>  <id>340770000</id> <comp>9.578120344461698e-10</comp>  </nuclide>
+<nuclide>  <id>340780000</id> <comp>2.535717216345169e-09</comp>  </nuclide>
+<nuclide>  <id>340790000</id> <comp>5.789753338219519e-09</comp>  </nuclide>
+<nuclide>  <id>340790001</id> <comp>1.9973187160226475e-14</comp>  </nuclide>
+<nuclide>  <id>340800000</id> <comp>1.3554447544835901e-08</comp>  </nuclide>
+<nuclide>  <id>340810000</id> <comp>3.964753374878503e-13</comp>  </nuclide>
+<nuclide>  <id>340810001</id> <comp>1.4971023384171146e-13</comp>  </nuclide>
+<nuclide>  <id>340820000</id> <comp>3.475827134957364e-08</comp>  </nuclide>
+<nuclide>  <id>340830000</id> <comp>8.560728165018613e-13</comp>  </nuclide>
+<nuclide>  <id>340830001</id> <comp>4.641154949232888e-15</comp>  </nuclide>
+<nuclide>  <id>340840000</id> <comp>2.294472179736781e-13</comp>  </nuclide>
+<nuclide>  <id>340850000</id> <comp>3.7140416223182345e-14</comp>  </nuclide>
+<nuclide>  <id>340860000</id> <comp>1.811065345535306e-14</comp>  </nuclide>
+<nuclide>  <id>340870000</id> <comp>4.1924721436716116e-15</comp>  </nuclide>
+<nuclide>  <id>340880000</id> <comp>5.349423257655296e-16</comp>  </nuclide>
+<nuclide>  <id>340890000</id> <comp>4.9035418679964174e-17</comp>  </nuclide>
+<nuclide>  <id>350790000</id> <comp>3.198375556771428e-12</comp>  </nuclide>
+<nuclide>  <id>350800001</id> <comp>2.489183562337296e-17</comp>  </nuclide>
+<nuclide>  <id>350810000</id> <comp>2.4425675298355996e-08</comp>  </nuclide>
+<nuclide>  <id>350820000</id> <comp>2.2686749926655448e-13</comp>  </nuclide>
+<nuclide>  <id>350820001</id> <comp>1.982251580750844e-16</comp>  </nuclide>
+<nuclide>  <id>350830000</id> <comp>6.3724453854638995e-12</comp>  </nuclide>
+<nuclide>  <id>350840000</id> <comp>2.3221940930297397e-12</comp>  </nuclide>
+<nuclide>  <id>350840001</id> <comp>2.685323474827259e-14</comp>  </nuclide>
+<nuclide>  <id>350850000</id> <comp>2.5771415605267117e-13</comp>  </nuclide>
+<nuclide>  <id>350860000</id> <comp>1.1138423146874437e-13</comp>  </nuclide>
+<nuclide>  <id>350870000</id> <comp>1.2348179203248209e-13</comp>  </nuclide>
+<nuclide>  <id>350880000</id> <comp>2.941556256350516e-14</comp>  </nuclide>
+<nuclide>  <id>350890000</id> <comp>6.397159934791437e-15</comp>  </nuclide>
+<nuclide>  <id>350900000</id> <comp>1.777861599573907e-15</comp>  </nuclide>
+<nuclide>  <id>350910000</id> <comp>1.807780346459878e-16</comp>  </nuclide>
+<nuclide>  <id>350920000</id> <comp>2.7429436325197845e-17</comp>  </nuclide>
+<nuclide>  <id>360800000</id> <comp>1.138238868885099e-13</comp>  </nuclide>
+<nuclide>  <id>360810000</id> <comp>1.8997796861552333e-14</comp>  </nuclide>
+<nuclide>  <id>360820000</id> <comp>1.0541993511180061e-10</comp>  </nuclide>
+<nuclide>  <id>360830000</id> <comp>5.15713180041402e-08</comp>  </nuclide>
+<nuclide>  <id>360830001</id> <comp>4.858597355236872e-12</comp>  </nuclide>
+<nuclide>  <id>360840000</id> <comp>9.060370558385916e-08</comp>  </nuclide>
+<nuclide>  <id>360850000</id> <comp>2.288173086013337e-08</comp>  </nuclide>
+<nuclide>  <id>360850001</id> <comp>2.394603769393673e-11</comp>  </nuclide>
+<nuclide>  <id>360860000</id> <comp>1.621045954697233e-07</comp>  </nuclide>
+<nuclide>  <id>360870000</id> <comp>1.3127074525413934e-11</comp>  </nuclide>
+<nuclide>  <id>360880000</id> <comp>3.797925518936823e-11</comp>  </nuclide>
+<nuclide>  <id>360890000</id> <comp>8.61802020255504e-13</comp>  </nuclide>
+<nuclide>  <id>360900000</id> <comp>1.4700197221586547e-13</comp>  </nuclide>
+<nuclide>  <id>360910000</id> <comp>2.7710330195852163e-14</comp>  </nuclide>
+<nuclide>  <id>360920000</id> <comp>3.4307726894715317e-15</comp>  </nuclide>
+<nuclide>  <id>360930000</id> <comp>9.05163621859819e-16</comp>  </nuclide>
+<nuclide>  <id>360940000</id> <comp>5.731597609846741e-17</comp>  </nuclide>
+<nuclide>  <id>370830000</id> <comp>4.963036888383466e-16</comp>  </nuclide>
+<nuclide>  <id>370840000</id> <comp>1.5343601430115622e-16</comp>  </nuclide>
+<nuclide>  <id>370850000</id> <comp>8.725223357848241e-08</comp>  </nuclide>
+<nuclide>  <id>370860000</id> <comp>4.1166454191635736e-13</comp>  </nuclide>
+<nuclide>  <id>370870000</id> <comp>2.115963635047306e-07</comp>  </nuclide>
+<nuclide>  <id>370880000</id> <comp>4.0558706217007555e-12</comp>  </nuclide>
+<nuclide>  <id>370890000</id> <comp>4.561641371077954e-12</comp>  </nuclide>
+<nuclide>  <id>370900000</id> <comp>7.642098720786154e-13</comp>  </nuclide>
+<nuclide>  <id>370900001</id> <comp>2.9802288844048303e-13</comp>  </nuclide>
+<nuclide>  <id>370910000</id> <comp>3.6340480543591205e-13</comp>  </nuclide>
+<nuclide>  <id>370920000</id> <comp>2.588432398759298e-14</comp>  </nuclide>
+<nuclide>  <id>370930000</id> <comp>2.641632919859813e-14</comp>  </nuclide>
+<nuclide>  <id>370940000</id> <comp>6.962926490412085e-15</comp>  </nuclide>
+<nuclide>  <id>370950000</id> <comp>5.242086669989518e-16</comp>  </nuclide>
+<nuclide>  <id>370960000</id> <comp>9.7946424998976e-17</comp>  </nuclide>
+<nuclide>  <id>380840000</id> <comp>1.3680416310161616e-16</comp>  </nuclide>
+<nuclide>  <id>380850000</id> <comp>7.94425495846429e-17</comp>  </nuclide>
+<nuclide>  <id>380860000</id> <comp>1.4642256271909875e-11</comp>  </nuclide>
+<nuclide>  <id>380870000</id> <comp>2.486465790316726e-12</comp>  </nuclide>
+<nuclide>  <id>380870001</id> <comp>8.17657255311654e-17</comp>  </nuclide>
+<nuclide>  <id>380880000</id> <comp>2.809189062333216e-07</comp>  </nuclide>
+<nuclide>  <id>380890000</id> <comp>2.291895570472347e-08</comp>  </nuclide>
+<nuclide>  <id>380900000</id> <comp>4.3853072203770204e-07</comp>  </nuclide>
+<nuclide>  <id>380910000</id> <comp>2.379555327998112e-10</comp>  </nuclide>
+<nuclide>  <id>380920000</id> <comp>7.511245000147533e-11</comp>  </nuclide>
+<nuclide>  <id>380930000</id> <comp>3.95178898014316e-12</comp>  </nuclide>
+<nuclide>  <id>380940000</id> <comp>6.547851258673654e-13</comp>  </nuclide>
+<nuclide>  <id>380950000</id> <comp>1.827525375693922e-13</comp>  </nuclide>
+<nuclide>  <id>380960000</id> <comp>5.918941511599956e-15</comp>  </nuclide>
+<nuclide>  <id>380970000</id> <comp>1.1221071325684009e-15</comp>  </nuclide>
+<nuclide>  <id>380980000</id> <comp>9.356265794154409e-16</comp>  </nuclide>
+<nuclide>  <id>380990000</id> <comp>1.0420657660343951e-16</comp>  </nuclide>
+<nuclide>  <id>381000000</id> <comp>2.162047947196956e-17</comp>  </nuclide>
+<nuclide>  <id>390880000</id> <comp>2.1775068831229693e-15</comp>  </nuclide>
+<nuclide>  <id>390890000</id> <comp>3.507192526249753e-07</comp>  </nuclide>
+<nuclide>  <id>390900000</id> <comp>1.1093913760037916e-10</comp>  </nuclide>
+<nuclide>  <id>390900001</id> <comp>1.5505771288836456e-15</comp>  </nuclide>
+<nuclide>  <id>390910000</id> <comp>3.60030182270723e-08</comp>  </nuclide>
+<nuclide>  <id>390910001</id> <comp>1.2050958362233181e-11</comp>  </nuclide>
+<nuclide>  <id>390920000</id> <comp>9.92952954645039e-11</comp>  </nuclide>
+<nuclide>  <id>390930000</id> <comp>3.3579979364863093e-10</comp>  </nuclide>
+<nuclide>  <id>390930001</id> <comp>2.596700219048301e-15</comp>  </nuclide>
+<nuclide>  <id>390940000</id> <comp>1.0988298806576912e-11</comp>  </nuclide>
+<nuclide>  <id>390950000</id> <comp>6.470152446139771e-12</comp>  </nuclide>
+<nuclide>  <id>390960000</id> <comp>3.196482674747353e-14</comp>  </nuclide>
+<nuclide>  <id>390960001</id> <comp>3.941489148360431e-14</comp>  </nuclide>
+<nuclide>  <id>390970000</id> <comp>1.9699687782177565e-14</comp>  </nuclide>
+<nuclide>  <id>390970001</id> <comp>3.992501849584818e-15</comp>  </nuclide>
+<nuclide>  <id>390980000</id> <comp>2.1575251532463743e-15</comp>  </nuclide>
+<nuclide>  <id>390980001</id> <comp>5.014588742780946e-15</comp>  </nuclide>
+<nuclide>  <id>390990000</id> <comp>6.1856350932656185e-15</comp>  </nuclide>
+<nuclide>  <id>391000000</id> <comp>1.196703358629761e-15</comp>  </nuclide>
+<nuclide>  <id>391010000</id> <comp>2.926384389867121e-16</comp>  </nuclide>
+<nuclide>  <id>391020000</id> <comp>9.462664668715652e-17</comp>  </nuclide>
+<nuclide>  <id>400900000</id> <comp>1.605998517393469e-08</comp>  </nuclide>
+<nuclide>  <id>400910000</id> <comp>4.5842707722326846e-07</comp>  </nuclide>
+<nuclide>  <id>400920000</id> <comp>5.506530303195476e-07</comp>  </nuclide>
+<nuclide>  <id>400930000</id> <comp>6.335571587733703e-07</comp>  </nuclide>
+<nuclide>  <id>400940000</id> <comp>6.772082713191703e-07</comp>  </nuclide>
+<nuclide>  <id>400950000</id> <comp>6.036209374724919e-08</comp>  </nuclide>
+<nuclide>  <id>400960000</id> <comp>7.335767805749244e-07</comp>  </nuclide>
+<nuclide>  <id>400970000</id> <comp>6.840783513764172e-10</comp>  </nuclide>
+<nuclide>  <id>400980000</id> <comp>3.592013563465944e-13</comp>  </nuclide>
+<nuclide>  <id>400990000</id> <comp>2.3520400906382848e-14</comp>  </nuclide>
+<nuclide>  <id>401000000</id> <comp>7.917910494815505e-14</comp>  </nuclide>
+<nuclide>  <id>401010000</id> <comp>1.4043405455727509e-14</comp>  </nuclide>
+<nuclide>  <id>401020000</id> <comp>1.1002626644874705e-14</comp>  </nuclide>
+<nuclide>  <id>401030000</id> <comp>1.670010217415568e-15</comp>  </nuclide>
+<nuclide>  <id>401040000</id> <comp>4.862181566022272e-16</comp>  </nuclide>
+<nuclide>  <id>401050000</id> <comp>6.868767881301121e-17</comp>  </nuclide>
+<nuclide>  <id>410920000</id> <comp>5.771806713774137e-16</comp>  </nuclide>
+<nuclide>  <id>410930000</id> <comp>6.229242135220483e-14</comp>  </nuclide>
+<nuclide>  <id>410930001</id> <comp>4.079607376090148e-13</comp>  </nuclide>
+<nuclide>  <id>410940000</id> <comp>1.3061882414813892e-12</comp>  </nuclide>
+<nuclide>  <id>410950000</id> <comp>3.3152095841336246e-08</comp>  </nuclide>
+<nuclide>  <id>410950001</id> <comp>3.68552598596694e-11</comp>  </nuclide>
+<nuclide>  <id>410960000</id> <comp>4.3710189713897104e-13</comp>  </nuclide>
+<nuclide>  <id>410970000</id> <comp>4.9585141333200745e-11</comp>  </nuclide>
+<nuclide>  <id>410970001</id> <comp>6.342721966139866e-13</comp>  </nuclide>
+<nuclide>  <id>410980000</id> <comp>3.4124465198146147e-14</comp>  </nuclide>
+<nuclide>  <id>410980001</id> <comp>2.3717806412787806e-13</comp>  </nuclide>
+<nuclide>  <id>410990000</id> <comp>1.1070550564948651e-13</comp>  </nuclide>
+<nuclide>  <id>410990001</id> <comp>8.149437908168879e-13</comp>  </nuclide>
+<nuclide>  <id>411000000</id> <comp>1.851592869765801e-14</comp>  </nuclide>
+<nuclide>  <id>411000001</id> <comp>3.563977339894067e-15</comp>  </nuclide>
+<nuclide>  <id>411010000</id> <comp>8.407246931050486e-14</comp>  </nuclide>
+<nuclide>  <id>411020000</id> <comp>2.787737348499807e-14</comp>  </nuclide>
+<nuclide>  <id>411020001</id> <comp>3.4958306832155506e-15</comp>  </nuclide>
+<nuclide>  <id>411030000</id> <comp>9.690564198107914e-15</comp>  </nuclide>
+<nuclide>  <id>411040000</id> <comp>8.455282294946122e-15</comp>  </nuclide>
+<nuclide>  <id>411040001</id> <comp>1.241118624434317e-15</comp>  </nuclide>
+<nuclide>  <id>411050000</id> <comp>4.002816899813616e-15</comp>  </nuclide>
+<nuclide>  <id>411060000</id> <comp>2.0607758635094856e-16</comp>  </nuclide>
+<nuclide>  <id>411070000</id> <comp>1.6513355536494662e-17</comp>  </nuclide>
+<nuclide>  <id>420940000</id> <comp>2.8611266454524904e-15</comp>  </nuclide>
+<nuclide>  <id>420950000</id> <comp>6.312037906129187e-07</comp>  </nuclide>
+<nuclide>  <id>420960000</id> <comp>3.1209368810560637e-10</comp>  </nuclide>
+<nuclide>  <id>420970000</id> <comp>7.558855380272417e-07</comp>  </nuclide>
+<nuclide>  <id>420980000</id> <comp>7.827494201600172e-07</comp>  </nuclide>
+<nuclide>  <id>420990000</id> <comp>3.0425564993965275e-09</comp>  </nuclide>
+<nuclide>  <id>421000000</id> <comp>8.904692589430372e-07</comp>  </nuclide>
+<nuclide>  <id>421010000</id> <comp>1.0615447733970471e-11</comp>  </nuclide>
+<nuclide>  <id>421020000</id> <comp>8.056335696435367e-12</comp>  </nuclide>
+<nuclide>  <id>421030000</id> <comp>8.269347354390716e-13</comp>  </nuclide>
+<nuclide>  <id>421040000</id> <comp>5.855671223403771e-13</comp>  </nuclide>
+<nuclide>  <id>421050000</id> <comp>2.504695606726007e-13</comp>  </nuclide>
+<nuclide>  <id>421060000</id> <comp>3.3903550956161855e-14</comp>  </nuclide>
+<nuclide>  <id>421070000</id> <comp>4.408426171489389e-15</comp>  </nuclide>
+<nuclide>  <id>421080000</id> <comp>4.991485676843153e-16</comp>  </nuclide>
+<nuclide>  <id>421090000</id> <comp>3.2725337948005404e-17</comp>  </nuclide>
+<nuclide>  <id>430970000</id> <comp>6.044997244741937e-16</comp>  </nuclide>
+<nuclide>  <id>430970001</id> <comp>4.2850465130239067e-17</comp>  </nuclide>
+<nuclide>  <id>430980000</id> <comp>7.167391308052343e-14</comp>  </nuclide>
+<nuclide>  <id>430990000</id> <comp>8.293408186095621e-07</comp>  </nuclide>
+<nuclide>  <id>430990001</id> <comp>2.435136079444029e-10</comp>  </nuclide>
+<nuclide>  <id>431010000</id> <comp>1.0332327268244624e-11</comp>  </nuclide>
+<nuclide>  <id>431020000</id> <comp>6.300515654834514e-14</comp>  </nuclide>
+<nuclide>  <id>431020001</id> <comp>1.3126538011115284e-14</comp>  </nuclide>
+<nuclide>  <id>431030000</id> <comp>6.847689644347286e-13</comp>  </nuclide>
+<nuclide>  <id>431040000</id> <comp>1.1584143117094997e-11</comp>  </nuclide>
+<nuclide>  <id>431050000</id> <comp>4.231981977247168e-12</comp>  </nuclide>
+<nuclide>  <id>431060000</id> <comp>2.2882315606610204e-13</comp>  </nuclide>
+<nuclide>  <id>431070000</id> <comp>8.075566556731697e-14</comp>  </nuclide>
+<nuclide>  <id>431080000</id> <comp>7.028682337715831e-15</comp>  </nuclide>
+<nuclide>  <id>431090000</id> <comp>5.58819125652565e-16</comp>  </nuclide>
+<nuclide>  <id>431100000</id> <comp>9.355998810300911e-17</comp>  </nuclide>
+<nuclide>  <id>440990000</id> <comp>3.097797887576865e-11</comp>  </nuclide>
+<nuclide>  <id>441000000</id> <comp>2.4824753724870464e-11</comp>  </nuclide>
+<nuclide>  <id>441010000</id> <comp>7.761409218206365e-07</comp>  </nuclide>
+<nuclide>  <id>441020000</id> <comp>7.48840820719721e-07</comp>  </nuclide>
+<nuclide>  <id>441030000</id> <comp>4.269813969149677e-08</comp>  </nuclide>
+<nuclide>  <id>441040000</id> <comp>6.265310860375769e-07</comp>  </nuclide>
+<nuclide>  <id>441050000</id> <comp>1.4936226726164044e-10</comp>  </nuclide>
+<nuclide>  <id>441060000</id> <comp>1.7426902209702202e-07</comp>  </nuclide>
+<nuclide>  <id>441070000</id> <comp>1.117608065277252e-12</comp>  </nuclide>
+<nuclide>  <id>441080000</id> <comp>8.556025692745583e-13</comp>  </nuclide>
+<nuclide>  <id>441090000</id> <comp>7.00619414786366e-14</comp>  </nuclide>
+<nuclide>  <id>441100000</id> <comp>1.0487268129562112e-14</comp>  </nuclide>
+<nuclide>  <id>441110000</id> <comp>7.951131020747511e-16</comp>  </nuclide>
+<nuclide>  <id>441120000</id> <comp>2.5883651987117573e-16</comp>  </nuclide>
+<nuclide>  <id>441130000</id> <comp>5.246473641334295e-17</comp>  </nuclide>
+<nuclide>  <id>441140000</id> <comp>1.512851800609739e-17</comp>  </nuclide>
+<nuclide>  <id>451020000</id> <comp>5.125642087861322e-17</comp>  </nuclide>
+<nuclide>  <id>451020001</id> <comp>1.4100137501861655e-16</comp>  </nuclide>
+<nuclide>  <id>451030000</id> <comp>7.197422751370553e-07</comp>  </nuclide>
+<nuclide>  <id>451030001</id> <comp>4.1896762579084917e-11</comp>  </nuclide>
+<nuclide>  <id>451050000</id> <comp>1.1904691546958217e-09</comp>  </nuclide>
+<nuclide>  <id>451050001</id> <comp>1.0594472946553826e-13</comp>  </nuclide>
+<nuclide>  <id>451060000</id> <comp>1.631379390967292e-13</comp>  </nuclide>
+<nuclide>  <id>451060001</id> <comp>2.4140766562187276e-15</comp>  </nuclide>
+<nuclide>  <id>451070000</id> <comp>6.604106154701705e-12</comp>  </nuclide>
+<nuclide>  <id>451080000</id> <comp>5.311316147214333e-14</comp>  </nuclide>
+<nuclide>  <id>451080001</id> <comp>9.87197254169346e-15</comp>  </nuclide>
+<nuclide>  <id>451090000</id> <comp>1.7046723750841332e-13</comp>  </nuclide>
+<nuclide>  <id>451100000</id> <comp>6.846929542765974e-17</comp>  </nuclide>
+<nuclide>  <id>451100001</id> <comp>2.6375941448154867e-14</comp>  </nuclide>
+<nuclide>  <id>451110000</id> <comp>4.804476403599057e-15</comp>  </nuclide>
+<nuclide>  <id>451120000</id> <comp>4.1734846264203864e-16</comp>  </nuclide>
+<nuclide>  <id>451130000</id> <comp>3.6601044139232187e-16</comp>  </nuclide>
+<nuclide>  <id>451140000</id> <comp>1.477384580360101e-16</comp>  </nuclide>
+<nuclide>  <id>451150000</id> <comp>3.7474214976725e-17</comp>  </nuclide>
+<nuclide>  <id>451160000</id> <comp>1.1332042223814748e-17</comp>  </nuclide>
+<nuclide>  <id>461020000</id> <comp>3.008903778548392e-17</comp>  </nuclide>
+<nuclide>  <id>461040000</id> <comp>5.610581746623098e-13</comp>  </nuclide>
+<nuclide>  <id>461050000</id> <comp>5.396967361218714e-07</comp>  </nuclide>
+<nuclide>  <id>461060000</id> <comp>2.2023811585785536e-07</comp>  </nuclide>
+<nuclide>  <id>461070000</id> <comp>2.8990821198111234e-07</comp>  </nuclide>
+<nuclide>  <id>461080000</id> <comp>1.8300725756450002e-07</comp>  </nuclide>
+<nuclide>  <id>461090000</id> <comp>1.0512827873396908e-10</comp>  </nuclide>
+<nuclide>  <id>461100000</id> <comp>5.468359248991702e-08</comp>  </nuclide>
+<nuclide>  <id>461110000</id> <comp>6.132710652892009e-13</comp>  </nuclide>
+<nuclide>  <id>461110001</id> <comp>4.508624563401075e-16</comp>  </nuclide>
+<nuclide>  <id>461120000</id> <comp>1.506644430800938e-11</comp>  </nuclide>
+<nuclide>  <id>461130000</id> <comp>1.2252346313874121e-14</comp>  </nuclide>
+<nuclide>  <id>461140000</id> <comp>1.4316271848777758e-14</comp>  </nuclide>
+<nuclide>  <id>461150000</id> <comp>1.79888161875767e-15</comp>  </nuclide>
+<nuclide>  <id>461160000</id> <comp>8.630164670888099e-16</comp>  </nuclide>
+<nuclide>  <id>461170000</id> <comp>1.9834456294409896e-16</comp>  </nuclide>
+<nuclide>  <id>461180000</id> <comp>4.3540045354351726e-17</comp>  </nuclide>
+<nuclide>  <id>471070000</id> <comp>4.47225405870062e-14</comp>  </nuclide>
+<nuclide>  <id>471080001</id> <comp>1.6612070089396934e-15</comp>  </nuclide>
+<nuclide>  <id>471090000</id> <comp>1.2279620789800069e-07</comp>  </nuclide>
+<nuclide>  <id>471090001</id> <comp>8.436128942895572e-14</comp>  </nuclide>
+<nuclide>  <id>471110000</id> <comp>2.7979506227962113e-10</comp>  </nuclide>
+<nuclide>  <id>471110001</id> <comp>2.810611592141137e-14</comp>  </nuclide>
+<nuclide>  <id>471120000</id> <comp>2.2425609748625675e-12</comp>  </nuclide>
+<nuclide>  <id>471130000</id> <comp>1.669144274394039e-12</comp>  </nuclide>
+<nuclide>  <id>471130001</id> <comp>8.667040364731632e-15</comp>  </nuclide>
+<nuclide>  <id>471140000</id> <comp>4.561869733986157e-16</comp>  </nuclide>
+<nuclide>  <id>471150000</id> <comp>8.802469226357046e-14</comp>  </nuclide>
+<nuclide>  <id>471150001</id> <comp>2.777767015382164e-17</comp>  </nuclide>
+<nuclide>  <id>471160000</id> <comp>1.9144439739758893e-14</comp>  </nuclide>
+<nuclide>  <id>471160001</id> <comp>1.131740018211513e-16</comp>  </nuclide>
+<nuclide>  <id>471170000</id> <comp>4.4433789629917544e-15</comp>  </nuclide>
+<nuclide>  <id>471170001</id> <comp>7.510634678968708e-17</comp>  </nuclide>
+<nuclide>  <id>471180000</id> <comp>1.648711642279995e-16</comp>  </nuclide>
+<nuclide>  <id>471180001</id> <comp>3.8765536419615154e-17</comp>  </nuclide>
+<nuclide>  <id>471190000</id> <comp>7.532693450644415e-17</comp>  </nuclide>
+<nuclide>  <id>471200000</id> <comp>1.6922594642747274e-17</comp>  </nuclide>
+<nuclide>  <id>481080000</id> <comp>1.6179039488635076e-15</comp>  </nuclide>
+<nuclide>  <id>481110000</id> <comp>2.504060381705067e-08</comp>  </nuclide>
+<nuclide>  <id>481120000</id> <comp>1.1500863298511604e-08</comp>  </nuclide>
+<nuclide>  <id>481130000</id> <comp>7.605944641170348e-09</comp>  </nuclide>
+<nuclide>  <id>481130001</id> <comp>8.158544224888411e-11</comp>  </nuclide>
+<nuclide>  <id>481140000</id> <comp>5.7932306862804255e-09</comp>  </nuclide>
+<nuclide>  <id>481150000</id> <comp>1.355814043679626e-11</comp>  </nuclide>
+<nuclide>  <id>481150001</id> <comp>1.6142739630837723e-11</comp>  </nuclide>
+<nuclide>  <id>481160000</id> <comp>5.081623297491395e-09</comp>  </nuclide>
+<nuclide>  <id>481170000</id> <comp>5.622191507753925e-13</comp>  </nuclide>
+<nuclide>  <id>481170001</id> <comp>1.7484771638522823e-13</comp>  </nuclide>
+<nuclide>  <id>481180000</id> <comp>1.8544792118731258e-13</comp>  </nuclide>
+<nuclide>  <id>481190000</id> <comp>6.125797476748165e-15</comp>  </nuclide>
+<nuclide>  <id>481190001</id> <comp>2.8368714435265873e-15</comp>  </nuclide>
+<nuclide>  <id>481200000</id> <comp>2.7101445798339498e-15</comp>  </nuclide>
+<nuclide>  <id>481210000</id> <comp>3.800641241214368e-16</comp>  </nuclide>
+<nuclide>  <id>481210001</id> <comp>1.6902983794319136e-16</comp>  </nuclide>
+<nuclide>  <id>481220000</id> <comp>2.0698774385679387e-16</comp>  </nuclide>
+<nuclide>  <id>481230000</id> <comp>4.236478949861188e-17</comp>  </nuclide>
+<nuclide>  <id>481240000</id> <comp>1.4457627732402454e-17</comp>  </nuclide>
+<nuclide>  <id>491130000</id> <comp>5.9354139233736804e-12</comp>  </nuclide>
+<nuclide>  <id>491150000</id> <comp>4.1537790088865736e-09</comp>  </nuclide>
+<nuclide>  <id>491150001</id> <comp>1.1378439104260724e-12</comp>  </nuclide>
+<nuclide>  <id>491170000</id> <comp>1.2104863842862645e-13</comp>  </nuclide>
+<nuclide>  <id>491170001</id> <comp>4.018403659711637e-13</comp>  </nuclide>
+<nuclide>  <id>491180000</id> <comp>3.076451593214438e-16</comp>  </nuclide>
+<nuclide>  <id>491190000</id> <comp>4.010939596071964e-15</comp>  </nuclide>
+<nuclide>  <id>491190001</id> <comp>3.730704137947877e-14</comp>  </nuclide>
+<nuclide>  <id>491200000</id> <comp>1.6916146635237475e-16</comp>  </nuclide>
+<nuclide>  <id>491200001</id> <comp>7.268417173737064e-17</comp>  </nuclide>
+<nuclide>  <id>491200002</id> <comp>7.441474782398096e-17</comp>  </nuclide>
+<nuclide>  <id>491210000</id> <comp>1.0288594939333094e-15</comp>  </nuclide>
+<nuclide>  <id>491210001</id> <comp>5.1995724153321055e-15</comp>  </nuclide>
+<nuclide>  <id>491220000</id> <comp>7.548714661332847e-17</comp>  </nuclide>
+<nuclide>  <id>491220001</id> <comp>1.114798521228562e-16</comp>  </nuclide>
+<nuclide>  <id>491220002</id> <comp>1.1689149577892534e-16</comp>  </nuclide>
+<nuclide>  <id>491230000</id> <comp>2.3096747911907873e-16</comp>  </nuclide>
+<nuclide>  <id>491230001</id> <comp>9.903464977004956e-16</comp>  </nuclide>
+<nuclide>  <id>491240000</id> <comp>1.2259798259797027e-16</comp>  </nuclide>
+<nuclide>  <id>491240001</id> <comp>1.0259405275092547e-16</comp>  </nuclide>
+<nuclide>  <id>491250000</id> <comp>7.529276960509622e-17</comp>  </nuclide>
+<nuclide>  <id>491250001</id> <comp>3.9436401314860063e-16</comp>  </nuclide>
+<nuclide>  <id>491260000</id> <comp>4.531785027361541e-17</comp>  </nuclide>
+<nuclide>  <id>491260001</id> <comp>4.286617120444538e-17</comp>  </nuclide>
+<nuclide>  <id>491270000</id> <comp>6.827348531609377e-17</comp>  </nuclide>
+<nuclide>  <id>491270001</id> <comp>1.6630217303943163e-16</comp>  </nuclide>
+<nuclide>  <id>491280000</id> <comp>5.4926275213167934e-17</comp>  </nuclide>
+<nuclide>  <id>491280001</id> <comp>4.604041290813164e-17</comp>  </nuclide>
+<nuclide>  <id>491290000</id> <comp>2.3299632938016536e-17</comp>  </nuclide>
+<nuclide>  <id>491290001</id> <comp>4.4368008142870376e-17</comp>  </nuclide>
+<nuclide>  <id>491300000</id> <comp>1.7796479230864007e-17</comp>  </nuclide>
+<nuclide>  <id>491300001</id> <comp>1.27562671510997e-17</comp>  </nuclide>
+<nuclide>  <id>491300002</id> <comp>1.27562671510997e-17</comp>  </nuclide>
+<nuclide>  <id>501150000</id> <comp>2.0640251753792652e-10</comp>  </nuclide>
+<nuclide>  <id>501160000</id> <comp>1.8099657438158936e-14</comp>  </nuclide>
+<nuclide>  <id>501170000</id> <comp>4.543002195603487e-09</comp>  </nuclide>
+<nuclide>  <id>501170001</id> <comp>1.9294873116776396e-13</comp>  </nuclide>
+<nuclide>  <id>501180000</id> <comp>3.5841246285160723e-09</comp>  </nuclide>
+<nuclide>  <id>501190000</id> <comp>3.546958409152558e-09</comp>  </nuclide>
+<nuclide>  <id>501190001</id> <comp>4.569659181307847e-11</comp>  </nuclide>
+<nuclide>  <id>501200000</id> <comp>3.4349939323450854e-09</comp>  </nuclide>
+<nuclide>  <id>501210000</id> <comp>6.055533633681707e-12</comp>  </nuclide>
+<nuclide>  <id>501210001</id> <comp>3.3790986767664354e-10</comp>  </nuclide>
+<nuclide>  <id>501220000</id> <comp>4.71213468990757e-09</comp>  </nuclide>
+<nuclide>  <id>501230000</id> <comp>1.6972453630924048e-10</comp>  </nuclide>
+<nuclide>  <id>501230001</id> <comp>1.5174686335233204e-13</comp>  </nuclide>
+<nuclide>  <id>501240000</id> <comp>7.982734864844641e-09</comp>  </nuclide>
+<nuclide>  <id>501250000</id> <comp>7.233088537746673e-11</comp>  </nuclide>
+<nuclide>  <id>501250001</id> <comp>5.362181430803377e-14</comp>  </nuclide>
+<nuclide>  <id>501260000</id> <comp>1.894359838268792e-08</comp>  </nuclide>
+<nuclide>  <id>501270000</id> <comp>3.6238524292618715e-12</comp>  </nuclide>
+<nuclide>  <id>501270001</id> <comp>6.951637326968451e-14</comp>  </nuclide>
+<nuclide>  <id>501280000</id> <comp>3.764453398976646e-12</comp>  </nuclide>
+<nuclide>  <id>501280001</id> <comp>3.3761886158535814e-15</comp>  </nuclide>
+<nuclide>  <id>501290000</id> <comp>1.7302877802446814e-13</comp>  </nuclide>
+<nuclide>  <id>501290001</id> <comp>2.251980320398378e-13</comp>  </nuclide>
+<nuclide>  <id>501300000</id> <comp>2.590064053801862e-13</comp>  </nuclide>
+<nuclide>  <id>501300001</id> <comp>1.1641520702595088e-13</comp>  </nuclide>
+<nuclide>  <id>501310000</id> <comp>5.275852990947965e-14</comp>  </nuclide>
+<nuclide>  <id>501310001</id> <comp>5.350180977738627e-14</comp>  </nuclide>
+<nuclide>  <id>501320000</id> <comp>5.780126567301234e-14</comp>  </nuclide>
+<nuclide>  <id>501330000</id> <comp>4.2408799554289193e-16</comp>  </nuclide>
+<nuclide>  <id>501340000</id> <comp>6.639859702356895e-17</comp>  </nuclide>
+<nuclide>  <id>511200001</id> <comp>1.70229459023794e-17</comp>  </nuclide>
+<nuclide>  <id>511210000</id> <comp>3.667575387511594e-09</comp>  </nuclide>
+<nuclide>  <id>511220000</id> <comp>1.2853383621563492e-14</comp>  </nuclide>
+<nuclide>  <id>511230000</id> <comp>4.5479630315851714e-09</comp>  </nuclide>
+<nuclide>  <id>511240000</id> <comp>6.219322087429755e-13</comp>  </nuclide>
+<nuclide>  <id>511240002</id> <comp>5.790535625656935e-17</comp>  </nuclide>
+<nuclide>  <id>511250000</id> <comp>7.73406750578062e-09</comp>  </nuclide>
+<nuclide>  <id>511260000</id> <comp>2.9071255951206823e-12</comp>  </nuclide>
+<nuclide>  <id>511260001</id> <comp>4.507061890204894e-15</comp>  </nuclide>
+<nuclide>  <id>511260002</id> <comp>2.157886262521675e-17</comp>  </nuclide>
+<nuclide>  <id>511270000</id> <comp>2.670944820418083e-10</comp>  </nuclide>
+<nuclide>  <id>511280000</id> <comp>4.266062856225112e-12</comp>  </nuclide>
+<nuclide>  <id>511280001</id> <comp>7.14092877969217e-13</comp>  </nuclide>
+<nuclide>  <id>511290000</id> <comp>3.757209399770117e-11</comp>  </nuclide>
+<nuclide>  <id>511290001</id> <comp>3.274521432639944e-14</comp>  </nuclide>
+<nuclide>  <id>511300000</id> <comp>4.50992776813279e-12</comp>  </nuclide>
+<nuclide>  <id>511300001</id> <comp>8.733950181220187e-13</comp>  </nuclide>
+<nuclide>  <id>511310000</id> <comp>7.467730792564233e-12</comp>  </nuclide>
+<nuclide>  <id>511320000</id> <comp>8.273074554978482e-13</comp>  </nuclide>
+<nuclide>  <id>511320001</id> <comp>3.581706956399315e-13</comp>  </nuclide>
+<nuclide>  <id>511330000</id> <comp>5.539046414780684e-13</comp>  </nuclide>
+<nuclide>  <id>511340000</id> <comp>6.512959883095517e-16</comp>  </nuclide>
+<nuclide>  <id>511340001</id> <comp>7.82276856196783e-15</comp>  </nuclide>
+<nuclide>  <id>511350000</id> <comp>7.314059970861048e-16</comp>  </nuclide>
+<nuclide>  <id>511360000</id> <comp>6.950448892967509e-17</comp>  </nuclide>
+<nuclide>  <id>511370000</id> <comp>1.8320118219883467e-17</comp>  </nuclide>
+<nuclide>  <id>521220000</id> <comp>3.0849554839441796e-12</comp>  </nuclide>
+<nuclide>  <id>521230000</id> <comp>8.760652722662164e-14</comp>  </nuclide>
+<nuclide>  <id>521230001</id> <comp>1.3041316593548535e-14</comp>  </nuclide>
+<nuclide>  <id>521240000</id> <comp>7.986581199019229e-12</comp>  </nuclide>
+<nuclide>  <id>521250000</id> <comp>3.0605823543376596e-09</comp>  </nuclide>
+<nuclide>  <id>521250001</id> <comp>9.55026381230118e-11</comp>  </nuclide>
+<nuclide>  <id>521260000</id> <comp>3.9691722792127437e-10</comp>  </nuclide>
+<nuclide>  <id>521270000</id> <comp>2.6804533583167108e-11</comp>  </nuclide>
+<nuclide>  <id>521270001</id> <comp>1.2114483025100875e-09</comp>  </nuclide>
+<nuclide>  <id>521280000</id> <comp>7.714020577795561e-08</comp>  </nuclide>
+<nuclide>  <id>521290000</id> <comp>9.42013934779952e-12</comp>  </nuclide>
+<nuclide>  <id>521290001</id> <comp>1.1198407609938809e-09</comp>  </nuclide>
+<nuclide>  <id>521300000</id> <comp>2.8895638481911297e-07</comp>  </nuclide>
+<nuclide>  <id>521310000</id> <comp>9.231442692889973e-12</comp>  </nuclide>
+<nuclide>  <id>521310001</id> <comp>1.9668802176932776e-10</comp>  </nuclide>
+<nuclide>  <id>521320000</id> <comp>2.8484769993824455e-09</comp>  </nuclide>
+<nuclide>  <id>521330000</id> <comp>5.441555184671746e-12</comp>  </nuclide>
+<nuclide>  <id>521330001</id> <comp>2.120623204358267e-11</comp>  </nuclide>
+<nuclide>  <id>521340000</id> <comp>2.8481256278588397e-11</comp>  </nuclide>
+<nuclide>  <id>521350000</id> <comp>1.1374980028698367e-13</comp>  </nuclide>
+<nuclide>  <id>521360000</id> <comp>4.01348090668216e-14</comp>  </nuclide>
+<nuclide>  <id>521370000</id> <comp>1.9270502726587586e-15</comp>  </nuclide>
+<nuclide>  <id>521380000</id> <comp>2.7620103031670625e-16</comp>  </nuclide>
+<nuclide>  <id>521390000</id> <comp>1.3027197250136274e-17</comp>  </nuclide>
+<nuclide>  <id>531270000</id> <comp>4.7399005145019364e-08</comp>  </nuclide>
+<nuclide>  <id>531280000</id> <comp>1.90556373840738e-16</comp>  </nuclide>
+<nuclide>  <id>531290000</id> <comp>1.4386969907556672e-07</comp>  </nuclide>
+<nuclide>  <id>531300000</id> <comp>2.780466902024034e-13</comp>  </nuclide>
+<nuclide>  <id>531300001</id> <comp>1.0439875755799921e-15</comp>  </nuclide>
+<nuclide>  <id>531310000</id> <comp>5.163256739262684e-09</comp>  </nuclide>
+<nuclide>  <id>531320000</id> <comp>8.794080960688381e-11</comp>  </nuclide>
+<nuclide>  <id>531320001</id> <comp>9.483810669162721e-13</comp>  </nuclide>
+<nuclide>  <id>531330000</id> <comp>1.066586436899714e-09</comp>  </nuclide>
+<nuclide>  <id>531330001</id> <comp>1.3154587274915916e-14</comp>  </nuclide>
+<nuclide>  <id>531340000</id> <comp>4.8800195652117625e-11</comp>  </nuclide>
+<nuclide>  <id>531340001</id> <comp>3.952231167710559e-13</comp>  </nuclide>
+<nuclide>  <id>531350000</id> <comp>3.192312911726695e-10</comp>  </nuclide>
+<nuclide>  <id>531360000</id> <comp>4.1002227544451073e-13</comp>  </nuclide>
+<nuclide>  <id>531360001</id> <comp>1.4760240094673913e-13</comp>  </nuclide>
+<nuclide>  <id>531370000</id> <comp>1.4649050409346772e-13</comp>  </nuclide>
+<nuclide>  <id>531380000</id> <comp>2.1080503522351558e-14</comp>  </nuclide>
+<nuclide>  <id>531390000</id> <comp>3.1006275771236637e-15</comp>  </nuclide>
+<nuclide>  <id>531400000</id> <comp>3.366465996482149e-16</comp>  </nuclide>
+<nuclide>  <id>531410000</id> <comp>4.2002489717585374e-17</comp>  </nuclide>
+<nuclide>  <id>541280000</id> <comp>6.880902944136695e-12</comp>  </nuclide>
+<nuclide>  <id>541290000</id> <comp>9.19984544630323e-15</comp>  </nuclide>
+<nuclide>  <id>541300000</id> <comp>3.849344139743822e-10</comp>  </nuclide>
+<nuclide>  <id>541310000</id> <comp>4.6520691145435725e-07</comp>  </nuclide>
+<nuclide>  <id>541310001</id> <comp>8.28442054599366e-11</comp>  </nuclide>
+<nuclide>  <id>541320000</id> <comp>6.748869330667173e-07</comp>  </nuclide>
+<nuclide>  <id>541330000</id> <comp>6.512523786138582e-09</comp>  </nuclide>
+<nuclide>  <id>541330001</id> <comp>8.591985218731406e-11</comp>  </nuclide>
+<nuclide>  <id>541340000</id> <comp>1.0407763352894518e-06</comp>  </nuclide>
+<nuclide>  <id>541340001</id> <comp>8.410500568693703e-17</comp>  </nuclide>
+<nuclide>  <id>541350000</id> <comp>4.960646583314458e-10</comp>  </nuclide>
+<nuclide>  <id>541350001</id> <comp>3.067098818275351e-12</comp>  </nuclide>
+<nuclide>  <id>541360000</id> <comp>9.187796432483787e-07</comp>  </nuclide>
+<nuclide>  <id>541370000</id> <comp>2.843649985813585e-12</comp>  </nuclide>
+<nuclide>  <id>541380000</id> <comp>9.510392420242782e-12</comp>  </nuclide>
+<nuclide>  <id>541390000</id> <comp>3.083557864483616e-13</comp>  </nuclide>
+<nuclide>  <id>541400000</id> <comp>6.847688239562708e-14</comp>  </nuclide>
+<nuclide>  <id>541410000</id> <comp>3.567157806155402e-15</comp>  </nuclide>
+<nuclide>  <id>541420000</id> <comp>9.904270452633245e-16</comp>  </nuclide>
+<nuclide>  <id>541430000</id> <comp>4.7427017481867227e-17</comp>  </nuclide>
+<nuclide>  <id>541440000</id> <comp>4.333243293220819e-17</comp>  </nuclide>
+<nuclide>  <id>551320000</id> <comp>2.4757076292529415e-16</comp>  </nuclide>
+<nuclide>  <id>551330000</id> <comp>9.216629011122126e-07</comp>  </nuclide>
+<nuclide>  <id>551340000</id> <comp>3.4511054991927745e-11</comp>  </nuclide>
+<nuclide>  <id>551340001</id> <comp>4.8653146917297275e-15</comp>  </nuclide>
+<nuclide>  <id>551350000</id> <comp>9.708073389264823e-07</comp>  </nuclide>
+<nuclide>  <id>551350001</id> <comp>2.7999111553526566e-14</comp>  </nuclide>
+<nuclide>  <id>551360000</id> <comp>1.169601864409832e-10</comp>  </nuclide>
+<nuclide>  <id>551360001</id> <comp>1.3020294643824374e-15</comp>  </nuclide>
+<nuclide>  <id>551370000</id> <comp>8.333373984501363e-07</comp>  </nuclide>
+<nuclide>  <id>551380000</id> <comp>2.512331691144697e-11</comp>  </nuclide>
+<nuclide>  <id>551380001</id> <comp>1.6012937321699925e-13</comp>  </nuclide>
+<nuclide>  <id>551390000</id> <comp>6.453907643480941e-12</comp>  </nuclide>
+<nuclide>  <id>551400000</id> <comp>5.899779907442071e-13</comp>  </nuclide>
+<nuclide>  <id>551410000</id> <comp>1.9198214700598823e-13</comp>  </nuclide>
+<nuclide>  <id>551420000</id> <comp>7.214314110120586e-15</comp>  </nuclide>
+<nuclide>  <id>551430000</id> <comp>4.166295133923278e-15</comp>  </nuclide>
+<nuclide>  <id>551440000</id> <comp>9.036274157004272e-16</comp>  </nuclide>
+<nuclide>  <id>551450000</id> <comp>1.3365614085746685e-16</comp>  </nuclide>
+<nuclide>  <id>551460000</id> <comp>1.2504297939831311e-17</comp>  </nuclide>
+<nuclide>  <id>561320000</id> <comp>5.013030146967068e-16</comp>  </nuclide>
+<nuclide>  <id>561330000</id> <comp>9.179999727604671e-17</comp>  </nuclide>
+<nuclide>  <id>561340000</id> <comp>1.9474934467478445e-11</comp>  </nuclide>
+<nuclide>  <id>561350000</id> <comp>1.410244048860077e-12</comp>  </nuclide>
+<nuclide>  <id>561350001</id> <comp>8.719623806255431e-16</comp>  </nuclide>
+<nuclide>  <id>561360000</id> <comp>7.975976059809515e-09</comp>  </nuclide>
+<nuclide>  <id>561370000</id> <comp>2.9223094282573834e-08</comp>  </nuclide>
+<nuclide>  <id>561370001</id> <comp>1.2826140563029698e-13</comp>  </nuclide>
+<nuclide>  <id>561380000</id> <comp>8.47897844146105e-07</comp>  </nuclide>
+<nuclide>  <id>561390000</id> <comp>5.953045630789783e-11</comp>  </nuclide>
+<nuclide>  <id>561400000</id> <comp>1.2798504045423846e-08</comp>  </nuclide>
+<nuclide>  <id>561410000</id> <comp>1.2039838676091873e-11</comp>  </nuclide>
+<nuclide>  <id>561420000</id> <comp>6.34069509988308e-12</comp>  </nuclide>
+<nuclide>  <id>561430000</id> <comp>1.2227521952616242e-13</comp>  </nuclide>
+<nuclide>  <id>561440000</id> <comp>7.09859586587555e-14</comp>  </nuclide>
+<nuclide>  <id>561450000</id> <comp>1.197177593364192e-14</comp>  </nuclide>
+<nuclide>  <id>561460000</id> <comp>2.848732646000523e-15</comp>  </nuclide>
+<nuclide>  <id>561470000</id> <comp>3.4127167176913957e-16</comp>  </nuclide>
+<nuclide>  <id>561480000</id> <comp>5.056897582846991e-17</comp>  </nuclide>
+<nuclide>  <id>571370000</id> <comp>2.2601082981570056e-13</comp>  </nuclide>
+<nuclide>  <id>571380000</id> <comp>6.301131266482745e-12</comp>  </nuclide>
+<nuclide>  <id>571390000</id> <comp>7.927912015462231e-07</comp>  </nuclide>
+<nuclide>  <id>571400000</id> <comp>1.6887431631131787e-09</comp>  </nuclide>
+<nuclide>  <id>571410000</id> <comp>1.5653572280527378e-10</comp>  </nuclide>
+<nuclide>  <id>571420000</id> <comp>5.697709724761533e-11</comp>  </nuclide>
+<nuclide>  <id>571430000</id> <comp>8.284501839379076e-12</comp>  </nuclide>
+<nuclide>  <id>571440000</id> <comp>3.4553705564782335e-13</comp>  </nuclide>
+<nuclide>  <id>571450000</id> <comp>1.509570846017411e-13</comp>  </nuclide>
+<nuclide>  <id>571460000</id> <comp>1.6064439759840116e-14</comp>  </nuclide>
+<nuclide>  <id>571460001</id> <comp>1.2786696074528074e-14</comp>  </nuclide>
+<nuclide>  <id>571470000</id> <comp>7.706467071056373e-15</comp>  </nuclide>
+<nuclide>  <id>571480000</id> <comp>8.614181630141172e-16</comp>  </nuclide>
+<nuclide>  <id>571490000</id> <comp>2.9574585886246196e-16</comp>  </nuclide>
+<nuclide>  <id>571500000</id> <comp>6.252031336595899e-17</comp>  </nuclide>
+<nuclide>  <id>571510000</id> <comp>1.0565363774192079e-17</comp>  </nuclide>
+<nuclide>  <id>581380000</id> <comp>6.375176346553679e-16</comp>  </nuclide>
+<nuclide>  <id>581390000</id> <comp>5.221123761491843e-15</comp>  </nuclide>
+<nuclide>  <id>581400000</id> <comp>7.495741400669602e-07</comp>  </nuclide>
+<nuclide>  <id>581410000</id> <comp>3.1510091474045584e-08</comp>  </nuclide>
+<nuclide>  <id>581420000</id> <comp>6.989119406389636e-07</comp>  </nuclide>
+<nuclide>  <id>581430000</id> <comp>1.1643422782482601e-09</comp>  </nuclide>
+<nuclide>  <id>581440000</id> <comp>2.0568759885805762e-07</comp>  </nuclide>
+<nuclide>  <id>581450000</id> <comp>1.2199831247662663e-12</comp>  </nuclide>
+<nuclide>  <id>581460000</id> <comp>4.488666992074352e-12</comp>  </nuclide>
+<nuclide>  <id>581470000</id> <comp>2.285980633839047e-13</comp>  </nuclide>
+<nuclide>  <id>581480000</id> <comp>1.4680224139429715e-13</comp>  </nuclide>
+<nuclide>  <id>581490000</id> <comp>8.334279536733701e-15</comp>  </nuclide>
+<nuclide>  <id>581500000</id> <comp>3.4145705066662483e-15</comp>  </nuclide>
+<nuclide>  <id>581510000</id> <comp>4.709181922486131e-16</comp>  </nuclide>
+<nuclide>  <id>581520000</id> <comp>1.0889091764368086e-16</comp>  </nuclide>
+<nuclide>  <id>581530000</id> <comp>1.7442190950701023e-17</comp>  </nuclide>
+<nuclide>  <id>591410000</id> <comp>7.019208005300154e-07</comp>  </nuclide>
+<nuclide>  <id>591420000</id> <comp>1.0372152948593762e-16</comp>  </nuclide>
+<nuclide>  <id>591430000</id> <comp>1.1591538140375348e-08</comp>  </nuclide>
+<nuclide>  <id>591440000</id> <comp>8.663726196418938e-12</comp>  </nuclide>
+<nuclide>  <id>591440001</id> <comp>3.466313189987224e-14</comp>  </nuclide>
+<nuclide>  <id>591450000</id> <comp>1.4573955100004556e-10</comp>  </nuclide>
+<nuclide>  <id>591460000</id> <comp>8.059174435202665e-12</comp>  </nuclide>
+<nuclide>  <id>591470000</id> <comp>3.5291548302988004e-12</comp>  </nuclide>
+<nuclide>  <id>591480000</id> <comp>4.212799742629403e-13</comp>  </nuclide>
+<nuclide>  <id>591480001</id> <comp>5.362004853866755e-14</comp>  </nuclide>
+<nuclide>  <id>591490000</id> <comp>3.387491267749752e-13</comp>  </nuclide>
+<nuclide>  <id>591500000</id> <comp>1.0516154292813181e-14</comp>  </nuclide>
+<nuclide>  <id>591510000</id> <comp>1.8079871025566617e-14</comp>  </nuclide>
+<nuclide>  <id>591520000</id> <comp>1.5283745349681302e-15</comp>  </nuclide>
+<nuclide>  <id>591530000</id> <comp>7.238293418182929e-16</comp>  </nuclide>
+<nuclide>  <id>591540000</id> <comp>9.776493944251961e-17</comp>  </nuclide>
+<nuclide>  <id>601420000</id> <comp>8.733121633738136e-14</comp>  </nuclide>
+<nuclide>  <id>601430000</id> <comp>6.50159129432397e-07</comp>  </nuclide>
+<nuclide>  <id>601440000</id> <comp>3.830179609319179e-07</comp>  </nuclide>
+<nuclide>  <id>601450000</id> <comp>4.518851129706266e-07</comp>  </nuclide>
+<nuclide>  <id>601460000</id> <comp>3.6543228143030875e-07</comp>  </nuclide>
+<nuclide>  <id>601470000</id> <comp>4.199599960463109e-09</comp>  </nuclide>
+<nuclide>  <id>601480000</id> <comp>2.2773986932311835e-07</comp>  </nuclide>
+<nuclide>  <id>601490000</id> <comp>1.5987532430306297e-11</comp>  </nuclide>
+<nuclide>  <id>601500000</id> <comp>1.2005813557962278e-07</comp>  </nuclide>
+<nuclide>  <id>601510000</id> <comp>1.0426738421014525e-12</comp>  </nuclide>
+<nuclide>  <id>601520000</id> <comp>6.870474302479002e-13</comp>  </nuclide>
+<nuclide>  <id>601530000</id> <comp>1.8252589577216292e-14</comp>  </nuclide>
+<nuclide>  <id>601540000</id> <comp>7.924785277431512e-15</comp>  </nuclide>
+<nuclide>  <id>601550000</id> <comp>1.0147175933676094e-15</comp>  </nuclide>
+<nuclide>  <id>601560000</id> <comp>2.1341707771634859e-16</comp>  </nuclide>
+<nuclide>  <id>601570000</id> <comp>1.5100748890631746e-17</comp>  </nuclide>
+<nuclide>  <id>611450000</id> <comp>1.5127481019306478e-17</comp>  </nuclide>
+<nuclide>  <id>611460000</id> <comp>5.45225143679738e-16</comp>  </nuclide>
+<nuclide>  <id>611470000</id> <comp>1.971829438931853e-07</comp>  </nuclide>
+<nuclide>  <id>611480000</id> <comp>9.28465746767834e-16</comp>  </nuclide>
+<nuclide>  <id>611480001</id> <comp>2.1842301412737573e-14</comp>  </nuclide>
+<nuclide>  <id>611490000</id> <comp>4.921910347674451e-10</comp>  </nuclide>
+<nuclide>  <id>611500000</id> <comp>1.54495508195131e-14</comp>  </nuclide>
+<nuclide>  <id>611510000</id> <comp>1.4450428545618006e-10</comp>  </nuclide>
+<nuclide>  <id>611520000</id> <comp>2.5416597555046165e-13</comp>  </nuclide>
+<nuclide>  <id>611520001</id> <comp>7.135604982271608e-15</comp>  </nuclide>
+<nuclide>  <id>611520002</id> <comp>1.3094622816566705e-14</comp>  </nuclide>
+<nuclide>  <id>611530000</id> <comp>2.1305747011181882e-13</comp>  </nuclide>
+<nuclide>  <id>611540000</id> <comp>3.8545576672617586e-14</comp>  </nuclide>
+<nuclide>  <id>611540001</id> <comp>1.0511205071623752e-14</comp>  </nuclide>
+<nuclide>  <id>611550000</id> <comp>1.0450199423784555e-14</comp>  </nuclide>
+<nuclide>  <id>611560000</id> <comp>3.579697724514879e-15</comp>  </nuclide>
+<nuclide>  <id>611570000</id> <comp>5.612267442474898e-16</comp>  </nuclide>
+<nuclide>  <id>611580000</id> <comp>6.453295490674505e-17</comp>  </nuclide>
+<nuclide>  <id>621460000</id> <comp>3.592942114699349e-17</comp>  </nuclide>
+<nuclide>  <id>621470000</id> <comp>8.540594718822266e-08</comp>  </nuclide>
+<nuclide>  <id>621480000</id> <comp>4.391423267802664e-13</comp>  </nuclide>
+<nuclide>  <id>621490000</id> <comp>1.621353591997962e-07</comp>  </nuclide>
+<nuclide>  <id>621500000</id> <comp>9.362122007730632e-11</comp>  </nuclide>
+<nuclide>  <id>621510000</id> <comp>8.522309480698694e-08</comp>  </nuclide>
+<nuclide>  <id>621520000</id> <comp>6.375264533773463e-08</comp>  </nuclide>
+<nuclide>  <id>621530000</id> <comp>1.1387153641351221e-10</comp>  </nuclide>
+<nuclide>  <id>621540000</id> <comp>2.650802940256688e-08</comp>  </nuclide>
+<nuclide>  <id>621550000</id> <comp>3.771084067170731e-13</comp>  </nuclide>
+<nuclide>  <id>621560000</id> <comp>6.67572707783287e-12</comp>  </nuclide>
+<nuclide>  <id>621570000</id> <comp>5.393269766434629e-14</comp>  </nuclide>
+<nuclide>  <id>621580000</id> <comp>1.7882574405280628e-14</comp>  </nuclide>
+<nuclide>  <id>621590000</id> <comp>2.4178884038407457e-16</comp>  </nuclide>
+<nuclide>  <id>621600000</id> <comp>6.45297784170863e-17</comp>  </nuclide>
+<nuclide>  <id>631510000</id> <comp>9.58952104183634e-10</comp>  </nuclide>
+<nuclide>  <id>631520000</id> <comp>6.738894118486894e-15</comp>  </nuclide>
+<nuclide>  <id>631530000</id> <comp>4.0401324428696665e-08</comp>  </nuclide>
+<nuclide>  <id>631540000</id> <comp>2.0056495414280588e-12</comp>  </nuclide>
+<nuclide>  <id>631540001</id> <comp>5.345412897702933e-17</comp>  </nuclide>
+<nuclide>  <id>631550000</id> <comp>1.331475222865425e-08</comp>  </nuclide>
+<nuclide>  <id>631560000</id> <comp>2.610120754020883e-10</comp>  </nuclide>
+<nuclide>  <id>631570000</id> <comp>6.379504576084361e-12</comp>  </nuclide>
+<nuclide>  <id>631580000</id> <comp>1.7557696926465587e-13</comp>  </nuclide>
+<nuclide>  <id>631590000</id> <comp>3.3527130869964644e-14</comp>  </nuclide>
+<nuclide>  <id>631600000</id> <comp>5.022690080582255e-16</comp>  </nuclide>
+<nuclide>  <id>631610000</id> <comp>1.3797273341837942e-16</comp>  </nuclide>
+<nuclide>  <id>631620000</id> <comp>1.5279902281850372e-17</comp>  </nuclide>
+<nuclide>  <id>641520000</id> <comp>2.7900160513699905e-15</comp>  </nuclide>
+<nuclide>  <id>641540000</id> <comp>2.450109286167187e-13</comp>  </nuclide>
+<nuclide>  <id>641550000</id> <comp>2.987297279533654e-09</comp>  </nuclide>
+<nuclide>  <id>641560000</id> <comp>1.1186359822209161e-08</comp>  </nuclide>
+<nuclide>  <id>641570000</id> <comp>6.681599734245964e-09</comp>  </nuclide>
+<nuclide>  <id>641580000</id> <comp>3.6823052808828924e-09</comp>  </nuclide>
+<nuclide>  <id>641590000</id> <comp>2.096270982246632e-12</comp>  </nuclide>
+<nuclide>  <id>641600000</id> <comp>8.328923052823362e-10</comp>  </nuclide>
+<nuclide>  <id>641610000</id> <comp>1.5487080978318987e-15</comp>  </nuclide>
+<nuclide>  <id>641620000</id> <comp>1.5617003513615982e-15</comp>  </nuclide>
+<nuclide>  <id>641630000</id> <comp>8.065611584139466e-17</comp>  </nuclide>
+<nuclide>  <id>641640000</id> <comp>1.7005459554204616e-17</comp>  </nuclide>
+<nuclide>  <id>651570000</id> <comp>6.449526611343465e-16</comp>  </nuclide>
+<nuclide>  <id>651580000</id> <comp>8.843468716566038e-15</comp>  </nuclide>
+<nuclide>  <id>651590000</id> <comp>1.8014648795819451e-09</comp>  </nuclide>
+<nuclide>  <id>651600000</id> <comp>5.2619990473104184e-14</comp>  </nuclide>
+<nuclide>  <id>651610000</id> <comp>4.2394519600654285e-12</comp>  </nuclide>
+<nuclide>  <id>651620000</id> <comp>1.4522898584193365e-15</comp>  </nuclide>
+<nuclide>  <id>651630000</id> <comp>1.5513548892176558e-15</comp>  </nuclide>
+<nuclide>  <id>651640000</id> <comp>8.740830026981359e-17</comp>  </nuclide>
+<nuclide>  <id>651650000</id> <comp>2.4812572563707373e-17</comp>  </nuclide>
+<nuclide>  <id>661600000</id> <comp>4.5233931606005013e-13</comp>  </nuclide>
+<nuclide>  <id>661610000</id> <comp>4.025389350636361e-10</comp>  </nuclide>
+<nuclide>  <id>661620000</id> <comp>1.833468799562062e-10</comp>  </nuclide>
+<nuclide>  <id>661630000</id> <comp>7.612921155840746e-11</comp>  </nuclide>
+<nuclide>  <id>661640000</id> <comp>2.7938671623227026e-11</comp>  </nuclide>
+<nuclide>  <id>661650000</id> <comp>1.7433363913481474e-15</comp>  </nuclide>
+<nuclide>  <id>661660000</id> <comp>3.174296690162659e-14</comp>  </nuclide>
+<nuclide>  <id>661670000</id> <comp>1.2250294330181343e-17</comp>  </nuclide>
+<nuclide>  <id>671630000</id> <comp>8.812112055042719e-17</comp>  </nuclide>
+<nuclide>  <id>671650000</id> <comp>1.1677218960887917e-11</comp>  </nuclide>
+<nuclide>  <id>671660000</id> <comp>1.0437189669126397e-14</comp>  </nuclide>
+<nuclide>  <id>671660001</id> <comp>1.0570421041110632e-14</comp>  </nuclide>
+<nuclide>  <id>671670000</id> <comp>3.7206211996290864e-16</comp>  </nuclide>
+<nuclide>  <id>681640000</id> <comp>2.2555287115148445e-16</comp>  </nuclide>
+<nuclide>  <id>681660000</id> <comp>5.949314038763535e-12</comp>  </nuclide>
+<nuclide>  <id>681670000</id> <comp>1.724540044602504e-12</comp>  </nuclide>
+<nuclide>  <id>681680000</id> <comp>6.680924832854698e-13</comp>  </nuclide>
+<nuclide>  <id>681690000</id> <comp>5.519178577975651e-15</comp>  </nuclide>
+<nuclide>  <id>681700000</id> <comp>1.4125098128706282e-13</comp>  </nuclide>
+<nuclide>  <id>681710000</id> <comp>4.907412141474266e-17</comp>  </nuclide>
+<nuclide>  <id>681720000</id> <comp>5.40322095373023e-16</comp>  </nuclide>
+<nuclide>  <id>691690000</id> <comp>3.064686561815437e-13</comp>  </nuclide>
+<nuclide>  <id>691710000</id> <comp>5.1530732371640043e-14</comp>  </nuclide>
+<nuclide>  <id>691720000</id> <comp>6.974085695846857e-16</comp>  </nuclide>
+<nuclide>  <id>701710000</id> <comp>2.5720469159511036e-14</comp>  </nuclide>
+<nuclide>  <id>701720000</id> <comp>1.232244707786829e-13</comp>  </nuclide>
+<nuclide>  <id>902300000</id> <comp>3.238873330703925e-15</comp>  </nuclide>
+<nuclide>  <id>902320000</id> <comp>5.12148536908188e-14</comp>  </nuclide>
+<nuclide>  <id>902340000</id> <comp>2.9830908463137334e-15</comp>  </nuclide>
+<nuclide>  <id>912310000</id> <comp>1.0503588321518731e-14</comp>  </nuclide>
+<nuclide>  <id>912330000</id> <comp>1.85788364200763e-15</comp>  </nuclide>
+<nuclide>  <id>922330000</id> <comp>1.0443944810456944e-12</comp>  </nuclide>
+<nuclide>  <id>922340000</id> <comp>7.203336306669818e-10</comp>  </nuclide>
+<nuclide>  <id>922350000</id> <comp>1.124180470280373e-06</comp>  </nuclide>
+<nuclide>  <id>922350001</id> <comp>4.4498452557550965e-15</comp>  </nuclide>
+<nuclide>  <id>922360000</id> <comp>1.0852361153705268e-06</comp>  </nuclide>
+<nuclide>  <id>922370000</id> <comp>8.3138782368233e-10</comp>  </nuclide>
+<nuclide>  <id>922380000</id> <comp>0.00020153471027059398</comp>  </nuclide>
+<nuclide>  <id>922390000</id> <comp>2.7808854569912876e-10</comp>  </nuclide>
+<nuclide>  <id>932370000</id> <comp>5.7215625526222405e-08</comp>  </nuclide>
+<nuclide>  <id>932390000</id> <comp>4.024168167769474e-08</comp>  </nuclide>
+<nuclide>  <id>942370000</id> <comp>3.8718431943222724e-14</comp>  </nuclide>
+<nuclide>  <id>942380000</id> <comp>2.2496068493723487e-10</comp>  </nuclide>
+<nuclide>  <id>942390000</id> <comp>2.1712974459221824e-06</comp>  </nuclide>
+<nuclide>  <id>942400000</id> <comp>5.772949468975987e-07</comp>  </nuclide>
+<nuclide>  <id>942410000</id> <comp>3.651035903372492e-06</comp>  </nuclide>
+<nuclide>  <id>952410000</id> <comp>2.2502361020465894e-07</comp>  </nuclide>
+  </recipe>
+
+</simulation>

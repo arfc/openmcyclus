@@ -7,13 +7,12 @@ Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with 
 
 
 ### Dependencies
-You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org).
+You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org), 
 and their required dependencies. It is recommended to install each of these from source. 
 
+**Directions to install Cyclus and OpenMC**[^1] :
 ```
-conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
-
-
+conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger python=3.10 glibmm glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython=0.29 websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
 
 HDF5_DIR=$CONDA_PREFIX \
 pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
@@ -42,11 +41,14 @@ cd ../
 
 pip install .
 ```
+If desired, Cycamore can be installed from [here](https://github.com/abachma2/cycamore/tree/2023-04-maintenance). 
 
 ### Install OpenMCyclus
 Clone the repository:
 
+```
 git clone https://github.com/arfc/openmcyclus.git 
+```
 
 To install this archetype library run ``pip install .`` from the top level of the 
 directory. To run tests: ``pytest`` from the main directory.
@@ -101,19 +103,26 @@ library. The input structure is:
 `fuel_prefs` and `fuel_inrecipes` must be equal in length to 
 `fuel_incommods` and `fuel_outrecipes` must be equal in length to `fuel_outcommods`. 
 
-The fresh fuel recipes (`fuel_increipes`) are to be defined in the main input file but 
-the spent fuel recipes (`fuel_outrecipes`) are to be defined in a separate xml file 
-name `prototype_fuel.xml`, in which `prototype` is the name given to the prototype 
-in the main input file. The spent fuel recipes should be named the same as the 
-fresh fuel recipes, with `spent_` prepended (e.g. `spent_uox` if the inrecipe is 
-named `uox`).  
-
-The `model_path` variable must be an absolute path. The archetype assumes that 
-the OpenMC materials are in the file called `materials.xml`, located in the `model_path`
-directory, and that the cross section data is in a file called `micro_xs.csv`, 
-also located in the `model_path` directory. 
-
+- The `model_path` variable is the location of the files for OpenMC (can be 
+relative or absolute path): one-group cross sections, materials, and depletion 
+chain file. If using a relative path, it must be relative to the directory you are 
+running the |Cyclus| input file from, not the location of the file that defines the 
+prototype. 
+- The archetype assumes that 
+the OpenMC materials are in the file called `materials.xml` and that the cross 
+section data is in a file called `micro_xs.csv`. 
+- The `chain_file` variable 
+is the depletion chain file, and the user provides the name of this file. 
+- Each material in the `materials.xml` file that are fuel materials must 
+be marked as `depletable` and have the name `assembly_#`. Define one material 
+for each assembly in the reactor core (matches with `n_assem_core`),  
+the number assigned to each material name is irrelevant, just as long as  
+there is one. 
 
 ### Outputs
-The results of the simulation wil be written to `cyclus.sqlite`
+The results of the simulation will be written to `cyclus.sqlite`
 or the file name provided when Cyclus was called. 
+
+[^1]: Directions on OpenMC install from source taken from:
+https://docs.openmc.org/en/stable/quickinstall.html, consult this
+page for the most up to date instructions. 

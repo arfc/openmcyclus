@@ -14,13 +14,13 @@ class TestDepletion(unittest.TestCase):
         Set up the instantiation of the Deplete class
         '''
         self.deplete = Depletion(
-            "examples/", 'Reactor', "chain_endfb71_pwr.xml", 10, 100)
+            "chain_endfb71_pwr.xml", 10, 100e-6)
 
     def test_read_materials(self):
         '''
         Test when the material file is found
         '''
-        materials = self.deplete.read_materials()
+        materials = self.deplete.read_materials("examples/")
         assert isinstance(materials, openmc.material.Materials)
         assert materials[0].id == 5
         assert materials[0].name == 'assembly_1'
@@ -34,19 +34,19 @@ class TestDepletion(unittest.TestCase):
         comps = [{922350000:0.05, 922380000:0.95}, 
                  {551370000:0.1, 360850000:0.8, 541350000:0.1}, 
                  {942390000:0.10, 942410000:0.9}]
-        material_ids = self.deplete.update_materials(comps)
-        materials = self.deplete.read_materials()
-        assert materials[0].nuclides == [openmc.material.NuclideTuple('U238',95.0, 'wo'), 
-                                         openmc.material.NuclideTuple('U235',5.0, 'wo')]
-        assert materials[1].nuclides == [openmc.material.NuclideTuple('Xe135',10.0, 'wo'),
-                                         openmc.material.NuclideTuple('Kr85',80.0, 'wo'),
-                                         openmc.material.NuclideTuple('Cs137',10.0, 'wo')]
-        assert materials[2].nuclides == [openmc.material.NuclideTuple('Pu241',90.0, 'wo'), 
-                                         openmc.material.NuclideTuple('Pu239',10.0, 'wo')]
-        assert material_ids == ['5','6','7']
+        mats = openmc.Materials.from_xml("examples/materials.xml")
+        material_ids, materials = self.deplete.update_materials(comps, mats)
+        assert materials[0].nuclides == [openmc.material.NuclideTuple('U235',0.05, 'wo'), 
+                                         openmc.material.NuclideTuple('U238',0.95, 'wo')]
+        assert materials[1].nuclides == [openmc.material.NuclideTuple('Cs137',0.1, 'wo'),
+                                         openmc.material.NuclideTuple('Kr85',0.80, 'wo'),
+                                         openmc.material.NuclideTuple('Xe135',0.10, 'wo')]
+        assert materials[2].nuclides == [openmc.material.NuclideTuple('Pu239',0.10, 'wo'), 
+                                         openmc.material.NuclideTuple('Pu241',0.90, 'wo')]
+        assert material_ids == [5,6,7]
 
     def test_read_microxs(self):
-        microxs = self.deplete.read_microxs()
+        microxs = self.deplete.read_microxs("examples/")
         assert isinstance(microxs, pd.DataFrame)
         assert microxs.index.name == 'nuclide'
         assert microxs.columns.values.tolist() == [
@@ -55,11 +55,17 @@ class TestDepletion(unittest.TestCase):
 
     def test_get_spent_comps(self):
         '''
-        Test the compositions that are returned from the 
+        Test the compositions that are returned from running depletion. 
+        First, the materials are defined and then depletion is run to prevent 
+        having to store an HDF5 database in the repo
         '''
-        spent_comps = self.deplete.get_spent_comps(['5','6','7'])
-        assert 10010000 in spent_comps[0].keys()
+        comps = [{922350000:0.04, 922380000:0.96}, 
+                 {551370000:0.1, 360850000:0.8, 541350000:0.1}, 
+                 {942390000:0.10, 942410000:0.9}]
+        self.deplete.run_depletion("examples/", comps)
+        spent_comps = self.deplete.get_spent_comps(['5','6','7'], "examples/")
+        assert 551370000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 1.072843157632183e-10
+        assert spent_comps[0][922350000] == 0.039999352943069735
 
