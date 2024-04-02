@@ -7,8 +7,15 @@ Repository of [Cyclus](https://fuelcycle.org/) archetypes to couple Cyclus with 
 
 
 ### Dependencies
-You will need to have [Cyclus](www.github.com/cyclus/cyclus), [OpenMC](https://docs.openmc.org), 
-and their required dependencies. It is recommended to install each of these from source. 
+
+You will need to have [Cyclus](www.fuelcycle.org), [OpenMC](https://docs.openmc.org), 
+and their required dependencies. Both are available via conda binaries. Please note 
+the versions listed below, as these are required versions, not minimum versions. 
+
+| Package | Version |
+| :-----: | :-----: |
+| Cyclus  | 1.6     |
+| OpenMC  | 0.14    |
 
 **Directions to install Cyclus and OpenMC**[^1] :
 ```
@@ -17,7 +24,7 @@ conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-p
 HDF5_DIR=$CONDA_PREFIX \
 pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
 
-git clone https://github.com/abachma2/cyclus.git
+git clone https://github.com/cyclus/cyclus.git
 
 cd cyclus
 
@@ -41,17 +48,26 @@ cd ../
 
 pip install .
 ```
-If desired, Cycamore can be installed from [here](https://github.com/abachma2/cycamore/tree/2023-04-maintenance). 
+If desired, Cycamore can be installed from [here](https://github.com/cyclus/cyclus). Cycamore is *highly* recommended, as it contains other archetypes for creating a 
+fuel cycle model in Cyclus, but it is not a dependency for OpenMCyclus. 
 
 ### Install OpenMCyclus
-Clone the repository:
+
+To install OpenMCyclus:
 
 ```
 git clone https://github.com/arfc/openmcyclus.git 
+
+cd openmcyclus
+
+pip install .
 ```
 
-To install this archetype library run ``pip install .`` from the top level of the 
-directory. To run tests: ``pytest`` from the main directory.
+To run the tests:
+
+```
+pytest tests/
+```
 
 ## Running
 This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 
@@ -100,9 +116,10 @@ library. The input structure is:
       <chain_file>string</chain_file>
     </DepleteReactor>
 
-`fuel_prefs` and `fuel_inrecipes` must be equal in length to 
-`fuel_incommods` and `fuel_outrecipes` must be equal in length to `fuel_outcommods`. 
+Some notes about this input structure:
 
+- `fuel_prefs` and `fuel_inrecipes` must be equal in length to 
+  `fuel_incommods` and `fuel_outrecipes` must be equal in length to `fuel_outcommods`. 
 - The `model_path` variable is the location of the files for OpenMC (can be 
 relative or absolute path): one-group cross sections, materials, and depletion 
 chain file. If using a relative path, it must be relative to the directory you are 
