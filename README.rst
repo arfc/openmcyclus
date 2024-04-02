@@ -1,8 +1,8 @@
 OpenMCyclus
 ------------
-![Build Status](https://github.com/arfc/openmcyclus/actions/workflows/test-openmcyclus.yml/badge.svg?branch=main)
+.. image:: https://github.com/arfc/openmcyclus/actions/workflows/test-openmcyclus.yml/badge.svg?branch=main
 
-Library of `Cyclus <www.fuelcycle.org>`_ archetypes to couple Cyclus with 
+Library of `Cyclus <https://fuelcycle.org/>`_ archetypes to couple Cyclus with 
 `OpenMC <https://docs.openmc.org/en/develop/pythonapi/generated/openmc.run.html>`_
 
 Installation 
@@ -11,7 +11,7 @@ Installation
 Dependencies
 ~~~~~~~~~~~~
 
-You will need to have `Cyclus <www.fuelcycle.org>`_, `OpenMC <https://docs.openmc.org>`_, 
+You will need to have `Cyclus <https://fuelcycle.org/>`_, `OpenMC <https://docs.openmc.org>`_, 
 and their required dependencies. Both are available via conda binaries. Please note 
 the versions listed below, as these are required versions, not minimum versions. 
 
