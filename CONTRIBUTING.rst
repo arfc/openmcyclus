@@ -15,12 +15,16 @@ information about each code.
 Contributions to this software are made via GitHub, so familiarity with 
 git and the GitHub API are recommended. Resources for installing 
 and using git and GitHub include:
+
 * The `git website <https://git-scm.com/>`_
+
 * The `GitHub docs <https://docs.github.com/en>`_
+
 * This `tutorial <https://help.github.com/articles/using-pull-requests/>`_ on creating 
   pull requests 
 
 The general steps for contributing to OpenMCyclus are:
+
 1. Create a fork of the ARFC repository
 2. Create a new branch on your fork, keeping the `main` branch clean and 
    up-to-date with the ARFC repository `main` branch
@@ -35,6 +39,7 @@ Reviewing pull requests
 =======================
 Reviewing pull requests is an important part of development work. When 
 reviewing pull requests please:
+
 * Make sure the code is consistent with the `PEP 8 style guide <https://peps.python.org/pep-0008/>`_ 
 * Make sure all tests in CI are passing
 * Ensure that new tests are added as needed to address new features
@@ -47,12 +52,14 @@ Running tests:
 ==============
 pytest is used for all tests. Tests should be run from the upper-most 
 directory of this repository using:
+
   .. code-block:: bash
     $ pytest tests/
 
 Releases:
 =========
 When a new release is ready:
+
 #. Update all documentation as needed and issue a PR for this
 #. git tag -a <version>
 #. git push upstream main

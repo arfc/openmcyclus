@@ -6,6 +6,7 @@ Since last release:
 ===================
 
 **Added:**
+
 * Added CHANGELOG.rst
 
 **Changed:**
