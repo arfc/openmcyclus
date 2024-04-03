@@ -46,11 +46,15 @@ class TestDepletion(unittest.TestCase):
         assert material_ids == [5,6,7]
 
     def test_read_microxs(self):
+        '''
+        Test that the .csv file read in as cross section data is 
+        an openmc.microxs.MicroXS object
+        '''
         microxs = self.deplete.read_microxs("examples/")
-        assert isinstance(microxs, pd.DataFrame)
-        assert microxs.index.name == 'nuclide'
-        assert microxs.columns.values.tolist() == [
-            '(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
+        assert isinstance(microxs, openmc.deplete.microxs.MicroXS)
+        #assert microxs.index.name == 'nuclide'
+        #assert microxs.columns.values.tolist() == [
+        #    '(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
 
 
     def test_get_spent_comps(self):
@@ -59,13 +63,10 @@ class TestDepletion(unittest.TestCase):
         First, the materials are defined and then depletion is run to prevent 
         having to store an HDF5 database in the repo
         '''
-        comps = [{922350000:0.04, 922380000:0.96}, 
-                 {551370000:0.1, 360850000:0.8, 541350000:0.1}, 
-                 {942390000:0.10, 942410000:0.9}]
-        self.deplete.run_depletion("examples/", comps)
+        self.deplete.run_depletion("examples/")
         spent_comps = self.deplete.get_spent_comps(['5','6','7'], "examples/")
         assert 551370000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 0.039999352943069735
+        assert spent_comps[0][922350000] == 10665.785598753686
 

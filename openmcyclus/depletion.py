@@ -114,7 +114,7 @@ class Depletion(object):
         microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
-    def run_depletion(self, path, comps):
+    def run_depletion(self, path):
         '''
         Run the IndependentOperator class in OpenMC to perform
         transport-independent depletion. This method is only 
@@ -132,9 +132,10 @@ class Depletion(object):
             HDF5 data base with the results of the depletion simulation
         '''
         materials = self.read_materials(path)
-        mat_ids, mats = self.update_materials(comps, materials)
         micro_xs = self.read_microxs(path)
-        ind_op = od.IndependentOperator(materials, micro_xs,
+        ind_op = od.IndependentOperator(materials, 
+                                        [np.array([10.3])]*4,
+                                        [micro_xs]*4,
                                         str(path + self.chain_file))
         ind_op.output_dir = path
         integrator = od.PredictorIntegrator(
@@ -174,7 +175,7 @@ class Depletion(object):
                 if nuclide.percent < 1e-5:
                     continue
                 Z, A, m = openmc.data.zam(nuclide.name)
-                mass = results.get_material(str(material_id),nuclide.name)[-1][-1]
+                mass = results.get_mass(str(material_id),nuclide.name, mass_units='kg')[-1][-1]
                 comp.update({Z*int(1e7)+A*int(1e4) + m :mass})
             spent_comps.append(comp)
         return spent_comps
