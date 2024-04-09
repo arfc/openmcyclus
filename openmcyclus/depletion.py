@@ -114,7 +114,7 @@ class Depletion(object):
         microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
         return microxs
 
-    def run_depletion(self, path):
+    def run_depletion(self, path, flux):
         '''
         Run the IndependentOperator class in OpenMC to perform
         transport-independent depletion. This method is only 
@@ -134,7 +134,7 @@ class Depletion(object):
         materials = self.read_materials(path)
         micro_xs = self.read_microxs(path)
         ind_op = od.IndependentOperator(materials, 
-                                        [np.array([10.3])]*4,
+                                        [np.array([flux])]*4,
                                         [micro_xs]*4,
                                         str(path + self.chain_file))
         ind_op.output_dir = path
@@ -166,16 +166,15 @@ class Depletion(object):
             list of the compositions from the OpenMC model
         '''
         results = od.Results(path + "depletion_results.h5")
+        nuclides = od.MicroXS.from_csv(path+"micro_xs.csv").nuclides
         spent_comps = []
-        for index, material_id in enumerate(material_ids):
-            spent_comp = results[-1].get_material(str(material_id))
-
+        for material_id in material_ids:
             comp = {}
-            for nuclide in spent_comp.nuclides:
-                if nuclide.percent < 1e-5:
+            for nuclide in nuclides:
+                Z, A, m = openmc.data.zam(nuclide)
+                mass = results.get_mass(str(material_id),nuclide)[-1][-1]
+                if mass <= 1e-10:
                     continue
-                Z, A, m = openmc.data.zam(nuclide.name)
-                mass = results.get_mass(str(material_id),nuclide.name, mass_units='kg')[-1][-1]
                 comp.update({Z*int(1e7)+A*int(1e4) + m :mass})
             spent_comps.append(comp)
         return spent_comps
