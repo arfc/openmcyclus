@@ -5,7 +5,7 @@ import unittest
 import openmc
 import pandas as pd
 from openmcyclus.depletion import Depletion
-import pathlib
+import os
 
 
 class TestDepletion(unittest.TestCase):
@@ -52,9 +52,21 @@ class TestDepletion(unittest.TestCase):
         '''
         microxs = self.deplete.read_microxs("examples/")
         assert isinstance(microxs, openmc.deplete.microxs.MicroXS)
-        #assert microxs.index.name == 'nuclide'
-        #assert microxs.columns.values.tolist() == [
-        #    '(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
+        assert isinstance(microxs.data, np.ndarray)
+        assert isinstance(microxs.nuclides, list)
+        assert isinstance(microxs.reactions, list)
+        assert microxs.reactions == ['(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
+
+    def test_run_depletion(self):
+        '''
+        Test the run_depletion method, which is only used in the test suite. 
+        This test makes sure that the depletion runs with the correct 
+        output file created.
+        '''
+        self.deplete.run_depletion('examples/', 10.3)
+        assert os.path.isfile('examples/depletion_results.h5')
+        os.system('rm examples/depletion_results.h5')
+
 
 
     def test_get_spent_comps(self):
@@ -63,10 +75,11 @@ class TestDepletion(unittest.TestCase):
         First, the materials are defined and then depletion is run to prevent 
         having to store an HDF5 database in the repo
         '''
-        self.deplete.run_depletion("examples/")
+        self.deplete.run_depletion("examples/", 10.3)
         spent_comps = self.deplete.get_spent_comps(['5','6','7'], "examples/")
         assert 551370000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 10665.785598753686
+        assert spent_comps[0][922350000] == 10.650004036820036
+        assert spent_comps[0][942390000] == 0.22663550016678385
 
