@@ -15,13 +15,15 @@ and their required dependencies. Both are available via conda binaries or can
 be installed from source via their github repositories. Please note 
 the versions listed below, as these are required versions, not minimum versions. 
 
-+---------+---------+
-| Package | Version |
-+=========+=========+
-| Cyclus  | 1.6     |
-+---------+---------+
-| OpenMC  | 0.14    |
-+---------+---------+
++---------------+----------+
+| Dependency    | Version  |
++===============+==========+
+| Cyclus        | 1.6      |
++---------------+----------+
+| OpenMC        | 0.14     |
++---------------+----------+
+| SciPy         | 1.11     |
++---------------+----------+
 
 Directions to install Cyclus and OpenMC [1]_ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,8 +87,9 @@ To run the tests:
 Running
 =======
 
-This archetype assumes that you have a defined reactor model in OpenMC (``.xml``) 
-files and the required microscopic cross sections (``.csv`` file) for the model. 
+This archetype assumes that you have a defined material file for OpenMC (``.xml``), 
+a flux value for the fuel assemblies, and the required microscopic cross sections 
+(``.csv`` file) for the model. 
 The cross section data must be saved as a ``.csv`` file. These files must 
 all be in the same location. Information about these can be found on the 
 `OpenMC docpages <https://docs.openmc.org>`_. 
