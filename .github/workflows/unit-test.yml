@@ -23,17 +23,6 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-      #- name: Update Environment
-      #  run: |
-      #    pip install pytest
-      #    mamba env update -n openmcyclus-env -f environment.yml
-
-      #- name: Install numpy
-      #  run: |
-      #    sudo apt install python3-pip
-      #    pip3 install numpy
-      #    conda info
-
       - name: Install OpenMC from Mamba
         run:
           mamba install openmc scipy=1.11
