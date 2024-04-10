@@ -23,36 +23,29 @@ jobs:
         run: |
           conda config --env --set pip_interop_enabled True 
 
-      - name: Update Environment
-        run: |
-          pip install pytest
-          mamba env update -n openmcyclus-env -f environment.yml
+      #- name: Update Environment
+      #  run: |
+      #    pip install pytest
+      #    mamba env update -n openmcyclus-env -f environment.yml
 
-      - name: Install numpy
-        run: |
-          sudo apt install python3-pip
-          pip3 install numpy
-          conda info
-
-      - name: Install OpenMC cross section library
-        run: 
-          $GITHUB_WORKSPACE/openmc-xs.bash
+      #- name: Install numpy
+      #  run: |
+      #    sudo apt install python3-pip
+      #    pip3 install numpy
+      #    conda info
 
       - name: Install OpenMC from Mamba
         run:
-          mamba install openmc
+          mamba install openmc scipy=1.11
 
       - name: Install OpenMC cross section library
-        run: 
+        run: |
+          $GITHUB_WORKSPACE/openmc-xs.bash
           echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: 
           pip install .
-      
-      - name: Checking the environment
-        run:
-          conda info
       
       - name: Run Tests
         run:
