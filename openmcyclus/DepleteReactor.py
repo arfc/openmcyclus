@@ -126,6 +126,13 @@ class DepleteReactor(Facility):
         range=[0,10000],
     )
 
+    flux = ts.Double(
+        default=0.0,
+        uilabel="Flux through materials for depletion calculation",
+        tooltip="Flux through materials for depletion calculation",
+        units='n/cm2s',
+    )
+
     power_name = ts.String(
         default="power",
         uilabel="Power Commodity Name",
@@ -628,12 +635,15 @@ class DepleteReactor(Facility):
         material_ids, materials = self.deplete.update_materials(
             comp_list, self.materials)
         ind_op = od.IndependentOperator(
-            materials, self.micro_xs, str(
-                self.model_path + self.chain_file))
+                    materials, 
+                    np.array([self.flux]*len(materials),
+                    elf.micro_xs*len(materials), 
+                    str(self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
-        integrator = od.PredictorIntegrator(ind_op, np.ones(
-            int(self.cycle_time)) * 30, power=self.thermal_power * 1e6,
-            timestep_units='d')
+        integrator = od.PredictorIntegrator(ind_op, 
+                                            np.ones(int(self.cycle_time)) * 30, 
+                                            power=self.thermal_power * 1e6,
+                                            timestep_units='d')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(
             material_ids, self.model_path)
