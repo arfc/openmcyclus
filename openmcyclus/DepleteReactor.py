@@ -117,6 +117,14 @@ class DepleteReactor(Facility):
         range=[0.0, 2000.00],
         default=0
     )
+    thermal_power = ts.Double(
+        default=0.0,
+        uilabel="Thermal power output of the reactor (MWth)",
+        tooltip="Thermal power output of the reactor (MWth)",
+        units="MWth",
+        uitype='range',
+        range=[0,10000],
+    )
 
     power_name = ts.String(
         default="power",
@@ -624,7 +632,7 @@ class DepleteReactor(Facility):
                 self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op, np.ones(
-            int(self.cycle_time)) * 30, power=self.power_cap * 1e6,
+            int(self.cycle_time)) * 30, power=self.thermal_power * 1e6,
             timestep_units='d')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(
