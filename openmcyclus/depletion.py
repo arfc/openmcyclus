@@ -7,7 +7,7 @@ import math
 
 class Depletion(object):
     def __init__(self, chain_file: str,
-                 timesteps: int, power: float, conversion_factor: float = 3):
+                 timesteps: int, power: float):
         '''
         Class to hold objects related to calling
         :class:`~openmc.deplete.IndependentOperator`
@@ -25,14 +25,10 @@ class Depletion(object):
             multiplied by 30 to give a timestep in days.
         power: float
             power output of the reactor, assumed in MWe.
-        conversion_factor: float
-            conversion factor to go from MWe to MWth. Default value of 3,
-            representing a thermal efficiency of 1/3
         '''
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
-        self.conversion_factor = conversion_factor
 
     def read_materials(self, path):
         '''
@@ -134,8 +130,8 @@ class Depletion(object):
         materials = self.read_materials(path)
         micro_xs = self.read_microxs(path)
         ind_op = od.IndependentOperator(materials, 
-                                        [np.array([flux])]*4,
-                                        [micro_xs]*4,
+                                        [np.array([flux])]*len(materials),
+                                        [micro_xs]*len(materials),
                                         str(path + self.chain_file))
         ind_op.output_dir = path
         integrator = od.PredictorIntegrator(
