@@ -123,7 +123,7 @@ class DepleteReactor(Facility):
         tooltip="Thermal power output of the reactor (MWth)",
         units="MWth",
         uitype='range',
-        range=[0,10000],
+        range=[0.0, 10000.0],
     )
 
     flux = ts.Double(
@@ -186,12 +186,11 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size * self.n_assem_spent
         self.cycle_step = 0
         self.deplete = Depletion(self.chain_file,
-                                 self.cycle_time, self.power_cap)
+                                 self.cycle_time, self.thermal_power)
         self.fresh_fuel.capacity = self.n_assem_fresh * self.assem_size
         self.core.capacity = self.n_assem_core * self.assem_size
         self.spent_fuel.capacity = self.n_assem_spent * self.assem_size
         self.materials = openmc.Materials()
-        self.micro_xs = od.MicroXS()
         self.fresh_comps = np.array([])
         self.spent_comps = np.array([])
         
@@ -225,7 +224,7 @@ class DepleteReactor(Facility):
                 self.decommission()
 
         if self.cycle_step == self.cycle_time:
-            self.transmute()
+            self.transmute(self.n_assem_batch)
 
         if (self.cycle_step >= self.cycle_time) and (self.discharged == False):
             self.discharged = self.discharge()
@@ -608,7 +607,7 @@ class DepleteReactor(Facility):
         self.core.push_many(self.fresh_fuel.pop_n(n))
         return
 
-    def transmute(self):
+    def transmute(self, n_assem):
         '''
         Get the material composition of assemblies in
         the core and pass those compositions to OpenMC, along
@@ -622,35 +621,48 @@ class DepleteReactor(Facility):
         by changing the recipe of the material to that of the
         fuel_outrecipes
         '''
-        assemblies = self.core.pop_n(self.core.count)
-        self.core.push_many(assemblies)
-        ss = str(len(assemblies)) + " assemblies"
+        #assemblies = self.core.pop_n(self.core.count)
+        #self.core.push_many(assemblies)
+        #ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
-        if self.check_existing_recipes(assemblies) == True:
-            for assembly in assemblies:
-                index = np.where(self.fresh_comps == assembly.comp())
-                assembly.transmute(self.spent_comps[index[0][0]])
-            return
-        comp_list = [assembly.comp() for assembly in assemblies]
-        material_ids, materials = self.deplete.update_materials(
-            comp_list, self.materials)
-        ind_op = od.IndependentOperator(
-                    materials, 
-                    np.array([self.flux]*len(materials),
-                    elf.micro_xs*len(materials), 
-                    str(self.model_path + self.chain_file))
-        ind_op.output_dir = self.model_path
-        integrator = od.PredictorIntegrator(ind_op, 
-                                            np.ones(int(self.cycle_time)) * 30, 
-                                            power=self.thermal_power * 1e6,
-                                            timestep_units='d')
-        integrator.integrate()
-        spent_comps = self.deplete.get_spent_comps(
-            material_ids, self.model_path)
-        for assembly, spent_comp in zip(assemblies, spent_comps): 
-            self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
-            self.spent_comps = np.append(self.spent_comps, spent_comp)
-            assembly.transmute(spent_comp)
+        #if self.check_existing_recipes(assemblies) == True:
+        #    for assembly in assemblies:
+        #        index = np.where(self.fresh_comps == assembly.comp())
+        #        assembly.transmute(self.spent_comps[index[0][0]])
+        #    return
+        #comp_list = [assembly.comp() for assembly in assemblies]
+        #print(comp_list)
+        #material_ids, materials = self.deplete.update_materials(
+        #    comp_list, self.materials)
+        #ind_op = od.IndependentOperator(
+        #            materials, 
+        #            [np.array([self.flux])]*len(materials),
+        #            [self.micro_xs]*len(materials), 
+        #            str(self.model_path + self.chain_file))
+        #ind_op.output_dir = self.model_path
+        #integrator = od.PredictorIntegrator(ind_op, 
+        #                                    np.ones(int(self.cycle_time)) * 30, 
+        #                                    power=self.thermal_power * 1e6,
+        #                                    timestep_units='d')
+        #integrator.integrate()
+        #spent_comps = self.deplete.get_spent_comps(
+        #    material_ids, self.model_path)
+        #for assembly, spent_comp in zip(assemblies, spent_comps): 
+        #    self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
+        #    self.spent_comps = np.append(self.spent_comps, spent_comp)
+        #    assembly.transmute(spent_comp)
+        old = self.core.pop_n(min(n_assem, self.core.count))
+        self.core.push_many(old)
+        print("time:", self.context.time, "transmute", len(old))
+        if self.core.count > len(old):
+            print("need to rotate core")
+            self.core.push_many(self.core.pop_n(self.core.count - len(old)))
+        for assembly in old:
+            recipe = self.get_recipe(assembly, 'out')
+            print("transmuting recipe:", recipe)
+            comp = self.context.get_recipe(recipe)
+            print("transmuting comp:", comp)
+            assembly.transmute(self.context.get_recipe(recipe))
         return
     
     def check_existing_recipes(self, assemblies):
