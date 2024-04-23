@@ -29,6 +29,7 @@ Directions to install Cyclus and OpenMC [1]_
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is advised to create a new conda environment for installing all of the dependencies. 
+
 .. code-block:: bash
   
     conda install -y gxx_linux-64 gcc_linux-64 cmake make git glib libxml2 libxmlpp-4.0 liblapack pkg-config coincbc boost-cpp hdf5 sqlite pcre setuptools pytest pytables pandas jinja2 cython websockets pprintpp pip mamba
