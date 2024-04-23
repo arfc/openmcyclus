@@ -28,9 +28,10 @@ the versions listed below, as these are required versions, not minimum versions.
 Directions to install Cyclus and OpenMC [1]_ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+It is advised to create a new conda environment for installing all of the dependencies. 
 .. code-block:: bash
   
-    conda install -y openssh gxx_linux-64=12.2 gcc_linux-64=12.2 cmake make docker-pycreds git xo python-json-logger python=3.10 glibmm glib libxml2 libxmlpp libblas libcblas liblapack pkg-config coincbc boost-cpp sqlite pcre gettext bzip2 xz setuptools pytest pytables pandas jinja2 cython=0.29 websockets pprintpp hdf5=1.12.2 notebook nb_conda_kernels requests entrypoints pyyaml vtk coverage pytest-cov colorama libpng uncertainties lxml scipy
+    conda install -y gxx_linux-64 gcc_linux-64 cmake make git glib libxml2 libxmlpp-4.0 liblapack pkg-config coincbc boost-cpp hdf5 sqlite pcre setuptools pytest pytables pandas jinja2 cython websockets pprintpp pip mamba
 
     HDF5_DIR=$CONDA_PREFIX \
     pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
@@ -43,23 +44,17 @@ Directions to install Cyclus and OpenMC [1]_
 
     python install.py
 
-    cd ../
-    git clone --recurse-submodules https://github.com/openmc-dev/openmc.git
-    cd openmc/
-
-    mkdir build && cd build
-
-    cmake ..
-
-    make
-
-    sudo make install
+    mamba install -y openmc=0.14.0 scipy=1.11
 
     cd ../
+
+    git clone https://github.com/arfc/openmcyclus.git
+
+    cd openmcyclus/
 
     pip install .
 
-If desired, Cycamore can be installed from `here <https://github.com/cyclus/cyclus>`_. 
+If desired, Cycamore can be installed from `here <https://github.com/cyclus/cycamore>`_. 
 Cycamore is *highly* recommended, as it contains other archetypes for creating a 
 fuel cycle model in Cyclus, but it is not a dependency for OpenMCyclus. 
 
@@ -134,6 +129,8 @@ library. The input structure is:
           <power_cap>double</power_cap>
           <model_path>string</model_path>
           <chain_file>string</chain_file>
+          <flux>double</flux>
+          <thermal_power>double</thermal_power>
         </DepleteReactor>
 
 Some notes about this input structure:
