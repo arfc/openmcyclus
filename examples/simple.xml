@@ -26,10 +26,6 @@
             <lib>openmcyclus.DepleteReactor</lib>
             <name>DepleteReactor</name>
         </spec>
-        <spec>
-            <lib>cycamore</lib>
-            <name>Reactor</name>
-        </spec>
     </archetypes>
 
     <facility>
