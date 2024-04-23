@@ -129,7 +129,7 @@ class Depletion(object):
         '''
         materials = self.read_materials(path)
         micro_xs = self.read_microxs(path)
-        ind_op = od.IndependentOperator(materials, 
+        ind_op = od.IndependentOperator(materials,
                                         [np.array([flux])]*len(materials),
                                         [micro_xs]*len(materials),
                                         str(path + self.chain_file))
@@ -168,7 +168,7 @@ class Depletion(object):
             comp = {}
             for nuclide in nuclides:
                 Z, A, m = openmc.data.zam(nuclide)
-                mass = results.get_mass(str(material_id),nuclide)[-1][-1]
+                mass = results.get_mass(str(material_id), nuclide)[-1][-1]
                 if mass <= 1e-10:
                     continue
                 comp.update({Z*int(1e7)+A*int(1e4) + m :mass})

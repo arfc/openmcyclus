@@ -623,19 +623,19 @@ class DepleteReactor(Facility):
         '''
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
-        #ss = str(len(assemblies)) + " assemblies"
+        # ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids, materials = self.deplete.update_materials(
             comp_list, self.materials)
         ind_op = od.IndependentOperator(
-                    materials, 
+                    materials,
                     [np.array([self.flux])]*len(materials),
-                    [self.micro_xs]*len(materials), 
+                    [self.micro_xs]*len(materials),
                     str(self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
-        integrator = od.PredictorIntegrator(ind_op, 
-                                            np.ones(int(self.cycle_time)) * 30, 
+        integrator = od.PredictorIntegrator(ind_op,
+                                            np.ones(int(self.cycle_time)) * 30,
                                             power=self.thermal_power * 1e6,
                                             timestep_units='d')
         integrator.integrate()

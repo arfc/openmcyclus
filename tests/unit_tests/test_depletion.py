@@ -47,7 +47,7 @@ class TestDepletion(unittest.TestCase):
 
     def test_read_microxs(self):
         '''
-        Test that the .csv file read in as cross section data is 
+        Test that the .csv file read in as cross section data is
         an openmc.microxs.MicroXS object
         '''
         microxs = self.deplete.read_microxs("examples/")
@@ -55,12 +55,18 @@ class TestDepletion(unittest.TestCase):
         assert isinstance(microxs.data, np.ndarray)
         assert isinstance(microxs.nuclides, list)
         assert isinstance(microxs.reactions, list)
-        assert microxs.reactions == ['(n,gamma)', '(n,2n)', '(n,p)', '(n,a)', '(n,3n)', '(n,4n)', 'fission']
+        assert microxs.reactions == ['(n,gamma)',
+                                     '(n,2n)',
+                                     '(n,p)',
+                                     '(n,a)',
+                                     '(n,3n)',
+                                     '(n,4n)',
+                                     'fission']
 
     def test_run_depletion(self):
         '''
-        Test the run_depletion method, which is only used in the test suite. 
-        This test makes sure that the depletion runs with the correct 
+        Test the run_depletion method, which is only used in the test suite.
+        This test makes sure that the depletion runs with the correct
         output file created.
         '''
         self.deplete.run_depletion('examples/', 10.3)
