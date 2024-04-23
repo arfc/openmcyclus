@@ -32,28 +32,15 @@ It is advised to create a new conda environment for installing all of the depend
 
 .. code-block:: bash
   
-    conda install -y gxx_linux-64 gcc_linux-64 cmake make git glib libxml2 libxmlpp-4.0 liblapack pkg-config coincbc boost-cpp hdf5 sqlite pcre setuptools pytest pytables pandas jinja2 cython websockets pprintpp pip mamba
+    ~ $ conda install -y gxx_linux-64 gcc_linux-64 cmake make git glib libxml2 libxmlpp-4.0 liblapack pkg-config coincbc boost-cpp hdf5 sqlite pcre setuptools pytest pytables pandas jinja2 cython websockets pprintpp pip mamba
 
-    HDF5_DIR=$CONDA_PREFIX \
-    pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+    ~ $ mamba install -y openmc=0.14.0 scipy=1.11
 
-    git clone https://github.com/cyclus/cyclus.git
+    ~ $ git clone https://github.com/cyclus/cyclus.git
 
-    cd cyclus
+    ~ $ cd cyclus
 
-    git checkout python-api
-
-    python install.py
-
-    mamba install -y openmc=0.14.0 scipy=1.11
-
-    cd ../
-
-    git clone https://github.com/arfc/openmcyclus.git
-
-    cd openmcyclus/
-
-    pip install .
+    ~/cyclus $ python install.py
 
 If desired, Cycamore can be installed from `here <https://github.com/cyclus/cycamore>`_. 
 Cycamore is *highly* recommended, as it contains other archetypes for creating a 
@@ -94,32 +81,27 @@ This archetype is then called during a Cyclus simulation by calling
 the ``DepleteReactor`` archetype from the ``openmcyclus.DepleteReactor`` 
 library. The input structure is:
 
-  .. code_block:: XML
+.. code-block:: xml
 
-        <DepleteReactor>
+   <DepleteReactor>
           <fuel_incommods>
             <val>string</val>
-            ...
             <val>string</val>
           </fuel_incommods>
           <fuel_prefs>
             <val>double</val>
-            ...
             <val>double</val>
           </fuel_prefs>
           <fuel_outcommods>
             <val>string</val>
-            ...
             <val>string</val>
           </fuel_outcommods>
           <fuel_inrecipes>
             <val>string</val> 
-            ...
             <val>string</val>
           </fuel_inrecipes>
           <fuel_outrecipes>
             <val>string</val> 
-            ...
             <val>string</val>
           </fuel_outrecipes>
           <assem_size>double</assem_size>
