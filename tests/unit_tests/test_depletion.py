@@ -14,17 +14,32 @@ class TestDepletion(unittest.TestCase):
         Set up the instantiation of the Deplete class
         '''
         self.deplete = Depletion(
-            "chain_endfb71_pwr.xml", 10, 100e-6)
+            "chain_endfb71_pwr.xml", 
+            10, 
+            100e-6, 
+            "examples/")
+        
+    def test_init(self):
+        '''
+        Test class initialization
+        '''
+        assert isinstance(self.deplete.materials, openmc.material.Materials)
+        assert self.deplete.materials[0].id == 5
+        assert self.deplete.materials[0].name == 'assembly_1'
+        assert self.deplete.materials[0].temperature == 900.0
 
-    def test_read_materials(self):
-        '''
-        Test when the material file is found
-        '''
-        materials = self.deplete.read_materials("examples/")
-        assert isinstance(materials, openmc.material.Materials)
-        assert materials[0].id == 5
-        assert materials[0].name == 'assembly_1'
-        assert materials[0].temperature == 900.0
+        assert isinstance(self.deplete.microxs, openmc.deplete.microxs.MicroXS)
+        assert isinstance(self.deplete.microxs.data, np.ndarray)
+        assert isinstance(self.deplete.microxs.nuclides, list)
+        assert isinstance(self.deplete.microxs.reactions, list)
+        assert self.deplete.microxs.reactions == ['(n,gamma)',
+                                     '(n,2n)',
+                                     '(n,p)',
+                                     '(n,a)',
+                                     '(n,3n)',
+                                     '(n,4n)',
+                                     'fission']
+        
 
     def test_update_materials(self):
         '''
@@ -34,8 +49,7 @@ class TestDepletion(unittest.TestCase):
         comps = [{922350000:0.05, 922380000:0.95}, 
                  {551370000:0.1, 360850000:0.8, 541350000:0.1}, 
                  {942390000:0.10, 942410000:0.9}]
-        mats = openmc.Materials.from_xml("examples/materials.xml")
-        material_ids, materials = self.deplete.update_materials(comps, mats)
+        material_ids, materials = self.deplete.update_materials(comps)
         assert materials[0].nuclides == [openmc.material.NuclideTuple('U235',0.05, 'wo'), 
                                          openmc.material.NuclideTuple('U238',0.95, 'wo')]
         assert materials[1].nuclides == [openmc.material.NuclideTuple('Cs137',0.1, 'wo'),
@@ -44,24 +58,6 @@ class TestDepletion(unittest.TestCase):
         assert materials[2].nuclides == [openmc.material.NuclideTuple('Pu239',0.10, 'wo'), 
                                          openmc.material.NuclideTuple('Pu241',0.90, 'wo')]
         assert material_ids == [5,6,7]
-
-    def test_read_microxs(self):
-        '''
-        Test that the .csv file read in as cross section data is
-        an openmc.microxs.MicroXS object
-        '''
-        microxs = self.deplete.read_microxs("examples/")
-        assert isinstance(microxs, openmc.deplete.microxs.MicroXS)
-        assert isinstance(microxs.data, np.ndarray)
-        assert isinstance(microxs.nuclides, list)
-        assert isinstance(microxs.reactions, list)
-        assert microxs.reactions == ['(n,gamma)',
-                                     '(n,2n)',
-                                     '(n,p)',
-                                     '(n,a)',
-                                     '(n,3n)',
-                                     '(n,4n)',
-                                     'fission']
 
     def test_run_depletion(self):
         '''

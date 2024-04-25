@@ -7,7 +7,8 @@ import math
 
 class Depletion(object):
     def __init__(self, chain_file: str,
-                 timesteps: int, power: float):
+                 timesteps: int, power: float,
+                 path: str):
         '''
         Class to hold objects related to calling
         :class:`~openmc.deplete.IndependentOperator`
@@ -24,32 +25,32 @@ class Depletion(object):
             the number given is in units of months. This value is
             multiplied by 30 to give a timestep in days.
         power: float
-            power output of the reactor, assumed in MWe.
+            power output of the reactor, assumed in MWth.
+        path: str
+            relative path to micro xs and materials files
+
+        Attributes:
+        -----------
+        chain_file: str
+            file name for decay chain data
+        timesteps: int
+            number of time steps to perform depletion. It is assumed that
+            the number given is in units of months. This value is
+            multiplied by 30 to give a timestep in days.
+        power: float
+            power output of the reactor, assumed in MWth.
+        microxs: od.MicroXS object
+            microscopic cross section data
+        materials: openmc.Materials object
+            OpenMC materials object for the reactor design in question.
         '''
         self.chain_file = chain_file
         self.timesteps = timesteps
         self.power = power
+        self.microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
+        self.materials = openmc.Materials().from_xml(str(path + "/materials.xml"))
 
-    def read_materials(self, path):
-        '''
-        Read in the materials file for OpenMC
-
-        Parameters:
-        -----------
-        path: str
-            path to the materials.xml file
-
-        Returns:
-        ---------
-        materials: openmc.Material object
-            Materials for OpenMC
-        '''
-        materials = openmc.Materials()
-        materials = materials.from_xml(str(path + "/materials.xml"))
-        return materials
-
-
-    def update_materials(self, comp_list, materials):
+    def update_materials(self, comp_list):
         '''
         Read in the material compositions of the fuel assemblies present
         in the reactor to be transmuted. Then modify the composition of
@@ -77,7 +78,7 @@ class Depletion(object):
 
         '''
         material_ids = []
-        for index, material in enumerate(materials):
+        for index, material in enumerate(self.materials):
             if 'assembly_' in material.name:
                 material_ids.append(material.id)
                 material.nuclides.clear()
@@ -87,28 +88,9 @@ class Depletion(object):
                     m = nuclide - Z * int(1e7) - A * int(1e4)
                     nucname = openmc.data.gnds_name(Z, A, m)
                     material.add_nuclide(nucname, percent, percent_type='wo')
-        mats = materials
+        mats = self.materials
 
         return material_ids, mats
-
-    def read_microxs(self, path):
-        '''
-        Reads .csv file with microscopic cross sections. The
-        csv file is assumed to be named "micro_xs.csv". This will need to
-        be relative to Cyclus input file location
-
-        Parameters:
-        -----------
-        path: str
-            path of directory holding the files for/from OpenMC        
-
-        Returns:
-        --------
-        microxs: object
-            microscopic cross section data
-        '''
-        microxs = od.MicroXS.from_csv(str(path + "micro_xs.csv"))
-        return microxs
 
     def run_depletion(self, path, flux):
         '''
@@ -127,11 +109,9 @@ class Depletion(object):
         depletion_results.h5: database
             HDF5 data base with the results of the depletion simulation
         '''
-        materials = self.read_materials(path)
-        micro_xs = self.read_microxs(path)
-        ind_op = od.IndependentOperator(materials,
-                                        [np.array([flux])]*len(materials),
-                                        [micro_xs]*len(materials),
+        ind_op = od.IndependentOperator(self.materials,
+                                        [np.array([flux])]*len(self.materials),
+                                        [self.microxs]*len(self.materials),
                                         str(path + self.chain_file))
         ind_op.output_dir = path
         integrator = od.PredictorIntegrator(
@@ -162,7 +142,7 @@ class Depletion(object):
             list of the compositions from the OpenMC model
         '''
         results = od.Results(path + "depletion_results.h5")
-        nuclides = od.MicroXS.from_csv(path+"micro_xs.csv").nuclides
+        nuclides = self.microxs.nuclides
         spent_comps = []
         for material_id in material_ids:
             comp = {}
