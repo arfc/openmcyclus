@@ -8,12 +8,12 @@ serves as a guide for making contributions to this archetype library.
 General Notes
 =============
 OpenMCyclus relies on Cyclus and OpenMC, so familiarity with using both is 
-recommened. Please refer to the `Cyclus website <http://fuelcycle.org>`_ and 
+recommended. Please refer to the `Cyclus website <http://fuelcycle.org>`_ and 
 `OpenMC documenatation <https://docs.openmc.org/en/v0.14.0/index.html>`_ for 
 information about each code.
 
 Contributions to this software are made via GitHub, so familiarity with 
-git and the GitHub API are recommended. Resources for installing 
+git is recommended. Resources for installing 
 and using git and GitHub include:
 
 * The `git website <https://git-scm.com/>`_
@@ -25,9 +25,9 @@ and using git and GitHub include:
 
 The general steps for contributing to OpenMCyclus are:
 
-1. Create a fork of the ARFC repository
+1. Create a fork of the OpenMCyclus repository
 2. Create a new branch on your fork, keeping the `main` branch clean and 
-   up-to-date with the ARFC repository `main` branch
+   up-to-date with the ARFC version of the repository `main` branch
 3. Make your desired changes on your new branch
 4. Make sure all of the tests pass. You can run the tests locally, or they will 
    run in the CI (via GitHub Actions) when you push changes
@@ -50,7 +50,7 @@ merge the pull request.
 
 Running tests:
 ==============
-pytest is used for all tests. Tests should be run from the upper-most 
+pytest is used for all tests. Tests should be run from the top-level 
 directory of this repository using:
 
   .. code-block:: bash

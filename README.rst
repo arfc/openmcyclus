@@ -13,7 +13,7 @@ Dependencies
 You will need to have `Cyclus <https://fuelcycle.org/>`_, `OpenMC <https://docs.openmc.org>`_, 
 and their required dependencies. Both are available via conda binaries or can 
 be installed from source via their github repositories. Please note 
-the versions listed below, as these are required versions, not minimum versions. 
+the versions listed below, as these are *required versions, not minimum versions*. 
 
 +---------------+----------+
 | Dependency    | Version  |
