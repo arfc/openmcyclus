@@ -284,8 +284,8 @@ class DepleteReactor(Facility):
         Also defines a list for the input commodity preferences if
         not are provided by the user.
 
-        Establish the openmc.deplete.MicroXs and openmc.Materials 
-        objects for use in simulation. 
+        Establish the openmc.deplete.MicroXs and openmc.Materials
+        objects for use in simulation.
         '''
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
