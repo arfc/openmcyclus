@@ -68,12 +68,8 @@ class Depletion(object):
         --------
         material_ids: list of strs
             material id numbers for the OpenMC model
-
-        Outputs:
-        --------
-        materials.xml: file
-            updated XML for OpenMC with new compositions
-
+        mats: openmc.Materials()
+            updated material object
         '''
 
         material_ids = []
@@ -94,12 +90,12 @@ class Depletion(object):
     def run_depletion(self, flux, materials, microxs):
         '''
         Run the IndependentOperator class in OpenMC to perform
-        transport-independent depletion. This method is only 
-        used in the test suite, and not in the OpenMCyclus 
+        transport-independent depletion. This method is only
+        used in the test suite, and not in the OpenMCyclus
         archetype
 
         Parameters:
-        -----------        
+        -----------
         flux: float
             flux through nuclear fuel
         materials: openmc.Materials()
@@ -113,13 +109,13 @@ class Depletion(object):
             HDF5 data base with the results of the depletion simulation
         '''
         ind_op = od.IndependentOperator(materials,
-                                        [np.array([flux])]*len(materials),
-                                        [microxs]*len(materials),
+                                        [np.array([flux])] * len(materials),
+                                        [microxs] * len(materials),
                                         str(self.path + self.chain_file))
         ind_op.output_dir = self.path
         integrator = od.PredictorIntegrator(
             ind_op,
-            np.ones(self.timesteps)*30,
+            np.ones(self.timesteps) * 30,
             power=self.power *
             1e6,
             timestep_units='d')
@@ -129,13 +125,16 @@ class Depletion(object):
 
     def get_spent_comps(self, material_ids, microxs):
         '''
-        Creates a list of each of the spent fuel compositions from the 
+        Creates a list of each of the spent fuel compositions from the
         OpenMC depletion
 
         Parameters:
         -----------
         material_id: list of strs
             material ids for the assembly materials in the OpenMC model
+        microxs: openmc.deplete.MicroXS
+            microscopic cross section data, used to loop over nuclides
+            of interest.
 
         Returns:
         --------
@@ -152,6 +151,6 @@ class Depletion(object):
                 mass = results.get_mass(str(material_id), nuclide)[-1][-1]
                 if mass <= 1e-10:
                     continue
-                comp.update({Z*int(1e7)+A*int(1e4) + m :mass})
+                comp.update({Z * int(1e7) + A * int(1e4) + m: mass})
             spent_comps.append(comp)
         return spent_comps
