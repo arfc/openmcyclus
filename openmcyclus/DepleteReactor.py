@@ -186,7 +186,8 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size * self.n_assem_spent
         self.cycle_step = 0
         self.deplete = Depletion(self.chain_file,
-                                 self.cycle_time, self.thermal_power)
+                                 self.cycle_time, self.thermal_power,
+                                 self.model_path)
         self.fresh_fuel.capacity = self.n_assem_fresh * self.assem_size
         self.core.capacity = self.n_assem_core * self.assem_size
         self.spent_fuel.capacity = self.n_assem_spent * self.assem_size
@@ -282,6 +283,9 @@ class DepleteReactor(Facility):
         Calls the enter_notify method of the parent class.
         Also defines a list for the input commodity preferences if
         not are provided by the user.
+
+        Establish the openmc.deplete.MicroXs and openmc.Materials 
+        objects for use in simulation. 
         '''
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
@@ -640,7 +644,7 @@ class DepleteReactor(Facility):
                                             timestep_units='d')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(
-            material_ids, self.model_path)
+            material_ids)
         for assembly, spent_comp in zip(assemblies, spent_comps): 
             self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
             self.spent_comps = np.append(self.spent_comps, spent_comp)
