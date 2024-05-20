@@ -32,9 +32,9 @@ It is advised to create a new conda environment for installing all of the depend
 
 .. code-block:: bash
   
-    ~ $ conda install -y gxx_linux-64 gcc_linux-64 cmake make git glib libxml2 libxmlpp-4.0 liblapack pkg-config coincbc boost-cpp hdf5 sqlite pcre setuptools pytest pytables pandas jinja2 cython websockets pprintpp pip mamba
+    ~ $ conda install -y mamba
 
-    ~ $ mamba install -y openmc=0.14.0 scipy=1.11
+    ~ $ mamba install -y cyclus openmc=0.14.0 scipy=1.11
 
     ~ $ git clone https://github.com/cyclus/cyclus.git
 
@@ -42,8 +42,8 @@ It is advised to create a new conda environment for installing all of the depend
 
     ~/cyclus $ python install.py
 
-If desired, Cycamore can be installed from `here <https://github.com/cyclus/cycamore>`_. 
-Cycamore is *highly* recommended, as it contains other archetypes for creating a 
+If desired, Cycamore can be installed from `source <https://github.com/cyclus/cycamore>`_ 
+or from Conda/Mamba. Cycamore is *highly* recommended, as it contains other archetypes for creating a 
 fuel cycle model in Cyclus, but it is not a dependency for OpenMCyclus. 
 
 Install OpenMCyclus
