@@ -1,11 +1,9 @@
 name: test-openmcyclus
-on: [pull_request]
+on: [pull_request, push]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container:
-      image: cyclus/cycamore
     defaults: 
       run:
         shell: bash -l {0}
@@ -18,34 +16,24 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: environment.yml
           use-mamba: true
 
       - name: Conda config
         run: |
           conda config --env --set pip_interop_enabled True 
       
-      - name: Update Environment
+      - name: Install dependencies
         run: |
-          pip install pytest
-          mamba env update -n openmcyclus-env -f environment.yml
+          mamba install -y cycamore openmc scipy=1.11 pytest
 
       - name: Install OpenMC cross section library
-        run: $GITHUB_WORKSPACE/openmc-xs.bash
-
-      - name: Install OpenMC from Mamba
-        run: mamba install openmc
-
-      - name: Install OpenMC cross section library
-        run: echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
+        run: |
+        $GITHUB_WORKSPACE/openmc-xs.bash
+        echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
 
       - name: Install OpenMCyclus
         run: |
           pip install .
-
-#      - name: Check environment
-#        run: |
-#          pip install pytest
 
 #      - name: Run Tests
 #        run: |

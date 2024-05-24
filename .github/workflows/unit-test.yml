@@ -16,7 +16,6 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           activate-environment: openmcyclus-env
-          environment-file: environment.yml
           use-mamba: true
 
       - name: Conda config
@@ -25,7 +24,7 @@ jobs:
 
       - name: Install OpenMC from Mamba
         run:
-          mamba install openmc scipy=1.11
+          mamba install openmc scipy=1.11 pytest
 
       - name: Install OpenMC cross section library
         run: |
