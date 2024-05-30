@@ -282,9 +282,9 @@ class DepleteReactor(Facility):
         '''
         Calls the enter_notify method of the parent class.
         Also defines a list for the input commodity preferences if
-        not are provided by the user.
+        none are provided by the user.
 
-        Establish the openmc.deplete.MicroXs and openmc.Materials
+        Establish the openmc.deplete.MicroXSxz and openmc.Materials
         objects for use in simulation.
         '''
         super().enter_notify()
