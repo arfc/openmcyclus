@@ -45,7 +45,7 @@ class TestDepletion(unittest.TestCase):
                                         [np.array([flux])] * len(self.materials),
                                         [self.micro_xs] * len(self.materials),
                                         str(self.deplete.path + self.deplete.chain_file))
-        ind_op.output_dir = self.path
+        ind_op.output_dir = self.deplete.path
         integrator = od.PredictorIntegrator(
             ind_op,
             np.ones(self.deplete.timesteps) * 30,
@@ -84,7 +84,7 @@ class TestDepletion(unittest.TestCase):
         This test makes sure that the depletion runs with the correct
         output file created.
         '''
-        self.run_depletion(10.3, self.materials, self.micro_xs)
+        self.run_depletion(10.3)
         assert os.path.isfile('examples/depletion_results.h5')
         os.system('rm examples/depletion_results.h5')
 
@@ -94,7 +94,7 @@ class TestDepletion(unittest.TestCase):
         First, the materials are defined and then depletion is run to prevent
         having to store an HDF5 database in the repo
         '''
-        self.deplete.run_depletion(10.3, self.materials, self.micro_xs)
+        self.run_depletion(10.3)
         spent_comps = self.deplete.get_spent_comps(
             ['5', '6', '7'], self.micro_xs)
         assert 551370000 in spent_comps[0].keys()
