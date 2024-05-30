@@ -145,6 +145,6 @@ Outputs
 The results of the simulation will be written to `cyclus.sqlite`
 or the file name provided when Cyclus was called. 
 
-.. [1] Directions on OpenMC install from source taken from:
-  https://docs.openmc.org/en/stable/quickinstall.html, consult this
-  page for the most up to date instructions. 
+.. [1] More installation options and instructions for installing OpenMC
+  can be found at https://docs.openmc.org/en/stable/quickinstall.html
+  
