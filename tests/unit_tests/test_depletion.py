@@ -31,14 +31,10 @@ class TestDepletion(unittest.TestCase):
         -----------
         flux: float
             flux through nuclear fuel
-        materials: openmc.Materials()
-            material definitions to deplete
-        microxs: openmc.deplete.MicroXS
-            microscopic cross section data
 
         Outputs:
         --------
-        depletion_results.h5: database
+        depletion_results.h5: HDF5 database
             HDF5 data base with the results of the depletion simulation
         '''
         ind_op = od.IndependentOperator(self.materials,

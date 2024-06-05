@@ -40,7 +40,7 @@ class Depletion(object):
         power: float
             power output of the reactor, assumed in MWth.
         path: str
-            relative path to micro xs and materials files
+            relative path to micro_xs.csv and materials.xml files
 
         '''
         self.chain_file = chain_file
@@ -68,7 +68,7 @@ class Depletion(object):
         --------
         material_ids: list of strs
             material id numbers for the OpenMC model
-        materials: openmc.Materials()
+        materials: openmc.Materials
             updated material object
         '''
 
