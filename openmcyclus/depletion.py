@@ -40,7 +40,7 @@ class Depletion(object):
         power: float
             power output of the reactor, assumed in MWth.
         path: str
-            relative path to micro xs and materials files
+            relative path to micro_xs.csv and materials.xml files
 
         '''
         self.chain_file = chain_file
@@ -68,7 +68,7 @@ class Depletion(object):
         --------
         material_ids: list of strs
             material id numbers for the OpenMC model
-        mats: openmc.Materials()
+        materials: openmc.Materials
             updated material object
         '''
 
@@ -83,45 +83,8 @@ class Depletion(object):
                     m = nuclide - Z * int(1e7) - A * int(1e4)
                     nucname = openmc.data.gnds_name(Z, A, m)
                     material.add_nuclide(nucname, percent, percent_type='wo')
-        mats = materials
 
-        return material_ids, mats
-
-    def run_depletion(self, flux, materials, microxs):
-        '''
-        Run the IndependentOperator class in OpenMC to perform
-        transport-independent depletion. This method is only
-        used in the test suite, and not in the OpenMCyclus
-        archetype
-
-        Parameters:
-        -----------
-        flux: float
-            flux through nuclear fuel
-        materials: openmc.Materials()
-            material definitions to deplete
-        microxs: openmc.deplete.MicroXS
-            microscopic cross section data
-
-        Outputs:
-        --------
-        depletion_results.h5: database
-            HDF5 data base with the results of the depletion simulation
-        '''
-        ind_op = od.IndependentOperator(materials,
-                                        [np.array([flux])] * len(materials),
-                                        [microxs] * len(materials),
-                                        str(self.path + self.chain_file))
-        ind_op.output_dir = self.path
-        integrator = od.PredictorIntegrator(
-            ind_op,
-            np.ones(self.timesteps) * 30,
-            power=self.power *
-            1e6,
-            timestep_units='d')
-        integrator.integrate()
-
-        return
+        return material_ids, materials
 
     def get_spent_comps(self, material_ids, microxs):
         '''
