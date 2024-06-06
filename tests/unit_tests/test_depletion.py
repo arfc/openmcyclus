@@ -19,7 +19,8 @@ class TestDepletion(unittest.TestCase):
             10,
             100e-6,
             "./examples/")
-        self.materials = openmc.Materials().from_xml("./examples/materials.xml")
+        self.materials = openmc.Materials().from_xml(
+            "./examples/materials.xml")
         self.micro_xs = od.MicroXS.from_csv("./examples/micro_xs.csv")
 
     def run_depletion(self, flux):
