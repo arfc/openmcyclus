@@ -117,6 +117,21 @@ class DepleteReactor(Facility):
         range=[0.0, 2000.00],
         default=0
     )
+    thermal_power = ts.Double(
+        default=0.0,
+        uilabel="Thermal power output of the reactor (MWth)",
+        tooltip="Thermal power output of the reactor (MWth)",
+        units="MWth",
+        uitype='range',
+        range=[0.0, 10000.0],
+    )
+
+    flux = ts.Double(
+        default=0.0,
+        uilabel="Flux through materials for depletion calculation",
+        tooltip="Flux through materials for depletion calculation",
+        units='n/cm2s',
+    )
 
     power_name = ts.String(
         default="power",
@@ -171,12 +186,12 @@ class DepleteReactor(Facility):
         self.spent_fuel.capacity = self.assem_size * self.n_assem_spent
         self.cycle_step = 0
         self.deplete = Depletion(self.chain_file,
-                                 self.cycle_time, self.power_cap)
+                                 self.cycle_time, self.thermal_power,
+                                 self.model_path)
         self.fresh_fuel.capacity = self.n_assem_fresh * self.assem_size
         self.core.capacity = self.n_assem_core * self.assem_size
         self.spent_fuel.capacity = self.n_assem_spent * self.assem_size
         self.materials = openmc.Materials()
-        self.micro_xs = od.MicroXS()
         self.fresh_comps = np.array([])
         self.spent_comps = np.array([])
         
@@ -267,7 +282,10 @@ class DepleteReactor(Facility):
         '''
         Calls the enter_notify method of the parent class.
         Also defines a list for the input commodity preferences if
-        not are provided by the user.
+        none are provided by the user.
+
+        Establish the openmc.deplete.MicroXS and openmc.Materials
+        objects for use in simulation.
         '''
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
@@ -609,63 +627,29 @@ class DepleteReactor(Facility):
         '''
         assemblies = self.core.pop_n(self.core.count)
         self.core.push_many(assemblies)
-        ss = str(len(assemblies)) + " assemblies"
+        # ss = str(len(assemblies)) + " assemblies"
         # self.record("TRANSMUTE", ss)
-        if self.check_existing_recipes(assemblies) == True:
-            for assembly in assemblies:
-                index = np.where(self.fresh_comps == assembly.comp())
-                assembly.transmute(self.spent_comps[index[0][0]])
-            return
         comp_list = [assembly.comp() for assembly in assemblies]
         material_ids, materials = self.deplete.update_materials(
             comp_list, self.materials)
         ind_op = od.IndependentOperator(
-            materials, self.micro_xs, str(
-                self.model_path + self.chain_file))
+                    materials,
+                    [np.array([self.flux])]*len(materials),
+                    [self.micro_xs]*len(materials),
+                    str(self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
-        integrator = od.PredictorIntegrator(ind_op, np.ones(
-            int(self.cycle_time)) * 30, power=self.power_cap * 1e6,
-            timestep_units='d')
+        integrator = od.PredictorIntegrator(ind_op,
+                                            np.ones(int(self.cycle_time)) * 30,
+                                            power=self.thermal_power * 1e6,
+                                            timestep_units='d')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(
-            material_ids, self.model_path)
+            material_ids)
         for assembly, spent_comp in zip(assemblies, spent_comps): 
             self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
             self.spent_comps = np.append(self.spent_comps, spent_comp)
             assembly.transmute(spent_comp)
         return
-    
-    def check_existing_recipes(self, assemblies):
-        '''
-        Compare the compositions of assemblies to the arrays 
-        of previously seen beginning of cycle compositions. 
-        If all of the compositions have been seen before 
-        (are in the self.fresh_comps array) then return 
-        True. This function is designed to speed up 
-        the simulation to prevent needlessly repeating 
-        depletion runs. 
-
-        Parameters:
-        -----------
-        assemblies: list of dicts
-            compositions of assemblies at beginning of cycle
-        
-        Returns:
-        --------
-        Boolean
-            True if all compositions are in self.fresh_comps, 
-            False otherwise.         
-        '''
-        recipes_exist = []
-        for assembly in assemblies:
-            if assembly.comp() in self.fresh_comps:
-                recipes_exist.append(True)
-            else:
-                recipes_exist.append(False)
-        if all(recipes_exist) == True:
-            return True
-        else:
-            return False
 
     def record(self, event, val):
         '''

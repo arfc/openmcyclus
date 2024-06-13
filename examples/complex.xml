@@ -107,6 +107,8 @@
             <power_cap>100</power_cap>
             <model_path>./examples/</model_path>
             <chain_file>chain_endfb71_pwr.xml</chain_file>
+            <thermal_power>100</thermal_power>
+            <flux>10.4</flux>
           </DepleteReactor>
         </config>
     </facility>

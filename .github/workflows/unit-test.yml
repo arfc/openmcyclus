@@ -1,0 +1,42 @@
+name: unit-tests
+on: [pull_request, push]
+
+jobs:
+  build-and-unit-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: openmcyclus-env
+          environment-file: environment.yml
+          use-mamba: true
+
+      - name: Conda config
+        run: |
+          conda config --env --set pip_interop_enabled True 
+
+      - name: Install OpenMC from Mamba
+        run:
+          mamba install openmc scipy=1.11
+
+      - name: Install OpenMC cross section library
+        run: |
+          $GITHUB_WORKSPACE/openmc-xs.bash
+          echo "OPENMC_CROSS_SECTIONS=cross_sections.xml" >> $GITHUB_ENV
+
+      - name: Install OpenMCyclus
+        run: 
+          pip install .
+      
+      - name: Run Tests
+        run:
+         pytest tests/unit_tests/test_depletion.py
+        
