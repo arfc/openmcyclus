@@ -11,8 +11,6 @@ env:
 jobs:
   check_changelog_update:
     runs-on: ubuntu-latest
-    container:
-      image: alpine:3.14
 
     name: Check if Changelog has been updated
     steps:
