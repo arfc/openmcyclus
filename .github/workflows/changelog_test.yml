@@ -1,4 +1,4 @@
-name: Changelog check
+name: Changelog update check
 
 on:
   # allows us to run workflows manually
@@ -9,12 +9,12 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  changelog_update:
+  check_changelog_update:
     runs-on: ubuntu-latest
     container:
       image: alpine:3.14
 
-    name: Is Changelog up-to-date ?
+    name: Check if Changelog has been updated
     steps:
       - name: Install latest git
         run: |
