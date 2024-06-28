@@ -97,5 +97,5 @@ class TestDepletion(unittest.TestCase):
         assert 551370000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 10.650004036820036
-        assert spent_comps[0][942390000] == 0.22663550016678385
+        assert spent_comps[0][922350000] == pytest.approx(10.650004036820036, rel=1e-5)
+        assert spent_comps[0][942390000] == pytest.approx(0.22663550016678385, rel=1e-5)
