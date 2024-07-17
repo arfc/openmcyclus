@@ -19,7 +19,8 @@ class TestDepletion(unittest.TestCase):
             10,
             100e-6,
             "./examples/")
-        self.materials = openmc.Materials().from_xml("./examples/materials.xml")
+        self.materials = openmc.Materials().from_xml(
+            "./examples/materials.xml")
         self.micro_xs = od.MicroXS.from_csv("./examples/micro_xs.csv")
 
     def run_depletion(self, flux):
@@ -66,11 +67,11 @@ class TestDepletion(unittest.TestCase):
             openmc.material.NuclideTuple('U235', 0.05, 'wo'),
             openmc.material.NuclideTuple('U238', 0.95, 'wo')]
         assert materials[1].nuclides == [
-            openmc.material.NuclideTuple('Cs137', 0.1, 'wo'), 
-            openmc.material.NuclideTuple('Kr85', 0.80, 'wo'), 
+            openmc.material.NuclideTuple('Cs137', 0.1, 'wo'),
+            openmc.material.NuclideTuple('Kr85', 0.80, 'wo'),
             openmc.material.NuclideTuple('Xe135', 0.10, 'wo')]
         assert materials[2].nuclides == [
-            openmc.material.NuclideTuple('Pu239', 0.10, 'wo'), 
+            openmc.material.NuclideTuple('Pu239', 0.10, 'wo'),
             openmc.material.NuclideTuple('Pu241', 0.90, 'wo')]
         assert material_ids == [5, 6, 7]
 
@@ -96,5 +97,7 @@ class TestDepletion(unittest.TestCase):
         assert 551370000 in spent_comps[0].keys()
         assert 922350000 in spent_comps[0].keys()
         assert 932410000 not in spent_comps[0].keys()
-        assert spent_comps[0][922350000] == 10.650004036820036
-        assert spent_comps[0][942390000] == 0.22663550016678385
+        assert spent_comps[0][922350000] == pytest.approx(
+            10.650004036820036, rel=1e-5)
+        assert spent_comps[0][942390000] == pytest.approx(
+            0.22663550016678385, rel=1e-5)

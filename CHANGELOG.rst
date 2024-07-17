@@ -13,13 +13,13 @@ Since last release:
 * Add input parameters to `DepleteReactor` for the thermal 
   power (instead of just using `power_cap`) and flux 
   (required input for running OpenMC with new version) (#18)
-* Add CI test for if CHANGELOG has been updated (#21)
+* Add CI test to check if CHANGELOG has been updated (#21)
 
 **Changed:**
 
 * Change OpenMC dependency to v0.14.0, which includes adding 
   parameters for using `DepleteReactor` (#18)
-* Simplifiy CI build environment, using conda builds instead of 
+* Simplify CI build environment, using conda builds instead of 
   building from source (#21)
 * Depletion time steps are based on `dt` parameter of Cyclus 
   input (which is in seconds) instead of assuming 30 day time steps (#22)
@@ -29,7 +29,7 @@ Since last release:
 
 * Remove `check_existing_recipes` method in `DepleteReactor` (#18)
 * Remove various files in repo that are no longer used for building 
-  CI enviroment (#21)
+  CI environment (#21)
 
 **Fixed:**
 
