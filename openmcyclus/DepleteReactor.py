@@ -194,7 +194,6 @@ class DepleteReactor(Facility):
         self.materials = openmc.Materials()
         self.fresh_comps = np.array([])
         self.spent_comps = np.array([])
-        
 
     def tick(self):
         '''
@@ -290,8 +289,10 @@ class DepleteReactor(Facility):
         super().enter_notify()
         if len(self.fuel_prefs) == 0:
             self.fuel_prefs = [1] * len(self.fuel_incommods)
-        self.materials = self.materials.from_xml(str(self.model_path + "materials.xml"))
-        self.micro_xs = od.MicroXS.from_csv(str(self.model_path + "micro_xs.csv"))
+        self.materials = self.materials.from_xml(
+            str(self.model_path + "materials.xml"))
+        self.micro_xs = od.MicroXS.from_csv(
+            str(self.model_path + "micro_xs.csv"))
 
         self.record_position()
 
@@ -633,19 +634,20 @@ class DepleteReactor(Facility):
         material_ids, materials = self.deplete.update_materials(
             comp_list, self.materials)
         ind_op = od.IndependentOperator(
-                    materials,
-                    [np.array([self.flux])]*len(materials),
-                    [self.micro_xs]*len(materials),
-                    str(self.model_path + self.chain_file))
+            materials,
+            [np.array([self.flux])] * len(materials),
+            [self.micro_xs] * len(materials),
+            str(self.model_path + self.chain_file))
         ind_op.output_dir = self.model_path
         integrator = od.PredictorIntegrator(ind_op,
-                                            np.ones(int(self.cycle_time)) * 30,
+                                            np.ones(int(self.cycle_time)
+                                                    ) * self.context.dt,
                                             power=self.thermal_power * 1e6,
-                                            timestep_units='d')
+                                            timestep_units='s')
         integrator.integrate()
         spent_comps = self.deplete.get_spent_comps(
             material_ids)
-        for assembly, spent_comp in zip(assemblies, spent_comps): 
+        for assembly, spent_comp in zip(assemblies, spent_comps):
             self.fresh_comps = np.append(self.fresh_comps, assembly.comp())
             self.spent_comps = np.append(self.spent_comps, spent_comp)
             assembly.transmute(spent_comp)

@@ -21,6 +21,8 @@ Since last release:
   parameters for using `DepleteReactor` (#18)
 * Simplify CI build environment, using conda builds instead of 
   building from source (#21)
+* Depletion time steps are based on `dt` parameter of Cyclus 
+  input (which is in seconds) instead of assuming 30 day time steps (#22)
 
 
 **Removed:**
