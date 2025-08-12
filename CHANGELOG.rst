@@ -14,6 +14,7 @@ Since last release:
   power (instead of just using `power_cap`) and flux 
   (required input for running OpenMC with new version) (#18)
 * Add CI test to check if CHANGELOG has been updated (#21)
+* Added snapshot_inv() and init_inv() to DepleteReactor.py (#23)
 
 **Changed:**
 
@@ -33,6 +34,7 @@ Since last release:
 
 **Fixed:**
 
+* Fixed the sudden loss of core count in the Tick step when the <explicit_inventroy> flag is on.
 
 v 0.1.0
 =========

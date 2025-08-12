@@ -343,7 +343,7 @@ class DepleteReactor(Facility):
         ports: list of dictionaries
             Format: [{"commodities":
                       [{commod_name(str):Material object,
-                        "preference":int/float,
+                        "preference":int/float, 
                         "exclusive":Bool}, ...],
                       "constraints:int/float}, ...]
             Defines the request portfolio for the facility.
@@ -589,7 +589,6 @@ class DepleteReactor(Facility):
                 tot_spent += mats.quantity
                 lib.record_time_series(
                     "supply" + self.fuel_outcommods[ii], self, tot_spent)
-
         return True
 
     def load(self):
@@ -843,3 +842,22 @@ class DepleteReactor(Facility):
         position_table.add_val("AgentId", self.id, None, "int")
         position_table.add_val("Latitude", self.latitude, None, "double")
         position_table.add_val("Longitude", self.longitude, None, "double")
+
+
+    def snapshot_inv(self):
+        """returns a dictionary of current inventories"""
+        invs = {
+                "fresh_fuel": list(self.fresh_fuel),
+                "core": list(self.core),
+                "spent_fuel": list(self.spent_fuel)
+                }
+        return invs
+
+    def init_inv(self,invs):
+        """intialized facility inventories"""
+        if "fresh_fuel" in invs:
+            self.fresh_fuel.push_many(invs["fresh_fuel"])
+        if "core" in invs:
+            self.core.push_many(invs["core"])
+        if "spent_fuel" in invs:
+            self.spent_fuel.push_many(invs["spent_fuel"])
